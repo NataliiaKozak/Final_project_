@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { IPost } from "./PostModel"; //  чтобы типизировать posts виртуально
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -9,7 +10,8 @@ export interface IUser extends Document {
   fullName: string;
   bio?: string;
   profile_image?: string;
-  posts?: Types.ObjectId[]; // или IPost[] после populate
+  // posts?: Types.ObjectId[]; // или IPost[] после populate
+  posts?: IPost[];
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -67,6 +69,7 @@ UserSchema.virtual('followingCount').get(function (this: IUser) {
   return this.following.length;
 });
 
+// чтобы virtual попадали в JSON
 UserSchema.set('toJSON', { virtuals: true });
 UserSchema.set('toObject', { virtuals: true });
 

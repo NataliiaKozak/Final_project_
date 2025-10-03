@@ -38,15 +38,24 @@ export const getUserPosts = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = req.params; //из URL (/posts/user/:userId)
+    const { userId } = req.params; //из URL /api/posts/user/:userId
 
-    const user = await User.findById(userId).populate('posts'); //Ищем пользователя в базе и сразу подтягиваем его posts через populate
+    // const user = await User.findById(userId).populate('posts'); //Ищем пользователя в базе и сразу подтягиваем его posts через populate
+    // изменение из-за виртуального поля posts в UserModel.ts. Posts теперь берутся через виртуалку в UserModel
+    const user = await User.findById(userId)
+      .populate({
+        path: "posts",
+        populate: { path: "author", select: "username profile_image" }, // подтянем автора в каждом посте
+      })
+      .select("username profile_image fullName posts"); // отдаем только нужное, мы исключаем пароль и ненужные поля
+    
+    
     if (!user) {
       res.status(404).json({ message: 'Пользователь не найден' });
       return;
     }
 
-    res.json(user.posts);
+    res.json(user.posts); 
   } catch (err: unknown) {
     const error = err as Error;
     res
