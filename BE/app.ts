@@ -1,0 +1,50 @@
+import express, { Application, Request, Response, NextFunction } from "express";
+import cors from "cors";
+
+import authRoutes from "./src/routes/authRoutes.ts";
+import userRoutes from "./src/routes/userRoutes.ts";
+import postRoutes from "./src/routes/postRoutes.ts";
+import likeRoutes from "./src/routes/likeRoutes.ts";
+import commentRoutes from "./src/routes/commentRoutes.ts";
+import searchRoutes from "./src/routes/searchRoutes.ts";
+import subscriptionRoutes from "./src/routes/subscriptionRoutes.ts";
+import notificationRoutes from "./src/routes/notificationRoutes.ts";
+
+const app: Application = express();
+
+// cors. Разрешить только фронту с 3001 порта
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3001', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, 
+}));
+
+app.use(express.json());// для JSON
+app.use(express.urlencoded({ extended: true }));// для форм
+// app.use(cookieParser());
+
+// роуты
+app.get('/api/data', (req: Request, res: Response) => {
+  res.json({ message: 'CORS работает!' });
+});
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/likes", likeRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/notifications", notificationRoutes);
+
+// обработчик ошибок
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error("Ошибка сервера:", err.message);
+  res.status(500).json({ message: "Ошибка сервера", error: err.message });
+});
+
+export default app;
+
+
+//Заметки
+// app.use(express.json({ limit: '10mb' })); // important for big base64 images
+// app.get('/api/health', (_req, res) => res.json({ ok: true }));
