@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { IPost } from "./PostModel"; //  чтобы типизировать posts виртуально
+import { IPost } from './PostModel'; //  чтобы типизировать posts виртуально
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -10,7 +10,8 @@ export interface IUser extends Document {
   fullName: string;
   bio?: string;
   profile_image?: string;
-  // posts?: Types.ObjectId[]; // или IPost[] после populate
+  website?: string;
+  // posts?: Types.ObjectId[]; // или IPost[]
   posts?: IPost[];
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
@@ -27,6 +28,7 @@ const UserSchema = new Schema<IUser>(
     fullName: { type: String, required: true },
     bio: { type: String, default: '' },
     profile_image: { type: String, default: '' },
+    website: { type: String, default: "" },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
     following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   },

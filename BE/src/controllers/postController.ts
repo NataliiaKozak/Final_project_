@@ -6,7 +6,7 @@ import User from '../models/UserModel';
 import { RequestWithUser } from '../middlewares/authMiddleware'; //расширенный тип запроса (с req.user).
 import { uploadToS3 } from '../config/s3'; //функция для загрузки изображений в Amazon S3
 
-// Хранилище для multer (память, потом → S3)
+// Multer storage. Хранилище для multer (память, потом → S3)
 const storage = multer.memoryStorage();
 export const upload = multer({
   storage,
@@ -23,6 +23,9 @@ export const getAllPosts = async (
     const posts = await Post.find() //достаём все посты из базы
       .populate('author', 'username profile_image') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
       .sort({ createdAt: -1 }); //новые сверху
+
+    // Виртуальные поля (likesCount, commentsCount) добавятся автоматически
+
     res.json(posts); //Отправляем клиенту список постов
   } catch (err: unknown) {
     const error = err as Error;
@@ -40,22 +43,44 @@ export const getUserPosts = async (
   try {
     const { userId } = req.params; //из URL /api/posts/user/:userId
 
-    // const user = await User.findById(userId).populate('posts'); //Ищем пользователя в базе и сразу подтягиваем его posts через populate
-    // изменение из-за виртуального поля posts в UserModel.ts. Posts теперь берутся через виртуалку в UserModel
-    const user = await User.findById(userId)
-      .populate({
-        path: "posts",
-        populate: { path: "author", select: "username profile_image" }, // подтянем автора в каждом посте
-      })
-      .select("username profile_image fullName posts"); // отдаем только нужное, мы исключаем пароль и ненужные поля
-    
-    
-    if (!user) {
-      res.status(404).json({ message: 'Пользователь не найден' });
+    //     const user = await User.findById(userId).populate('posts'); //Ищем пользователя в базе и сразу подтягиваем его posts через populate
+    //     изменение из-за виртуального поля posts в UserModel.ts. Posts теперь берутся через виртуалку в UserModel
+    //     const user = await User.findById(userId)
+    //       .populate({
+    //         path: "posts",
+    //         populate: { path: "author", select: "username profile_image" }, // подтянем автора в каждом посте
+    //       })
+    //       .select("username profile_image fullName posts"); // отдаем только нужное, мы исключаем пароль и ненужные поля
+
+    //        if (!user) {
+    //       res.status(404).json({ message: 'Пользователь не найден' });
+    //       return;
+    //     }
+
+    //     res.json(user.posts);
+    //   } catch (err: unknown) {
+    //     const error = err as Error;
+    //     res
+    //       .status(500)
+    //       .json({ message: 'Ошибка при получении постов', error: error.message });
+    //   }
+    // };
+
+    // populate('posts') немного тяжелее по производительности, чем Post.find({ author: userId }), потому что:
+    // populate делает два запроса (ищет User, потом Post). // Post.find делает сразу прямой запрос.
+    // Если нам нужно вернуть профиль пользователя вместе с постами → лучше использовать populate("posts").
+    // Если мы хотим отдельный эндпоинт только для постов → лучше Post.find({ author }).
+
+    // В нашем UserModel нет массива posts (без user.posts) → ищем напрямую по Post
+    const posts = await Post.find({ author: userId })
+      .populate('author', 'username profile_image')
+      .sort({ createdAt: -1 });
+
+    if (!posts || posts.length === 0) {
+      res.status(404).json({ message: 'У пользователя нет постов' });
       return;
     }
-
-    res.json(user.posts); 
+    res.json(posts);
   } catch (err: unknown) {
     const error = err as Error;
     res
@@ -104,8 +129,21 @@ export const createPost = async (
       return;
     }
 
+    //добавлена проверка длины description → максимум 200 символов
+    const description: string = req.body.description || '';
+
+    // Ограничиваем описание 200 символами
+    if (description.length > 200) {
+      res
+        .status(400)
+        .json({ message: 'Описание не может превышать 200 символов' });
+      return;
+    }
+
+    // Загружаем фото в S3
     const imageUrl = await uploadToS3(req.file, 'posts'); //Загружаем файл в S3 → получаем imageUrl
 
+    // author сохраняем как ObjectId (иначе TS ругается на string → ObjectId)
     //Создаём новый Post
     const newPost: IPost = new Post({
       author: new Types.ObjectId(req.user.id),
@@ -116,9 +154,10 @@ export const createPost = async (
 
     await newPost.save(); //Сохраняем его в базе
 
-    await User.findByIdAndUpdate(req.user.id, {
-      $push: { posts: newPost._id },
-    }); //Дополнительно обновляем User: добавляем в массив posts ID нового поста
+    //удалено за ненадобностью
+    // await User.findByIdAndUpdate(req.user.id, {
+    //   $push: { posts: newPost._id },
+    // }); //Дополнительно обновляем User: добавляем в массив posts ID нового поста
 
     res.status(201).json(newPost);
   } catch (err: unknown) {
@@ -144,14 +183,12 @@ export const createPost = async (
 
 //     const post = new Post({
 //       user_id: user._id,
-//       image_url: imageUrl, 
+//       image_url: imageUrl,
 //       user_name: user.username,
 //       profile_image: user.profile_image,
 //       caption: req.body.caption,
 //       created_at: new Date(),
 //     });
-
-
 
 /*🔹 Обновление поста */
 export const updatePost = async (
@@ -175,8 +212,21 @@ export const updatePost = async (
       res.status(403).json({ message: 'Нет прав для редактирования' });
       return;
     }
+
     //Если есть новое описание → обновляем.
-    if (req.body.description) post.description = req.body.description;
+    // if (req.body.description) post.description = req.body.description;
+
+    // проверка: если описание есть → ограничиваем 200 символов
+    if (req.body.description) {
+      if (req.body.description.length > 200) {
+        res
+          .status(400)
+          .json({ message: 'Описание поста не может превышать 200 символов' });
+        return;
+      }
+      post.description = req.body.description;
+    }
+
     //Если загружено новое изображение → загружаем в S3 и меняем ссылку
     if (req.file) {
       const imageUrl = await uploadToS3(req.file, 'posts');
@@ -216,7 +266,7 @@ export const deletePost = async (
     }
 
     await post.deleteOne();
-    await User.findByIdAndUpdate(req.user.id, { $pull: { posts: post._id } });
+    // await User.findByIdAndUpdate(req.user.id, { $pull: { posts: post._id } }); убрано. т.к.в UserModel нет массива posts
 
     res.json({ message: 'Пост удалён' });
   } catch (err: unknown) {
@@ -241,7 +291,12 @@ export const explorePosts = async (
 
     const sampleSize = postCount < 10 ? postCount : 10;
     //Выбираем случайно 10 постов($sample)
-    const posts = await Post.aggregate([{ $sample: { size: sampleSize } }])
+
+    // ⚡️ Берём случайные посты через aggregate + джоин к User
+    const posts = await Post.aggregate([
+      { $sample: { size: sampleSize } },
+      // { $sort: { createdAt: -1 } }, //добавлено
+    ])
       .lookup({
         //подключаем данные о пользователях (авторах)
         from: 'users',
@@ -260,6 +315,14 @@ export const explorePosts = async (
         likes: 1,
         comments: 1,
       });
+
+    //вариант
+    //   const posts = await Post.aggregate([
+    //   { $sample: { size: sampleSize } },
+    //   { $sort: { createdAt: -1 } },
+    // ]);
+
+    // res.json(posts);
 
     res.json(posts);
   } catch (err: unknown) {
