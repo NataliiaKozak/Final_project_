@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import User from '../models/UserModel';
-import Post from '../models/PostModel';
-import Comment from '../models/CommentModel';
-import Like from '../models/LikeModel';
-import Notification from '../models/NotificationModel';
-import Subscription from '../models/SubscriptionModel';
-import { RequestWithUser } from '../middlewares/authMiddleware';
+import User from '../models/UserModel.js';
+import Post from '../models/PostModel.js';
+import Comment from '../models/CommentModel.js';
+import Like from '../models/LikeModel.js';
+import Notification from '../models/NotificationModel.js';
+import Subscription from '../models/SubscriptionModel.js';
+import { RequestWithUser } from '../middlewares/authMiddleware.js';
 import multer from 'multer';
-import { uploadToS3 } from '../config/s3';
+import { uploadToS3 } from '../config/s3.js';
 
 const storage = multer.memoryStorage();
 export const upload = multer({

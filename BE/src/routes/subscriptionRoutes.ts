@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getFollowers, getFollowing, followUser, unfollowUser } from "../controllers/subscriptionController";
-import { protect } from "../middlewares/authMiddleware";
+import { getFollowers, getFollowing, followUser, unfollowUser } from "../controllers/subscriptionController.js";
+import { protect } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 

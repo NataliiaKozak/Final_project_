@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import User, { IUser } from '../models/UserModel';
+import User, { IUser } from '../models/UserModel.js';
 import bcrypt from 'bcrypt'; // используется только для проверки, если нужно (опционально)
 import dotenv from 'dotenv';
-import { sendResetPasswordEmail } from '../utils/mailer';
+import { sendResetPasswordEmail } from '../utils/mailer.js';
 import {
   generateToken,
   generateResetToken,
   verifyResetToken,
-} from '../config/jwt';
+} from '../config/jwt.js';
 
 dotenv.config();
 

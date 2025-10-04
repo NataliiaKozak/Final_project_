@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import app from './app.js'; // Express app (см. ниже)
+import app from './app.js'; // Express app
 import connectDB from './src/config/db.js';
 
 dotenv.config();

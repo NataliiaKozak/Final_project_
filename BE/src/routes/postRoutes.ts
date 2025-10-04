@@ -7,10 +7,10 @@ import {
   deletePost,
   getAllPosts,
   explorePosts,
-} from '../controllers/postController';
-import { protect } from '../middlewares/authMiddleware';
+} from '../controllers/postController.js';
+import { protect } from '../middlewares/authMiddleware.js';
 // import { upload } from '../middlewares/uploadMiddleware'; // только upload, без sharp
-import { upload, processImage } from "../middlewares/uploadImage"; //с оптимизацией
+import { upload, processImage } from "../middlewares/uploadImage.js"; //с оптимизацией
 
 const router = Router();
 
@@ -33,6 +33,6 @@ router.get('/', getAllPosts);
 router.get('/explore', explorePosts);
 
 // /api/posts/:id → получить пост по id
-router.get('/:id([0-9a-fA-F]{24})', getPostById);
-
+// router.get('/:id([0-9a-fA-F]{24})', getPostById);
+router.get('/:id', getPostById);
 export default router;

@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { Types } from "mongoose";
-import Notification from "../models/NotificationModel";
-import { RequestWithUser } from "../middlewares/authMiddleware";
+import Notification from "../models/NotificationModel.js";
+import { RequestWithUser } from "../middlewares/authMiddleware.js";
 
 // Создать уведомление
 export const createNotification = async (

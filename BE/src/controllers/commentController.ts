@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import Comment from '../models/CommentModel';
-import Post from '../models/PostModel';
-import { RequestWithUser } from '../middlewares/authMiddleware';
-import { createNotification } from './notificationController';
+import Comment from '../models/CommentModel.js';
+import Post from '../models/PostModel.js';
+import { RequestWithUser } from '../middlewares/authMiddleware.js';
+import { createNotification } from './notificationController.js';
 
 // ===============Добавить комментарий========================
 export const addComment = async (

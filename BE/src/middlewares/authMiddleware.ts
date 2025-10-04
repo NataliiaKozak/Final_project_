@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { JwtPayload } from '../config/jwt'; // 👈 используем тип из jwt.ts
+import { JwtPayload } from '../config/jwt.js'; // 👈 используем тип из jwt.ts
 
 dotenv.config();
 

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose'; //чтобы создавать ObjectId для Mongo
 import multer from 'multer'; //библиотека для загрузки файлов.
-import Post, { IPost } from '../models/PostModel';
-import User from '../models/UserModel';
-import { RequestWithUser } from '../middlewares/authMiddleware'; //расширенный тип запроса (с req.user).
-import { uploadToS3 } from '../config/s3'; //функция для загрузки изображений в Amazon S3
+import Post, { IPost } from '../models/PostModel.js';
+import User from '../models/UserModel.js';
+import { RequestWithUser } from '../middlewares/authMiddleware.js'; //расширенный тип запроса (с req.user).
+import { uploadToS3 } from '../config/s3.js'; //функция для загрузки изображений в Amazon S3
 
 // Multer storage. Хранилище для multer (память, потом → S3)
 const storage = multer.memoryStorage();
@@ -101,6 +101,11 @@ export const getPostById = async (
     //   'username fullName profile_image'
     // );
 
+    //Проверка ID
+    if (!Types.ObjectId.isValid(req.params.id)) {
+      res.status(400).json({ message: 'Некорректный ID поста' });
+      return;
+    }
     const post = await Post.findById(req.params.id)
       .populate('author', 'username fullName profile_image')
       .populate({
@@ -213,6 +218,12 @@ export const updatePost = async (
       return;
     }
 
+    // Проверка ID
+    if (!Types.ObjectId.isValid(req.params.id)) {
+      res.status(400).json({ message: 'Некорректный ID поста' });
+      return;
+    }
+
     const post = await Post.findById(req.params.id);
     if (!post) {
       res.status(404).json({ message: 'Пост не найден' });
@@ -263,6 +274,12 @@ export const deletePost = async (
   try {
     if (!req.user?.id) {
       res.status(401).json({ message: 'Неавторизованный пользователь' });
+      return;
+    }
+
+    // Проверка ID
+    if (!Types.ObjectId.isValid(req.params.id)) {
+      res.status(400).json({ message: 'Некорректный ID поста' });
       return;
     }
 

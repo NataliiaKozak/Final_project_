@@ -30,8 +30,8 @@
 //OR:
 
 import { Request, Response } from "express";
-import Message from "../models/MessageModel";
-import { RequestWithUser } from "../middlewares/authMiddleware";
+import Message from "../models/MessageModel.js";
+import { RequestWithUser } from "../middlewares/authMiddleware.js";
 
 // 🔹 Получить историю сообщений между двумя пользователями
 export const getMessages = async (req: RequestWithUser, res: Response): Promise<void> => {

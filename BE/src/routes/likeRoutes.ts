@@ -1,7 +1,7 @@
 import { Router } from 'express';
 // import { toggleLike, getPostLikes, getCommentLikes, toggleLikeComment } from "../controllers/likeController"; опционально
-import { toggleLike, toggleLikeComment } from '../controllers/likeController';
-import { protect } from '../middlewares/authMiddleware';
+import { toggleLike, toggleLikeComment } from '../controllers/likeController.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 

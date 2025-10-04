@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import Like from '../models/LikeModel';
-import Post from '../models/PostModel';
-import Comment from '../models/CommentModel';
-import { RequestWithUser } from '../middlewares/authMiddleware';
-import { createNotification } from './notificationController';
+import Like from '../models/LikeModel.js';
+import Post from '../models/PostModel.js';
+import Comment from '../models/CommentModel.js';
+import { RequestWithUser } from '../middlewares/authMiddleware.js';
+import { createNotification } from './notificationController.js';
 
 //===================== Лайк поста=================================
 export const toggleLike = async (

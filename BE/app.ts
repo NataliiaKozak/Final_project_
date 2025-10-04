@@ -1,14 +1,14 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 
-import authRoutes from "./src/routes/authRoutes.ts";
-import userRoutes from "./src/routes/userRoutes.ts";
-import postRoutes from "./src/routes/postRoutes.ts";
-import likeRoutes from "./src/routes/likeRoutes.ts";
-import commentRoutes from "./src/routes/commentRoutes.ts";
-import searchRoutes from "./src/routes/searchRoutes.ts";
-import subscriptionRoutes from "./src/routes/subscriptionRoutes.ts";
-import notificationRoutes from "./src/routes/notificationRoutes.ts";
+import authRoutes from "./src/routes/authRoutes.js";
+import userRoutes from "./src/routes/userRoutes.js";
+import postRoutes from "./src/routes/postRoutes.js";
+import likeRoutes from "./src/routes/likeRoutes.js";
+import commentRoutes from "./src/routes/commentRoutes.js";
+import searchRoutes from "./src/routes/searchRoutes.js";
+import subscriptionRoutes from "./src/routes/subscriptionRoutes.js";
+import notificationRoutes from "./src/routes/notificationRoutes.js";
 
 const app: Application = express();
 

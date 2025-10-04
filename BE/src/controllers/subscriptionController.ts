@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import Subscription from "../models/SubscriptionModel";
-import { RequestWithUser } from "../middlewares/authMiddleware";
-import { createNotification } from "./notificationController";
+import Subscription from "../models/SubscriptionModel.js";
+import { RequestWithUser } from "../middlewares/authMiddleware.js";
+import { createNotification } from "./notificationController.js";
 import { Types } from "mongoose";
 
 /* GET followers of userId */

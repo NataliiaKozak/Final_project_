@@ -10,8 +10,8 @@
 // export default router;
 
 import { Router } from "express";
-import { getMessages } from "../controllers/messageController";
-import { protect } from "../middlewares/authMiddleware";
+import { getMessages } from "../controllers/messageController.js";
+import { protect } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
