@@ -36,6 +36,11 @@ app.use("/api/search", searchRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/notifications", notificationRoutes);
 
+// обработчик "не найдено" (404)
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ message: "Страница не найдена" });
+});
+
 // обработчик ошибок
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("Ошибка сервера:", err.message);

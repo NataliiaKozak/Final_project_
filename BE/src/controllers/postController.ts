@@ -335,7 +335,7 @@ export const explorePosts = async (
     // ]);
 
     // res.json(posts);
-
+    // const sampleSize = Math.min(total, 10); // можно поменять на любое фиксированное число
     const posts = await Post.aggregate([
       { $sample: { size: sampleSize } },
       { $project: { _id: 1, image: 1, createdAt: 1 } }, // только превью
