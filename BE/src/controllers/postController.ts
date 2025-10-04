@@ -14,14 +14,14 @@ export const upload = multer({
 });
 //upload потом используется в маршрутах (upload.single("image")
 
-/* 🔹 Получить все посты */
+/* ==================== Получить все посты ====================*/
 export const getAllPosts = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const posts = await Post.find() //достаём все посты из базы
-      .populate('author', 'username profile_image') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
+    const posts = await Post.find() //достаём все посты из базы (например, для ленты)
+      .populate('author', 'username profile_image fullName') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
       .sort({ createdAt: -1 }); //новые сверху
 
     // Виртуальные поля (likesCount, commentsCount) добавятся автоматически
@@ -35,7 +35,7 @@ export const getAllPosts = async (
   }
 };
 
-/* 🔹 Посты конкретного пользователя */
+/* =================== Посты конкретного пользователя ===================== */
 export const getUserPosts = async (
   req: Request,
   res: Response
@@ -71,9 +71,10 @@ export const getUserPosts = async (
     // Если нам нужно вернуть профиль пользователя вместе с постами → лучше использовать populate("posts").
     // Если мы хотим отдельный эндпоинт только для постов → лучше Post.find({ author }).
 
-    // В нашем UserModel нет массива posts (без user.posts) → ищем напрямую по Post
+    // Ищем посты напрямую по Post (без user.posts, т.к. массива posts нет в UserModel)
     const posts = await Post.find({ author: userId })
-      .populate('author', 'username profile_image')
+      // .populate('author', 'username profile_image')
+      .select('_id image createdAt') // только превью для профиля
       .sort({ createdAt: -1 });
 
     if (!posts || posts.length === 0) {
@@ -89,16 +90,27 @@ export const getUserPosts = async (
   }
 };
 
-/* 🔹 Пост по ID */
+/* ================== Пост по ID (детальный просмотр)=======================*/
 export const getPostById = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      'author',
-      'username profile_image'
-    );
+    // const post = await Post.findById(req.params.id).populate(
+    //   'author',
+    //   'username fullName profile_image'
+    // );
+
+    const post = await Post.findById(req.params.id)
+      .populate('author', 'username fullName profile_image')
+      .populate({
+        path: 'comments',
+        populate: { path: 'user', select: 'username fullName profile_image' },
+      });
+    //при открытии детального экрана поста уже будут автор поста,
+    // картинка и описание поста,массив комментариев с авторами
+    // виртуальные поля likesCount, commentsCount подтянутся автоматически (виртуалы)
+
     if (!post) {
       res.status(404).json({ message: 'Пост не найден' });
       return;
@@ -112,7 +124,7 @@ export const getPostById = async (
   }
 };
 
-/*🔹 Создание поста */
+/*=================== Создание поста ======================================*/
 export const createPost = async (
   req: RequestWithUser,
   res: Response
@@ -190,7 +202,7 @@ export const createPost = async (
 //       created_at: new Date(),
 //     });
 
-/*🔹 Обновление поста */
+/*=================== Обновление поста =================================*/
 export const updatePost = async (
   req: RequestWithUser,
   res: Response
@@ -243,7 +255,7 @@ export const updatePost = async (
   }
 };
 
-/*🔹 Удаление поста */
+/*===================== Удаление поста ====================================*/
 export const deletePost = async (
   req: RequestWithUser,
   res: Response
@@ -277,7 +289,7 @@ export const deletePost = async (
   }
 };
 
-/*🔹 Explore (случайные посты) */
+/*====================== Explore (случайные посты) =======================*/
 export const explorePosts = async (
   req: Request,
   res: Response
@@ -293,28 +305,28 @@ export const explorePosts = async (
     //Выбираем случайно 10 постов($sample)
 
     // ⚡️ Берём случайные посты через aggregate + джоин к User
-    const posts = await Post.aggregate([
-      { $sample: { size: sampleSize } },
-      // { $sort: { createdAt: -1 } }, //добавлено
-    ])
-      .lookup({
-        //подключаем данные о пользователях (авторах)
-        from: 'users',
-        localField: 'author',
-        foreignField: '_id',
-        as: 'author',
-      })
-      .unwind({ path: '$author', preserveNullAndEmptyArrays: true }) //разворачиваем массив авторов
-      .project({
-        //берём только нужные поля
-        image: 1,
-        description: 1,
-        createdAt: 1,
-        'author.username': 1,
-        'author.profile_image': 1,
-        likes: 1,
-        comments: 1,
-      });
+    // const posts = await Post.aggregate([
+    //   { $sample: { size: sampleSize } },
+    //   // { $sort: { createdAt: -1 } }, //добавлено
+    // ])
+    //   .lookup({
+    //     //подключаем данные о пользователях (авторах)
+    //     from: 'users',
+    //     localField: 'author',
+    //     foreignField: '_id',
+    //     as: 'author',
+    //   })
+    //   .unwind({ path: '$author', preserveNullAndEmptyArrays: true }) //разворачиваем массив авторов
+    //   .project({
+    //     //берём только нужные поля
+    //     image: 1,
+    //     description: 1,
+    //     createdAt: 1,
+    //     'author.username': 1,
+    //     'author.profile_image': 1,
+    //     likes: 1,
+    //     comments: 1,
+    //   });
 
     //вариант
     //   const posts = await Post.aggregate([
@@ -323,6 +335,11 @@ export const explorePosts = async (
     // ]);
 
     // res.json(posts);
+
+    const posts = await Post.aggregate([
+      { $sample: { size: sampleSize } },
+      { $project: { _id: 1, image: 1, createdAt: 1 } }, // только превью
+    ]);
 
     res.json(posts);
   } catch (err: unknown) {

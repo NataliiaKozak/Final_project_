@@ -3,6 +3,6 @@ import { searchUsers } from "../controllers/searchController.js";
 
 const router = Router();
 
-router.get("/", searchUsers);
+router.get("/search", searchUsers); //чтобы запрос был /users/search?query=...
 
 export default router;

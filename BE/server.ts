@@ -16,7 +16,7 @@ app.listen(PORT, async () => {
   }
 });
 
-//замена entry point; запускает express + socket.io
+// замена entry point; запускает express + socket.io
 // CHANGED: запускает express app и socket.io, подключает обработчики сокетов
 // import http from 'http';
 // import dotenv from 'dotenv';
@@ -57,7 +57,7 @@ app.listen(PORT, async () => {
 //   }
 // })();
 
-//2.10 jwt и Socket.io
+// 2.10 jwt и Socket.io
 // verifySocketToken from "./config/jwt"
 
 // import { Server } from "socket.io";

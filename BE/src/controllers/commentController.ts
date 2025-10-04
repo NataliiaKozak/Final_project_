@@ -4,7 +4,7 @@ import Post from '../models/PostModel';
 import { RequestWithUser } from '../middlewares/authMiddleware';
 import { createNotification } from './notificationController';
 
-// Добавить комментарий
+// ===============Добавить комментарий========================
 export const addComment = async (
   req: RequestWithUser,
   res: Response
@@ -29,7 +29,6 @@ export const addComment = async (
       '_id username profile_image'
     );
 
-    
     if (!post) {
       res.status(404).json({ message: 'Пост не найден' });
       return;
@@ -39,12 +38,12 @@ export const addComment = async (
       user: userId,
       post: post._id,
       text,
-      author: post.author?._id,
+      // author: post.author?._id // только user, без author
     });
 
     await comment.save();
 
-    // Уведомление автору поста
+    // =================Уведомление автору поста===============
     if (post.author && post.author._id.toString() !== userId) {
       await createNotification(
         post.author._id,
@@ -63,7 +62,7 @@ export const addComment = async (
   }
 };
 
-// Удалить комментарий
+// ====================Удалить комментарий====================
 export const deleteComment = async (
   req: RequestWithUser,
   res: Response
@@ -78,9 +77,11 @@ export const deleteComment = async (
       return;
     }
 
+    // проверяем только владельца комментария
     if (
-      comment.user.toString() !== userId &&
-      comment.author?.toString() !== userId
+      comment.user.toString() !== userId
+      // comment.user.toString() !== userId
+      // && comment.author?.toString() !== userId
     ) {
       res.status(403).json({ message: 'Нет прав для удаления' });
       return;
@@ -94,7 +95,7 @@ export const deleteComment = async (
   }
 };
 
-// Получить комментарии к посту
+// ==================Получить комментарии к посту========================
 export const getPostComments = async (
   req: Request,
   res: Response
@@ -102,8 +103,8 @@ export const getPostComments = async (
   try {
     const { postId } = req.params;
     const comments = await Comment.find({ post: postId })
-      .populate('user', 'username profile_image')
-      .populate('author', 'username profile_image');
+      .populate('user', 'username profile_image');
+      // .populate('author', 'username profile_image');
 
     res.json(comments);
   } catch (error) {

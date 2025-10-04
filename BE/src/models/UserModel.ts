@@ -26,7 +26,7 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
     fullName: { type: String, required: true },
-    bio: { type: String, default: '' },
+    bio: { type: String, default: '', maxlength: 150 },
     profile_image: { type: String, default: '' },
     website: { type: String, default: "" },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],

@@ -14,7 +14,7 @@ export const searchUsers = async (req: Request, res: Response): Promise<void> =>
         { username: { $regex: query, $options: "i" } },
         { fullName: { $regex: query, $options: "i" } },
       ],
-    }).select("username fullName avatar"); 
+    }).select("username fullName profile_image"); 
 
     res.json(users);
   } catch (error) {

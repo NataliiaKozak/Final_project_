@@ -4,6 +4,7 @@ import Post from '../models/PostModel';
 import Comment from '../models/CommentModel';
 import Like from '../models/LikeModel';
 import Notification from '../models/NotificationModel';
+import Subscription from '../models/SubscriptionModel';
 import { RequestWithUser } from '../middlewares/authMiddleware';
 import multer from 'multer';
 import { uploadToS3 } from '../config/s3';
@@ -16,7 +17,7 @@ export const upload = multer({
 
 // 🔹 Получение профиля пользователя
 export const getProfile = async (
-  req: Request,
+  req: RequestWithUser,//используем расширенный тип
   res: Response
 ): Promise<void> => {
   try {
@@ -46,6 +47,15 @@ export const getProfile = async (
     const likesCount = await Like.countDocuments({ user: id });
     const notificationsCount = await Notification.countDocuments({ user: id });
 
+    // проверяем, подписан ли текущий пользователь (для чужого профиля)
+    let isFollowing = false;
+    if (req.user?.id && req.user.id !== id) {
+      const existing = await Subscription.findOne({
+        follower: req.user.id,
+        following: id,
+      });
+      isFollowing = !!existing;
+    }
     res.status(200).json({
       ...user.toObject(),
       followersCount: user.followers.length,
@@ -54,6 +64,7 @@ export const getProfile = async (
       commentsCount,
       likesCount,
       notificationsCount,
+      isFollowing,
     });
   } catch (err: unknown) {
     const error = err as Error;
@@ -71,7 +82,7 @@ export const updateProfile = async (req: RequestWithUser, res: Response) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-     // обновляем только если поля пришли
+    // обновляем только если поля пришли
     if (username !== undefined) user.username = username;
     if (bio !== undefined) user.bio = bio;
     if (fullName !== undefined) user.fullName = fullName;

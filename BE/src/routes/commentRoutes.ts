@@ -14,3 +14,10 @@ router.post("/:postId", protect, addComment);
 router.delete("/:commentId", protect, deleteComment);
 
 export default router;
+
+
+/**
+ * /api/comments/post/:postId → получить комментарии к посту
+ * /api/comments/:postId → добавить комментарий (только авторизованный пользователь)
+ * /api/comments/:commentId → удалить комментарий (только автор)
+ */
