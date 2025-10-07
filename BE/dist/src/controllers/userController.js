@@ -20,13 +20,13 @@ res) => {
         // const user = await User.findById(req.params.id)
         //   .select("-password") // скрываем  хэш пароля при выдаче данных пользователю.
         //   .populate("followers", "username profile_image")
-        //   .populate("following", "username profile_image");//вместо того чтобы возвращать только массив ObjectId,
+        //   .populate("following", "username profileImage");//вместо того чтобы возвращать только массив ObjectId,
         //   // ты сразу получаешь данные подписчиков/подписок
         const id = req.params.id;
         const user = await User.findById(id)
             .select('-password') // скрываем хэш пароля
-            .populate('followers', 'username profile_image')
-            .populate('following', 'username profile_image');
+            .populate('followers', 'username profileImage')
+            .populate('following', 'username profileImage');
         if (!user) {
             res.status(404).json({ message: 'Пользователь не найден' });
             return;
@@ -82,8 +82,8 @@ export const updateProfile = async (req, res) => {
         if (website !== undefined)
             user.website = website;
         if (req.file) {
-            const imageUrl = await uploadToS3(req.file, 'avatars');
-            user.profile_image = imageUrl;
+            const imageUrl = await uploadToS3(req.file, 'profileImages');
+            user.profileImage = imageUrl;
         }
         await user.save();
         res.json(user);
@@ -110,8 +110,8 @@ export const updateProfile = async (req, res) => {
 //     if (req.body.bio) user.bio = req.body.bio;
 //     if (req.body.website) user.website = req.body.website;
 //     if (req.file) {
-//       const imageUrl = await uploadToS3(req.file, "avatars");
-//       user.profile_image = imageUrl;
+//       const imageUrl = await uploadToS3(req.file, "profileImages");
+//       user.profileImage = imageUrl;
 //     }
 //     await user.save();
 //     res.json(user);

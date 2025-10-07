@@ -18,8 +18,8 @@ export const getMessages = async (req, res) => {
             ],
         })
             .sort({ createdAt: 1 })
-            .populate("sender", "username profile_image")
-            .populate("recipient", "username profile_image");
+            .populate("sender", "username profileImage")
+            .populate("recipient", "username profileImage");
         res.json(messages);
     }
     catch (err) {

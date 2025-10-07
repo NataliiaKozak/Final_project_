@@ -42,7 +42,7 @@ export const getNotifications = async (req: RequestWithUser, res: Response) => {
     if (!userId) return res.status(401).json({ message: "Неавторизовано" });
 
     const notifications = await Notification.find({ user: userId })
-      .populate("sender", "username avatar")
+      .populate("sender", "username profileImage")
       .populate("post", "image description")
       .populate("comment", "text")
       .sort({ createdAt: -1 });

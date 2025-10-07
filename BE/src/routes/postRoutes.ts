@@ -33,6 +33,6 @@ router.get('/', getAllPosts);
 router.get('/explore', explorePosts);
 
 // /api/posts/:id → получить пост по id
-// router.get('/:id([0-9a-fA-F]{24})', getPostById);
+
 router.get('/:id', getPostById);
 export default router;

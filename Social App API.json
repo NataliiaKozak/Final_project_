@@ -1,0 +1,1375 @@
+{
+  "info": {
+    "_postman_id": "a89be873-d3ca-4921-a4f2-0298197322d5",
+    "name": "Social App API (TS/Express) — Full Check with Tests",
+    "description": "Полная коллекция запросов + автотесты. Используй вместе с окружением 'Social App Env'.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47412044"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"CORS: Access-Control-Allow-Origin present\", function () {",
+                  "  const h = pm.response.headers.get(\"Access-Control-Allow-Origin\");",
+                  "  pm.expect(h, \"header exists\").to.exist;",
+                  "  pm.expect(h, \"matches expected origin\").to.equal(pm.environment.get(\"corsOrigin\") || \"http://localhost:3001\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data"]
+            },
+            "description": "Проверка работоспособности API и CORS. Возвращает `{ \"message\": \"CORS работает!\" }`"
+          },
+          "response": []
+        }
+      ],
+      "description": "Быстрый health-check сервера и CORS. Не требует авторизации."
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/auth/register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "var schemaRegister = {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"token\", \"user\"],",
+                  "  \"properties\": {",
+                  "    \"token\": {\"type\": \"string\"},",
+                  "    \"user\": {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"_id\", \"username\", \"fullName\"],",
+                  "  \"properties\": {",
+                  "    \"_id\": {\"type\": \"string\"},",
+                  "    \"username\": {\"type\": \"string\"},",
+                  "    \"email\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"fullName\": {\"type\": \"string\"},",
+                  "    \"profileImage\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"followersCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "    \"followingCount\": {\"type\": [\"integer\",\"number\"]}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "};",
+                  "pm.test(\"Schema valid\", function () {",
+                  "  var data = pm.response.json();",
+                  "  var ok = tv4.validate(data, schemaRegister);",
+                  "  if (!ok) {",
+                  "    console.log(\"tv4 errors\", tv4.error);",
+                  "  }",
+                  "  pm.expect(ok).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"Kris\",\n  \"email\": \"kris@example.com\",\n  \"password\": \"1234567\",\n  \"fullName\": \"Kristina\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Регистрация: `username`, `email`, `password`, `fullName`. В ответе — `token` и публичные поля пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/auth/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login 200\", () => pm.response.code === 200);",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  const b = pm.response.json();",
+                  "  pm.environment.set(\"token\", b.token);",
+                  "  if (b.user && b.user._id) {",
+                  "    pm.environment.set(\"userId\", b.user._id);",
+                  "  }",
+                  "} else {",
+                  "  // если логин неуспешный — не держим старые значения",
+                  "  pm.environment.unset(\"token\");",
+                  "  pm.environment.unset(\"userId\");",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailOrUsername\": \"user@example.com\",\n  \"password\": \"Secret123!\"\n}\n\n"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Логин по `emailOrUsername` + `password`. В ответе — `token` и пользователь. Сохрани `token` в окружение для последующих запросов"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/auth/forgot-password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kris@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "description": "Запрос на сброс пароля по `email`. Отправляет письмо со ссылкой/токеном"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/auth/reset-password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZTQ0ODRiZThlMzUwY2RhODA1NjIzNSIsImlhdCI6MTc1OTc5MjU0NCwiZXhwIjoxNzU5Nzk2MTQ0fQ.pOWf2-TxQ-qxIGVuVZwjDuEFdXOvHjurvKq1rD0aIKI\",\n  \"newPassword\": \"09876\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "reset-password"]
+            },
+            "description": "Сброс пароля по `token` и `newPassword`. Успех — сообщение «Пароль успешно обновлён»."
+          },
+          "response": []
+        }
+      ],
+      "description": "Регистрация, логин и восстановление пароля. Все запросы без авторизации; по результату логина/регистрации сохраняй `token` и `userId` в окружение для дальнейших защищённых запросов."
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /api/users/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"CORS: Access-Control-Allow-Origin present\", function () {",
+                  "  const h = pm.response.headers.get(\"Access-Control-Allow-Origin\");",
+                  "  pm.expect(h, \"header exists\").to.exist;",
+                  "  pm.expect(h, \"matches expected origin\").to.equal(pm.environment.get(\"corsOrigin\") || \"http://localhost:3001\");",
+                  "});",
+                  "",
+                  "var schemaUser = {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"_id\", \"username\", \"fullName\"],",
+                  "  \"properties\": {",
+                  "    \"_id\": {\"type\": \"string\"},",
+                  "    \"username\": {\"type\": \"string\"},",
+                  "    \"email\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"fullName\": {\"type\": \"string\"},",
+                  "    \"profileImage\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"followersCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "    \"followingCount\": {\"type\": [\"integer\",\"number\"]}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "};",
+                  "pm.test(\"Schema valid\", function () {",
+                  "  var data = pm.response.json();",
+                  "  var ok = tv4.validate(data, schemaUser);",
+                  "  if (!ok) {",
+                  "    console.log(\"tv4 errors\", tv4.error);",
+                  "  }",
+                  "  pm.expect(ok).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/68e4505e867d39c240db0dbe",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "68e4505e867d39c240db0dbe"]
+            },
+            "description": "Публичный профиль по ID. В теле — базовые поля + вычисляемые счётчики (`followersCount`, `followingCount`, и пр.)."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /api/users (update profile + profileImage) [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));",
+                  "",
+                  "pm.test(\"Profile updated\", () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.property(\"username\");",
+                  "  pm.expect(b).to.have.property(\"fullName\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "username",
+                  "value": "natalia_updated",
+                  "type": "text"
+                },
+                {
+                  "key": "fullName",
+                  "value": "Nataliia K.",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "Frontend dev",
+                  "type": "text"
+                },
+                {
+                  "key": "website",
+                  "value": "https://my.site",
+                  "type": "text"
+                },
+                {
+                  "key": "avatar",
+                  "value": "",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Обновление собственного профиля. `form-data`: `username?`, `fullName?`, `bio?`, `website?`, `profileImage?` (файл). В ответе — обновлённый пользователь без пароля."
+          },
+          "response": []
+        }
+      ],
+      "description": "Просмотр публичного профиля по ID и обновление собственного профиля (текстовые поля + аватар). Обновление требует Bearer-токен."
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "GET /api/search?query=nata",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));",
+                  "",
+                  "pm.test(\"Array of users\", () => Array.isArray(pm.response.json()));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?query=nata",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "nata"
+                }
+              ]
+            },
+            "description": "Поиск пользователей по `username`/`fullName`. Возвращает массив мини-профилей."
+          },
+          "response": []
+        }
+      ],
+      "description": "Поиск пользователей по части `username` или полному имени, регистронезависимый. Не требует авторизации"
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "GET /api/posts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.code === 200);",
+                  "const arr = pm.response.json();",
+                  "pm.test(\"Array\", () => Array.isArray(arr));",
+                  "pm.test(\"Посты имеют image\", () => !arr.length || typeof arr[0].image === \"string\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Все посты в порядке убывания даты. В каждом — автор (поля профиля) и виртуальные счётчики."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/posts/explore",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/explore",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "explore"]
+            },
+            "description": "Случайная выборка (до 10) постов для Explore. Поля: `_id`, `image`, `createdAt`"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/posts/user/:userId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/user/68e4505e867d39c240db0dbe",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "user", "68e4505e867d39c240db0dbe"]
+            },
+            "description": "Посты конкретного пользователя (превью). Поля: `_id`, `image`, `createdAt`"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/posts/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.code === 200);",
+                  "const b = pm.response.json();",
+                  "pm.test(\"Есть _id и image\", () => b._id && b.image);",
+                  "",
+                  "const c = pm.response.json();",
+                  "pm.test(\"Только один идентификатор\", () => {",
+                  "  pm.expect(('_id' in c) !== ('id' in c)).to.be.true; // ровно одно из двух",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/68e479387a17d995c49ec5b2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "68e479387a17d995c49ec5b2"]
+            },
+            "description": "Детальная карточка поста: автор, описание, список комментариев (с авторами), виртуальные счетчики"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/posts (create) [auth, multipart]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.code === 201);",
+                  "const b = pm.response.json();",
+                  "pm.test(\"Есть _id и image\", () => b._id && typeof b.image === \"string\");",
+                  "pm.test(\"Описание <= 200\", () => (b.description || \"\").length <= 200);",
+                  "",
+                  "// сохраним postId для апдейта/удаления:",
+                  "pm.environment.set(\"postId\", b._id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjhlNDUwNWU4NjdkMzljMjQwZGIwZGJlIiwiaWF0IjoxNzU5NzkzMjQ2LCJleHAiOjE3NTk4Nzk2NDZ9.54gLpyMYCzztsJ7NREE8nPc456kQqjor8dgHF4Cb0xE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "description",
+                  "value": "A nice day",
+                  "description": "Hello friends!",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "/C:/Users/User1/Downloads/01.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/posts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Создание поста. `form-data`: `image` _(обязателен)_, `description?` _(≤ 200 символов)_. Изображение обрабатывается и грузится в S3"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /api/posts/:id (update) [auth, multipart]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.code === 200);",
+                  "const b = pm.response.json();",
+                  "pm.test(\"Описание обновлено\", () => b.description === \"Updated text\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "value": "",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/68e479387a17d995c49ec5b2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "68e479387a17d995c49ec5b2"]
+            },
+            "description": "Обновление собственного поста: `description?` (≤ 200) и/или новый `image`."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /api/posts/:id [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.code === 200);",
+                  "const b = pm.response.json();",
+                  "pm.test(\"Сообщение об удалении\", () => /удалён/i.test(b.message || \"\"));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/posts/68e479387a17d995c49ec5b2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "posts", "68e479387a17d995c49ec5b2"]
+            },
+            "description": "Удаление собственного поста"
+          },
+          "response": []
+        }
+      ],
+      "description": "Лента, посты пользователя, детальная карточка, создание/обновление/удаление. Создание/изменение/удаление требуют Bearer-токен. Изображение — `multipart/form-data`."
+    },
+    {
+      "name": "Likes",
+      "item": [
+        {
+          "name": "POST /api/likes/post/:postId [auth] (toggle)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/likes/post/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "likes", "post", "{{postId}}"]
+            },
+            "description": "Тоггл лайка поста. Возвращает «Лайк добавлен» (+ объект `like`) или «Лайк удалён»"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/likes/comment/:commentId [auth] (toggle)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/likes/comment/{{commentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "likes", "comment", "{{commentId}}"]
+            },
+            "description": "Тоггл лайка комментария. Возвращает «Лайк комментария добавлен/удалён»"
+          },
+          "response": []
+        }
+      ],
+      "description": "Тоггл лайка поста и комментария. Защищённые запросы."
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "GET /api/comments/post/:postId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "var schemaCommentItem = {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"_id\", \"text\", \"user\"],",
+                  "  \"properties\": {",
+                  "    \"_id\": {\"type\": \"string\"},",
+                  "    \"text\": {\"type\": \"string\"},",
+                  "    \"post\": {\"type\": [\"string\",\"object\",\"null\"]},",
+                  "    \"user\": {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"_id\", \"username\", \"fullName\"],",
+                  "  \"properties\": {",
+                  "    \"_id\": {\"type\": \"string\"},",
+                  "    \"username\": {\"type\": \"string\"},",
+                  "    \"email\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"fullName\": {\"type\": \"string\"},",
+                  "    \"profileImage\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"followersCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "    \"followingCount\": {\"type\": [\"integer\",\"number\"]}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "},",
+                  "    \"likesCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "    \"createdAt\": {\"type\": [\"string\",\"null\"]}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "};",
+                  "pm.test(\"Schema valid (array items)\", function () {",
+                  "  var data = pm.response.json();",
+                  "  pm.expect(Array.isArray(data)).to.be.true;",
+                  "  var allValid = data.every(function(it){ return tv4.validate(it, schemaCommentItem); });",
+                  "  if (!allValid) {",
+                  "    console.log(\"tv4 errors\", tv4.error);",
+                  "  }",
+                  "  pm.expect(allValid).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post", "{{postId}}"]
+            },
+            "description": "Список комментариев поста. Каждый элемент содержит автора комментария."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/comments/:postId [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Message ok\", ()=> pm.response.json() && pm.response.json().message);",
+                  "",
+                  "var schemaCommentWrap = {",
+                  "  \"type\":\"object\",",
+                  "  \"required\":[\"comment\"],",
+                  "  \"properties\":{ \"comment\": {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"_id\", \"text\", \"user\"],",
+                  "  \"properties\": {",
+                  "    \"_id\": {\"type\": \"string\"},",
+                  "    \"text\": {\"type\": \"string\"},",
+                  "    \"post\": {\"type\": [\"string\",\"object\",\"null\"]},",
+                  "    \"user\": {",
+                  "  \"type\": \"object\",",
+                  "  \"required\": [\"_id\", \"username\", \"fullName\"],",
+                  "  \"properties\": {",
+                  "    \"_id\": {\"type\": \"string\"},",
+                  "    \"username\": {\"type\": \"string\"},",
+                  "    \"email\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"fullName\": {\"type\": \"string\"},",
+                  "    \"profileImage\": {\"type\": [\"string\",\"null\"]},",
+                  "    \"followersCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "    \"followingCount\": {\"type\": [\"integer\",\"number\"]}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "},",
+                  "    \"likesCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "    \"createdAt\": {\"type\": [\"string\",\"null\"]}",
+                  "  },",
+                  "  \"additionalProperties\": true",
+                  "} },",
+                  "  \"additionalProperties\": true",
+                  "};",
+                  "var ok = tv4.validate(pm.response.json(), schemaCommentWrap);",
+                  "if (!ok){ console.log(\"tv4 errors\", tv4.error); }",
+                  "pm.test(\"Schema valid (comment wrap)\", ()=> ok === true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"text\": \"Great photo!\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/{{postId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "{{postId}}"]
+            },
+            "description": "Добавить комментарий к посту. JSON: `{ \"text\": \"...\" }`. Возвращает сообщение и созданный комментарий."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /api/comments/:commentId [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "",
+                  "pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/{{commentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "{{commentId}}"]
+            },
+            "description": "Удалить свой комментарий. Возвращает сообщение об успешном удалении."
+          },
+          "response": []
+        }
+      ],
+      "description": "Получить комментарии поста, добавить свой, удалить свой. Добавление/удаление требуют Bearer-токен."
+    },
+    {
+      "name": "Follows",
+      "item": [
+        {
+          "name": "GET /api/follows/:userId/followers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "// var schemaFollowUserItem = {",
+                  "//   \"type\": \"object\",",
+                  "//   \"required\": [\"_id\", \"username\", \"fullName\"],",
+                  "//   \"properties\": {",
+                  "//     \"_id\": {\"type\": \"string\"},",
+                  "//     \"username\": {\"type\": \"string\"},",
+                  "//     \"email\": {\"type\": [\"string\",\"null\"]},",
+                  "//     \"fullName\": {\"type\": \"string\"},",
+                  "//     \"profileImage\": {\"type\": [\"string\",\"null\"]},",
+                  "//     \"followersCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "//     \"followingCount\": {\"type\": [\"integer\",\"number\"]}",
+                  "//   },",
+                  "//   \"additionalProperties\": true",
+                  "// };",
+                  "// pm.test(\"Schema valid (array items)\", function () {",
+                  "//   var data = pm.response.json();",
+                  "//   pm.expect(Array.isArray(data)).to.be.true;",
+                  "//   var allValid = data.every(function(it){ return tv4.validate(it, schemaFollowUserItem); });",
+                  "//   if (!allValid) {",
+                  "//     console.log(\"tv4 errors\", tv4.error);",
+                  "//   }",
+                  "//   pm.expect(allValid).to.be.true;",
+                  "// });",
+                  "",
+                  "pm.test(\"Followers 200\", () => pm.response.code === 200);",
+                  "const arr = pm.response.json();",
+                  "pm.expect(arr).to.be.an(\"array\");",
+                  "pm.test(\"Есть B среди подписчиков\", () => {",
+                  "  pm.expect(arr.some(u => u._id === pm.environment.get(\"userIdB\"))).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/follows/68e4505e867d39c240db0dbe/followers",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "follows",
+                "68e4505e867d39c240db0dbe",
+                "followers"
+              ]
+            },
+            "description": "Список подписчиков пользователя (популированные `username`, `profileImage`)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/follows/:userId/following",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Following 200\", () => pm.response.code === 200);",
+                  "pm.expect(pm.response.json()).to.be.an(\"array\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/follows/68e4505e867d39c240db0dbe/following",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "follows",
+                "68e4505e867d39c240db0dbe",
+                "following"
+              ]
+            },
+            "description": "Список подписок пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/follows/:userId/follow [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "// pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "// pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));",
+                  "",
+                  "pm.test(\"Follow 200\", () => pm.response.code === 200);",
+                  "const b = pm.response.json();",
+                  "pm.expect(b).to.have.property(\"message\");",
+                  "pm.environment.set(\"followId\", b.follow?._id || \"\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/follows/68e4505e867d39c240db0dbe/follow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "follows", "68e4505e867d39c240db0dbe", "follow"]
+            },
+            "description": "Подписаться на пользователя с указанным `userId`. Создаёт документ `Follow` и отправляет уведомление"
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /api/follows/:userId/unfollow [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "// pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "// pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));",
+                  "pm.test(\"Unfollow 200\", () => pm.response.code === 200);",
+                  "pm.expect(pm.response.json()).to.have.property(\"message\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/follows/68e4505e867d39c240db0dbe/unfollow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "follows", "68e4505e867d39c240db0dbe", "unfollow"]
+            },
+            "description": "Отписаться от пользователя."
+          },
+          "response": []
+        }
+      ],
+      "description": "Подписки/подписчики пользователя, подписаться/отписаться. Действия требуют Bearer-токен."
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "GET /api/notifications [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "// var schemaNotifItem = {",
+                  "//   \"type\": \"object\",",
+                  "//   \"required\": [\"_id\", \"user\", \"sender\", \"type\", \"isRead\"],",
+                  "//   \"properties\": {",
+                  "//     \"_id\": {\"type\": \"string\"},",
+                  "//     \"type\": {\"type\": \"string\"},",
+                  "//     \"isRead\": {\"type\": \"boolean\"},",
+                  "//     \"user\": {\"type\": [\"string\",\"object\"]},",
+                  "//     \"sender\": {",
+                  "//   \"type\": \"object\",",
+                  "//   \"required\": [\"_id\", \"username\", \"fullName\"],",
+                  "//   \"properties\": {",
+                  "//     \"_id\": {\"type\": \"string\"},",
+                  "//     \"username\": {\"type\": \"string\"},",
+                  "//     \"email\": {\"type\": [\"string\",\"null\"]},",
+                  "//     \"fullName\": {\"type\": \"string\"},",
+                  "//     \"profileImage\": {\"type\": [\"string\",\"null\"]},",
+                  "//     \"followersCount\": {\"type\": [\"integer\",\"number\"]},",
+                  "//     \"followingCount\": {\"type\": [\"integer\",\"number\"]}",
+                  "//   },",
+                  "//   \"additionalProperties\": true",
+                  "// },",
+                  "//     \"post\": {\"type\": [\"string\",\"object\",\"null\"]},",
+                  "//     \"comment\": {\"type\": [\"string\",\"object\",\"null\"]},",
+                  "//     \"createdAt\": {\"type\": [\"string\",\"null\"]}",
+                  "//   },",
+                  "//   \"additionalProperties\": true",
+                  "// };",
+                  "// pm.test(\"Schema valid (array items)\", function () {",
+                  "//   var data = pm.response.json();",
+                  "//   pm.expect(Array.isArray(data)).to.be.true;",
+                  "//   var allValid = data.every(function(it){ return tv4.validate(it, schemaNotifItem); });",
+                  "//   if (!allValid) {",
+                  "//     console.log(\"tv4 errors\", tv4.error);",
+                  "//   }",
+                  "//   pm.expect(allValid).to.be.true;",
+                  "// });",
+                  "",
+                  "pm.test(\"Notifications 200\", () => pm.response.code === 200);",
+                  "const list = pm.response.json();",
+                  "pm.expect(list).to.be.an(\"array\");",
+                  "pm.test(\"Есть followed_user\", () => {",
+                  "  pm.expect(list.some(n => n.type === \"followed_user\")).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Лента уведомлений текущего пользователя (лайки постов/комментов, комментарии к постам, подписки)."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /api/notifications/read [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "// pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "// pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));",
+                  "",
+                  "pm.test(\"Mark read 200\", () => pm.response.code === 200);",
+                  "pm.expect(pm.response.json()).to.have.property(\"message\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "read"]
+            },
+            "description": "Отметить все уведомления как прочитанные. Возвращает статус-сообщение."
+          },
+          "response": []
+        }
+      ],
+      "description": "Список уведомлений и отметка всех как прочитанных. Защищённые запросы"
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "GET /api/messages/:userId [auth]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// pm.test(\"Status is 200\", () => pm.response.code === 200);",
+                  "// pm.test(\"Body is JSON\", () => pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json'));",
+                  "// var messageSchema = {\"type\": \"object\", \"required\": [\"_id\", \"text\", \"sender\", \"recipient\", \"createdAt\"], \"properties\": {\"_id\": {\"type\": \"string\"}, \"text\": {\"type\": \"string\"}, \"sender\": {\"oneOf\": [{\"type\": \"string\"}, {\"type\": \"object\", \"required\": [\"_id\", \"username\"], \"properties\": {\"_id\": {\"type\": \"string\"}, \"username\": {\"type\": \"string\"}, \"profileImage\": {\"type\": [\"string\", \"null\"]}}, \"additionalProperties\": true}]}, \"recipient\": {\"oneOf\": [{\"type\": \"string\"}, {\"type\": \"object\", \"required\": [\"_id\", \"username\"], \"properties\": {\"_id\": {\"type\": \"string\"}, \"username\": {\"type\": \"string\"}, \"profileImage\": {\"type\": [\"string\", \"null\"]}}, \"additionalProperties\": true}]}, \"createdAt\": {\"type\": [\"string\", \"null\"]}}, \"additionalProperties\": true};",
+                  "// pm.test(\"Messages: array schema valid\", function () {",
+                  "//   var data = pm.response.json();",
+                  "//   pm.expect(Array.isArray(data)).to.be.true;",
+                  "//   var allValid = data.every(function(it){ return tv4.validate(it, messageSchema); });",
+                  "//   if (!allValid) {",
+                  "//     console.log(\"tv4 error\", tv4.error);",
+                  "//   }",
+                  "//   pm.expect(allValid).to.be.true;",
+                  "// });",
+                  "",
+                  "pm.test(\"Messages 200\", () => pm.response.code === 200);",
+                  "const arr = pm.response.json();",
+                  "pm.expect(arr).to.be.an(\"array\");",
+                  "if (arr.length) {",
+                  "  pm.test(\"Сообщение содержит sender/recipient/text\", () => {",
+                  "    pm.expect(arr[0]).to.have.property(\"text\");",
+                  "    pm.expect(arr[0]).to.have.property(\"sender\");",
+                  "    pm.expect(arr[0]).to.have.property(\"recipient\");",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/68e4505e867d39c240db0dbe",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "68e4505e867d39c240db0dbe"]
+            },
+            "description": "История переписки между текущим пользователем и пользователем `:userId` (сортировка по возрастанию `createdAt`)."
+          },
+          "response": []
+        }
+      ],
+      "description": "История диалога между текущим пользователем и другим пользователем. Защищённый запрос."
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "email",
+      "value": "user@example.com"
+    },
+    {
+      "key": "password",
+      "value": "Secret123!"
+    },
+    {
+      "key": "newPassword",
+      "value": "NewSecret123!"
+    },
+    {
+      "key": "username",
+      "value": "natalia"
+    },
+    {
+      "key": "fullName",
+      "value": "Nataliia K"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": "6710f7b3e6c2a50f6a9e0001"
+    },
+    {
+      "key": "postId",
+      "value": "6710f7b3e6c2a50f6a9e0002"
+    },
+    {
+      "key": "commentId",
+      "value": "6710f7b3e6c2a50f6a9e0003"
+    },
+    {
+      "key": "resetToken",
+      "value": "PASTE_RESET_TOKEN_HERE"
+    },
+    {
+      "key": "corsOrigin",
+      "value": "http://localhost:3001"
+    }
+  ]
+}

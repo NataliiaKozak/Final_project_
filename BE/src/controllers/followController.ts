@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Subscription from "../models/SubscriptionModel.js";
+import Follow from "../models/FollowModel.js";
 import { RequestWithUser } from "../middlewares/authMiddleware.js";
 import { createNotification } from "./notificationController.js";
 import { Types } from "mongoose";
@@ -12,12 +12,12 @@ export const getFollowers = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Некорректный userId" });
     }
 
-    const followers = await Subscription.find({ following: userId }).populate(
+    const followers = await Follow.find({ following: userId }).populate(
       "follower",
-      "username profile_image"
+      "username profileImage"
     );
 
-    // followers: Subscription[]; each .follower is populated (document) or ObjectId
+    // followers: Follow[]; each .follower is populated (document) or ObjectId
     const result = followers.map((s) =>
       (s.follower as unknown) // приведение безопаснее чем any
     );
@@ -37,9 +37,9 @@ export const getFollowing = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Некорректный userId" });
     }
 
-    const following = await Subscription.find({ follower: userId }).populate(
+    const following = await Follow.find({ follower: userId }).populate(
       "following",
-      "username profile_image"
+      "username profileImage"
     );
 
     const result = following.map((s) => (s.following as unknown));
@@ -74,7 +74,7 @@ export const followUser = async (
       return;
     }
 
-    const existing = await Subscription.findOne({
+    const existing = await Follow.findOne({
       follower: followerId,
       following: userId,
     });
@@ -83,13 +83,13 @@ export const followUser = async (
       return;
     }
 
-    const subscription = new Subscription({ follower: followerId, following: userId });
-    await subscription.save();
+    const follow = new Follow({ follower: followerId, following: userId });
+    await follow.save();
 
     // уведомление — теперь просто передаём строки, внутри оно корректно создаст ObjectId
     await createNotification(String(userId), String(followerId), "followed_user");
 
-    res.json({ message: "Подписка успешна", subscription });
+    res.json({ message: "Подписка успешна", follow });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Ошибка при подписке" });
@@ -110,12 +110,12 @@ export const unfollowUser = async (
       return;
     }
 
-    const subscription = await Subscription.findOneAndDelete({
+    const follow = await Follow.findOneAndDelete({
       follower: followerId,
       following: userId,
     });
 
-    if (!subscription) {
+    if (!follow) {
       res.status(400).json({ message: "Вы не подписаны на этого пользователя" });
       return;
     }
@@ -126,8 +126,8 @@ export const unfollowUser = async (
     res.status(500).json({ message: "Ошибка при отписке" });
   }
 };
-// Если у тебя есть Subscription коллекция — используй её (она уже есть у тебя).
-// После добавления/удаления записи в Subscription:
+// Если у тебя есть Follow коллекция — используй её (она уже есть у тебя).
+// После добавления/удаления записи в Follow:
 // Инкремент / декремент числовых полей followers_count / following_count пользователя через $inc, либо обновляй массивы followers/following через $addToSet / $pull (если ты их хранишь).
 // Пример:
 // await User.findByIdAndUpdate(targetUserId, { $inc: { followers_count: 1 }, $addToSet: { followers: followerId } });

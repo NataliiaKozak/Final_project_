@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IPost extends Document {
   _id: Types.ObjectId;
@@ -17,23 +17,34 @@ const PostSchema = new Schema<IPost>(
   {
     description: { type: String, required: false },
     image: { type: String, required: true },
-    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    likes: [{ type: Schema.Types.ObjectId, ref: "Like", default: [] }],
-    comments: [{ type: Schema.Types.ObjectId, ref: "Comment", default: [] }],
+    author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    likes: [{ type: Schema.Types.ObjectId, ref: 'Like', default: [] }],
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment', default: [] }],
   },
-  { timestamps: true }
+  { timestamps: true, id: false }
 );
 
-// Виртуальные поля
-PostSchema.virtual("likesCount").get(function (this: IPost) {
-  return this.likes.length;
+// Виртуальные поля // стало (устойчиво к undefined) не подтягивались посты
+PostSchema.virtual('likesCount').get(function (this: IPost) {
+  // return this.likes.length;
+  return (this.likes ?? []).length;
 });
 
-PostSchema.virtual("commentsCount").get(function (this: IPost) {
-  return this.comments.length;
+PostSchema.virtual('commentsCount').get(function (this: IPost) {
+  // return this.comments.length;
+  return (this.comments ?? []).length;
 });
 
-PostSchema.set("toJSON", { virtuals: true });
-PostSchema.set("toObject", { virtuals: true });
+//для фронта визуально без 2 id
+PostSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    // ret.id = String(ret._id);
+    delete ret.id; // ← убираем _id
+    return ret;
+  },
+});
+PostSchema.set('toObject', { virtuals: true });
 
-export default mongoose.model<IPost>("Post", PostSchema);
+export default mongoose.model<IPost>('Post', PostSchema);

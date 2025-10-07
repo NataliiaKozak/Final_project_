@@ -1,4 +1,4 @@
-import Subscription from "../models/SubscriptionModel.js";
+import Follow from "../models/FollowModel.js";
 import { createNotification } from "./notificationController.js";
 import { Types } from "mongoose";
 /* GET followers of userId */
@@ -8,8 +8,8 @@ export const getFollowers = async (req, res) => {
         if (!Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: "Некорректный userId" });
         }
-        const followers = await Subscription.find({ following: userId }).populate("follower", "username profile_image");
-        // followers: Subscription[]; each .follower is populated (document) or ObjectId
+        const followers = await Follow.find({ following: userId }).populate("follower", "username profileImage");
+        // followers: Follow[]; each .follower is populated (document) or ObjectId
         const result = followers.map((s) => s.follower // приведение безопаснее чем any
         );
         res.json(result);
@@ -26,7 +26,7 @@ export const getFollowing = async (req, res) => {
         if (!Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: "Некорректный userId" });
         }
-        const following = await Subscription.find({ follower: userId }).populate("following", "username profile_image");
+        const following = await Follow.find({ follower: userId }).populate("following", "username profileImage");
         const result = following.map((s) => s.following);
         res.json(result);
     }
@@ -52,7 +52,7 @@ export const followUser = async (req, res) => {
             res.status(400).json({ message: "Нельзя подписаться на самого себя" });
             return;
         }
-        const existing = await Subscription.findOne({
+        const existing = await Follow.findOne({
             follower: followerId,
             following: userId,
         });
@@ -60,11 +60,11 @@ export const followUser = async (req, res) => {
             res.status(400).json({ message: "Вы уже подписаны" });
             return;
         }
-        const subscription = new Subscription({ follower: followerId, following: userId });
-        await subscription.save();
+        const follow = new Follow({ follower: followerId, following: userId });
+        await follow.save();
         // уведомление — теперь просто передаём строки, внутри оно корректно создаст ObjectId
         await createNotification(String(userId), String(followerId), "followed_user");
-        res.json({ message: "Подписка успешна", subscription });
+        res.json({ message: "Подписка успешна", follow });
     }
     catch (error) {
         console.error(error);
@@ -80,11 +80,11 @@ export const unfollowUser = async (req, res) => {
             res.status(401).json({ message: "Требуется авторизация" });
             return;
         }
-        const subscription = await Subscription.findOneAndDelete({
+        const follow = await Follow.findOneAndDelete({
             follower: followerId,
             following: userId,
         });
-        if (!subscription) {
+        if (!follow) {
             res.status(400).json({ message: "Вы не подписаны на этого пользователя" });
             return;
         }
@@ -95,10 +95,10 @@ export const unfollowUser = async (req, res) => {
         res.status(500).json({ message: "Ошибка при отписке" });
     }
 };
-// Если у тебя есть Subscription коллекция — используй её (она уже есть у тебя).
-// После добавления/удаления записи в Subscription:
+// Если у тебя есть Follow коллекция — используй её (она уже есть у тебя).
+// После добавления/удаления записи в Follow:
 // Инкремент / декремент числовых полей followers_count / following_count пользователя через $inc, либо обновляй массивы followers/following через $addToSet / $pull (если ты их хранишь).
 // Пример:
 // await User.findByIdAndUpdate(targetUserId, { $inc: { followers_count: 1 }, $addToSet: { followers: followerId } });
 // await User.findByIdAndUpdate(followerId, { $inc: { following_count: 1 }, $addToSet: { following: targetUserId } });
-//# sourceMappingURL=subscriptionController.js.map
+//# sourceMappingURL=followController.js.map

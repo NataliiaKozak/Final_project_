@@ -24,10 +24,19 @@ const CommentSchema = new Schema<IComment>(
 );
 
 CommentSchema.virtual('likesCount').get(function (this: IComment) {
-  return this.likes.length;
+  // return this.likes.length;
+  return (this.likes ?? []).length; //для устойчивости к undefined
 });
 
-CommentSchema.set('toJSON', { virtuals: true });
+CommentSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    // ret.id = String(ret._id);
+    delete ret.id; // ← убираем _id
+    return ret;
+  },
+});
 CommentSchema.set('toObject', { virtuals: true });
 
 export default mongoose.model<IComment>('Comment', CommentSchema);

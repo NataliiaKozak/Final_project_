@@ -21,7 +21,7 @@ export const getAllPosts = async (
 ): Promise<void> => {
   try {
     const posts = await Post.find() //достаём все посты из базы (например, для ленты)
-      .populate('author', 'username profile_image fullName') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
+      .populate('author', 'username profileImage fullName') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
       .sort({ createdAt: -1 }); //новые сверху
 
     // Виртуальные поля (likesCount, commentsCount) добавятся автоматически
@@ -48,9 +48,9 @@ export const getUserPosts = async (
     //     const user = await User.findById(userId)
     //       .populate({
     //         path: "posts",
-    //         populate: { path: "author", select: "username profile_image" }, // подтянем автора в каждом посте
+    //         populate: { path: "author", select: "username profileImage" }, // подтянем автора в каждом посте
     //       })
-    //       .select("username profile_image fullName posts"); // отдаем только нужное, мы исключаем пароль и ненужные поля
+    //       .select("username profileImage fullName posts"); // отдаем только нужное, мы исключаем пароль и ненужные поля
 
     //        if (!user) {
     //       res.status(404).json({ message: 'Пользователь не найден' });
@@ -73,7 +73,7 @@ export const getUserPosts = async (
 
     // Ищем посты напрямую по Post (без user.posts, т.к. массива posts нет в UserModel)
     const posts = await Post.find({ author: userId })
-      // .populate('author', 'username profile_image')
+      // .populate('author', 'username profileImage')
       .select('_id image createdAt') // только превью для профиля
       .sort({ createdAt: -1 });
 
@@ -98,7 +98,7 @@ export const getPostById = async (
   try {
     // const post = await Post.findById(req.params.id).populate(
     //   'author',
-    //   'username fullName profile_image'
+    //   'username fullName profileImage'
     // );
 
     //Проверка ID
@@ -107,10 +107,10 @@ export const getPostById = async (
       return;
     }
     const post = await Post.findById(req.params.id)
-      .populate('author', 'username fullName profile_image')
+      .populate('author', 'username fullName profileImage')
       .populate({
         path: 'comments',
-        populate: { path: 'user', select: 'username fullName profile_image' },
+        populate: { path: 'user', select: 'username fullName profileImage' },
       });
     //при открытии детального экрана поста уже будут автор поста,
     // картинка и описание поста,массив комментариев с авторами
@@ -202,7 +202,7 @@ export const createPost = async (
 //       user_id: user._id,
 //       image_url: imageUrl,
 //       user_name: user.username,
-//       profile_image: user.profile_image,
+//       profileImage: user.profileImage,
 //       caption: req.body.caption,
 //       created_at: new Date(),
 //     });
@@ -340,7 +340,7 @@ export const explorePosts = async (
     //     description: 1,
     //     createdAt: 1,
     //     'author.username': 1,
-    //     'author.profile_image': 1,
+    //     'author.profileImage': 1,
     //     likes: 1,
     //     comments: 1,
     //   });

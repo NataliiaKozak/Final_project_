@@ -17,7 +17,7 @@ dotenv.config();
 const JWT_SECRET: Secret = process.env.JWT_SECRET || 'dev_secret';
 const JWT_RESET_SECRET: Secret =
   process.env.JWT_RESET_SECRET || 'dev_reset_secret';
-const ACCESS_EXPIRES: string = process.env.JWT_ACCESS_EXPIRES_IN || '1d';
+const JWT_ACCESS_EXPIRES: string = process.env.JWT_ACCESS_EXPIRES || '1d';
 
 // 🔹 Типы - содержать строковое поле user_id
 export interface JwtPayload {
@@ -37,7 +37,7 @@ export const generateToken = (user: { _id: Types.ObjectId }) => {
   return jwt.sign(
     { user_id: user._id.toString() },
     JWT_SECRET,
-    { expiresIn: ACCESS_EXPIRES } as SignOptions // подсказали тип
+    { expiresIn: JWT_ACCESS_EXPIRES } as SignOptions // подсказали тип
   );
 };
 

@@ -26,7 +26,7 @@ export const addComment = async (
 
     const post = await Post.findById(postId).populate(
       'author',
-      '_id username profile_image'
+      '_id username profileImage'
     );
 
     if (!post) {
@@ -54,7 +54,7 @@ export const addComment = async (
       );
     }
 
-    await comment.populate('user', 'username profile_image');
+    await comment.populate('user', 'username profileImage');
     res.json({ message: 'Комментарий добавлен', comment });
   } catch (error) {
     console.error('Ошибка при добавлении комментария:', error);
@@ -103,8 +103,8 @@ export const getPostComments = async (
   try {
     const { postId } = req.params;
     const comments = await Comment.find({ post: postId })
-      .populate('user', 'username profile_image');
-      // .populate('author', 'username profile_image');
+      .populate('user', 'username profileImage');
+      // .populate('author', 'username profileImage');
 
     res.json(comments);
   } catch (error) {

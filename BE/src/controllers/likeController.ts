@@ -58,7 +58,7 @@ export const toggleLike = async (
 //     const { postId } = req.params;
 //     const likes = await Like.find({ post: postId }).populate(
 //       'user',
-//       'username profile_image'
+//       'username profileImage'
 //     );
 //     res.json(likes);
 //   } catch (error) {
@@ -85,13 +85,13 @@ export const toggleLikeComment = async (
     // const comment = await Comment.findById(commentId).populate("author");
     // const comment = await Comment.findById(commentId).populate(
     //   'author',
-    //   '_id username profile_image'
+    //   '_id username profileImage'
     // );
     // if (!comment) {
     //   res.status(404).json({ message: 'Комментарий не найден' });
     //   return;
     // }
-    const comment = await Comment.findById(commentId).populate("user", "_id username profile_image");
+    const comment = await Comment.findById(commentId).populate("user", "_id username profileImage");
     if (!comment) {
       res.status(404).json({ message: "Комментарий не найден" });
       return;
@@ -143,7 +143,7 @@ export const toggleLikeComment = async (
 //     const { commentId } = req.params;
 //     const likes = await Like.find({ comment: commentId }).populate(
 //       'user',
-//       'username profile_image'
+//       'username profileImage'
 //     );
 //     res.json(likes);
 //   } catch (error) {

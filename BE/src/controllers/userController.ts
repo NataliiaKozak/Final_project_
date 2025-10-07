@@ -4,7 +4,7 @@ import Post from '../models/PostModel.js';
 import Comment from '../models/CommentModel.js';
 import Like from '../models/LikeModel.js';
 import Notification from '../models/NotificationModel.js';
-import Subscription from '../models/SubscriptionModel.js';
+import Follow from '../models/FollowModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js';
 import multer from 'multer';
 import { uploadToS3 } from '../config/s3.js';
@@ -25,16 +25,16 @@ export const getProfile = async (
     // // const user = await User.findById(id).select('-password');
     // const user = await User.findById(req.params.id)
     //   .select("-password") // скрываем  хэш пароля при выдаче данных пользователю.
-    //   .populate("followers", "username profile_image")
-    //   .populate("following", "username profile_image");//вместо того чтобы возвращать только массив ObjectId,
+    //   .populate("followers", "username profileImage")
+    //   .populate("following", "username profileImage");//вместо того чтобы возвращать только массив ObjectId,
     //   // ты сразу получаешь данные подписчиков/подписок
 
     const id = req.params.id;
 
     const user = await User.findById(id)
       .select('-password') // скрываем хэш пароля
-      .populate('followers', 'username profile_image')
-      .populate('following', 'username profile_image');
+      .populate('followers', 'username profileImage')
+      .populate('following', 'username profileImage');
 
     if (!user) {
       res.status(404).json({ message: 'Пользователь не найден' });
@@ -50,7 +50,7 @@ export const getProfile = async (
     // проверяем, подписан ли текущий пользователь (для чужого профиля)
     let isFollowing = false;
     if (req.user?.id && req.user.id !== id) {
-      const existing = await Subscription.findOne({
+      const existing = await Follow.findOne({
         follower: req.user.id,
         following: id,
       });
@@ -75,11 +75,15 @@ export const getProfile = async (
 // 🔹 Обновление профиля
 export const updateProfile = async (req: RequestWithUser, res: Response) => {
   try {
+    //TEMP
+    console.log('[PUT /api/users] has file?', !!req.file, req.file?.mimetype, req.file?.size);
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
     const { username, bio, fullName, website } = req.body;
-    const user = await User.findById(userId);
+
+    //после поверки в Постманн, чтобы не возвращать пароль
+    const user = await User.findById(userId).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     // обновляем только если поля пришли
@@ -89,12 +93,18 @@ export const updateProfile = async (req: RequestWithUser, res: Response) => {
     if (website !== undefined) user.website = website;
 
     if (req.file) {
-      const imageUrl = await uploadToS3(req.file, 'avatars');
-      user.profile_image = imageUrl;
+      const imageUrl = await uploadToS3(req.file, 'profileImages');
+      // console.log('[PUT /api/users] imageUrl:', imageUrl);
+      user.profileImage = imageUrl;
     }
 
     await user.save();
-    res.json(user);
+    //после проверки в Постманн: не возвращать пароль
+    // const { password, __v, ...safe } = user.toObject();
+    const {__v, ...safe } = user.toObject();
+return res.json(safe);
+    // res.json(user);
+
   } catch (err: unknown) {
     const error = err as Error;
     res
@@ -121,8 +131,8 @@ export const updateProfile = async (req: RequestWithUser, res: Response) => {
 //     if (req.body.website) user.website = req.body.website;
 
 //     if (req.file) {
-//       const imageUrl = await uploadToS3(req.file, "avatars");
-//       user.profile_image = imageUrl;
+//       const imageUrl = await uploadToS3(req.file, "profileImages");
+//       user.profileImage = imageUrl;
 //     }
 
 //     await user.save();

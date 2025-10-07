@@ -1,0 +1,42 @@
+.button {
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Отступ между иконкой и текстом */
+    line-height: 18px;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Варианты кнопок */
+  .button.primary {
+    background-color: #0095f6;
+    color: white;
+  }
+  
+  .button.secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .button.danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Отключенная кнопка */
+  .button.disabled {
+    background-color: #d6d6d6;
+    color: #8c8c8c;
+    cursor: not-allowed;
+  }
+  
+  /* Иконка в кнопке */
+  .button-icon {
+    display: inline-flex;
+    align-items: center;
+  }
+  

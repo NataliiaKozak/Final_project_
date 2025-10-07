@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
             username: newUser.username,
             email: newUser.email,
             fullName: newUser.fullName,
-            profile_image: newUser.profile_image || '',
+            profileImage: newUser.profileImage || '',
         };
         res.status(201).json({ token, user: userPublic });
     }
@@ -82,7 +82,7 @@ export const loginUser = async (req, res) => {
             username: user.username,
             email: user.email,
             fullName: user.fullName,
-            profile_image: user.profile_image || '',
+            profileImage: user.profileImage || '',
         };
         res.status(200).json({ token, user: userPublic });
     }

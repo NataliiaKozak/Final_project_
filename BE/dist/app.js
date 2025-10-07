@@ -6,7 +6,7 @@ import postRoutes from "./src/routes/postRoutes.js";
 import likeRoutes from "./src/routes/likeRoutes.js";
 import commentRoutes from "./src/routes/commentRoutes.js";
 import searchRoutes from "./src/routes/searchRoutes.js";
-import subscriptionRoutes from "./src/routes/subscriptionRoutes.js";
+import followRoutes from "./src/routes/followRoutes.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
 const app = express();
 // cors. Разрешить только фронту с 3001 порта
@@ -28,7 +28,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/search", searchRoutes);
-app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/follow", followRoutes);
 app.use("/api/notifications", notificationRoutes);
 // обработчик "не найдено" (404)
 app.use((req, res) => {

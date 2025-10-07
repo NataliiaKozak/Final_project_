@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const URL = process.env.MONGO_URL;
+// const URL = process.env.MONGO_URL;
 
 const connectDB = async () => {
   try {

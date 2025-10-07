@@ -6,7 +6,7 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     fullName: { type: String, required: true },
     bio: { type: String, default: '', maxlength: 150 },
-    profile_image: { type: String, default: '' },
+    profileImage: { type: String, default: '' },
     website: { type: String, default: "" },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
     following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],

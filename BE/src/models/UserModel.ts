@@ -9,7 +9,7 @@ export interface IUser extends Document {
   password: string;
   fullName: string;
   bio?: string;
-  profile_image?: string;
+  profileImage?: string; //переименовано
   website?: string;
   // posts?: Types.ObjectId[]; // или IPost[]
   posts?: IPost[];
@@ -24,11 +24,11 @@ const UserSchema = new Schema<IUser>(
   {
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false }, //пароль не выбираем по умолчанию, после проверки в постман
     fullName: { type: String, required: true },
     bio: { type: String, default: '', maxlength: 150 },
-    profile_image: { type: String, default: '' },
-    website: { type: String, default: "" },
+    profileImage: { type: String, default: '' },
+    website: { type: String, default: '' },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
     following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   },
@@ -64,15 +64,25 @@ UserSchema.virtual('posts', {
 });
 
 UserSchema.virtual('followersCount').get(function (this: IUser) {
-  return this.followers.length;
+  // return this.followers.length;чтобы  не упасть на length, устойчиво к undefined. Постман: список постов
+  return (this.followers ?? []).length;
 });
 
 UserSchema.virtual('followingCount').get(function (this: IUser) {
-  return this.following.length;
+  // return this.following.length;чтобы  не упасть на length, устойчиво к undefined. 
+  return (this.following ?? []).length;
 });
 
 // чтобы virtual попадали в JSON
-UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    // ret.id = String(ret._id);
+    delete ret.id; // ← убираем _id
+    return ret;
+  },
+});
 UserSchema.set('toObject', { virtuals: true });
 
 export default mongoose.model<IUser>('User', UserSchema);

@@ -9,6 +9,6 @@ const router = Router();
 router.get('/:id', getProfile);
 
 // /api/users → обновить профиль (аватар и данные) → обновить профиль (защищённый маршрут), middleware проверяет JWT
-router.put('/', protect, upload.single('avatar'), updateProfile);
+router.put('/', protect, upload.single('profileImage'), updateProfile);
 
 export default router;

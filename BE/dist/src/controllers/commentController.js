@@ -15,7 +15,7 @@ export const addComment = async (req, res) => {
             res.status(400).json({ message: 'Комментарий не может быть пустым' });
             return;
         }
-        const post = await Post.findById(postId).populate('author', '_id username profile_image');
+        const post = await Post.findById(postId).populate('author', '_id username profileImage');
         if (!post) {
             res.status(404).json({ message: 'Пост не найден' });
             return;
@@ -31,7 +31,7 @@ export const addComment = async (req, res) => {
         if (post.author && post.author._id.toString() !== userId) {
             await createNotification(post.author._id, userId, 'commented_post', post._id, comment._id);
         }
-        await comment.populate('user', 'username profile_image');
+        await comment.populate('user', 'username profileImage');
         res.json({ message: 'Комментарий добавлен', comment });
     }
     catch (error) {
@@ -70,8 +70,8 @@ export const getPostComments = async (req, res) => {
     try {
         const { postId } = req.params;
         const comments = await Comment.find({ post: postId })
-            .populate('user', 'username profile_image');
-        // .populate('author', 'username profile_image');
+            .populate('user', 'username profileImage');
+        // .populate('author', 'username profileImage');
         res.json(comments);
     }
     catch (error) {

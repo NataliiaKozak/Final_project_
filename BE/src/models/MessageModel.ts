@@ -19,4 +19,4 @@ const MessageSchema = new Schema<IMessage>(
 
 export default mongoose.model<IMessage>('Message', MessageSchema);
 
-//recipient  receiver кому отправлено
+

@@ -55,7 +55,7 @@ export const registerUser = async (
       username: newUser.username,
       email: newUser.email,
       fullName: newUser.fullName,
-      profile_image: newUser.profile_image || '',
+      profileImage: newUser.profileImage || '',
     };
 
     res.status(201).json({ token, user: userPublic });
@@ -71,8 +71,16 @@ export const registerUser = async (
 // =================== LOGIN ===================
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
-    const user = (await User.findOne({ email })) as IUser | null; // вместо any → IUser
+    //чтобы на фронте инпут “Username or email” → поле emailOrUsername
+    // const { email, password } = req.body;
+    // const user = (await User.findOne({ email })) as IUser | null; // вместо any → IUser
+    const { emailOrUsername, password } = req.body as {
+      emailOrUsername: string;
+      password: string;
+    };
+    const user = await User.findOne({
+  $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+}).select('+password'); //после проверки в постманн про пароль при put
 
     if (!user) {
       res.status(400).json({ message: 'Неверные учетные данные' });
@@ -90,14 +98,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     //     ? await (user as any).comparePassword(password)
     //     : await bcrypt.compare(password, user.password);
 
-    // переносим логику проверки пароля в модель 
+    // переносим логику проверки пароля в модель
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
       res.status(400).json({ message: 'Неверные учетные данные' });
       return;
     }
-
 
     const token = generateToken(user);
 
@@ -106,7 +113,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       username: user.username,
       email: user.email,
       fullName: user.fullName,
-      profile_image: user.profile_image || '',
+      profileImage: user.profileImage || '',
     };
 
     res.status(200).json({ token, user: userPublic });
@@ -131,15 +138,27 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 
     const token = generateResetToken(user._id.toString());
 
+    // МИНИ-добавка: показываем токен в DEV
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[DEV] reset token:', token);
+      // опционально: готовая ссылка для фронта
+      // console.log(`[DEV] reset link: http://localhost:3001/reset-password?token=${token}`);
+    }
+
     // Отправляем письмо — в prod не возвращаем токен в ответе
     await sendResetPasswordEmail(email, token);
 
     // console.log("token: ", token)
+// 🔹 МИНИ-добавка: в DEV отдаем токен в ответе (чтобы удобно скопировать в Postman)
+    if (process.env.NODE_ENV !== 'production') {
+      return res.json({
+        message: 'Ссылка для сброса пароля отправлена на email',
+        token,
+      });
+    }
 
-    // Для разработки можно вернуть token (удалить в проде)
-    res.json({
-      message: 'Ссылка для сброса пароля отправлена на email' /*, token */,
-    });
+    // PROD-ответ без токена
+    res.json({ message: 'Ссылка для сброса пароля отправлена на email' });
   } catch (err: unknown) {
     const error = err as Error;
     res.status(500).json({
@@ -148,6 +167,21 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+
+//     // Для разработки можно вернуть token (удалить в проде)
+//     res.json({
+//       message: 'Ссылка для сброса пароля отправлена на email' /*, token */,
+//     });
+//   } catch (err: unknown) {
+//     const error = err as Error;
+//     res.status(500).json({
+//       message: 'Ошибка при запросе сброса пароля',
+//       error: error.message,
+//     });
+//   }
+// };
 
 // =================== RESET PASSWORD ===================
 export const resetPassword = async (req: Request, res: Response) => {
@@ -167,7 +201,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const user = await User.findById<IUser>(decoded.id); //дженерик
     if (!user) {
       res.status(404).json({ message: 'Пользователь не найден' });
-      return; 
+      return;
     }
     // Присваиваем новый пароль — pre('save') в модели хеширует его
     user.password = newPassword;
