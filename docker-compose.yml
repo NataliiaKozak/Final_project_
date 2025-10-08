@@ -1,0 +1,54 @@
+version: "3.9"                             # Версия формата docker-compose. Совместима с Docker 18.06+ и выше.
+services:                                   # Раздел, где описываются все контейнеры (сервисы) проекта.
+
+  backend:                                  # Первый сервис — серверная часть (Node.js / Express).
+    build:                                  # Указываем, как собрать образ для backend.
+      context: ./BE                         # Путь к папке, где находится код backend и Dockerfile.
+      dockerfile: Dockerfile                # Имя Dockerfile, который будет использоваться для сборки.
+    container_name: BE                      # Явное имя контейнера (будет отображаться в docker ps).
+    ports:
+      - "3000:3005"                         # Пробрасываем порт 5000 наружу: <хост>:<контейнер>.
+    # depends_on:
+    #   - mongo                               # Гарантируем, что контейнер Mongo запустится до backend.
+    environment:                            # Передаём переменные окружения внутрь контейнера.
+      - MONGO_URI=mongodb+srv://kozaksvet_db_user:6tpo9AxHTi0NymEI@cluster0.u76opgz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      # Адрес для подключения к MongoDB по имени сервиса "mongo".
+      - PORT=3000                           # Порт, на котором Express-сервер будет слушать запросы.
+    volumes:                                # Монтируем папки для разработки без пересборки.
+      - ./BE:/app                       # Локальная папка ./server → внутренняя /app (код проекта).
+      - /app/node_modules                   # Исключаем node_modules из синхронизации (чтобы не затирать).
+    networks:
+      - app-network                         # Подключаем backend к общей сети (чтобы видеть другие сервисы).
+    command: npm run dev                    # Команда, запускающая dev-режим (например, через nodemon).
+
+  frontend:                                 # Второй сервис — клиентская часть (React / Vite).
+    build:                                  # Аналогично, собираем образ для фронтенда.
+      context: ./FE                         # Путь к исходникам фронта.
+      dockerfile: Dockerfile                # Dockerfile, по которому будет собираться образ фронта.
+    container_name: FE                      # Имя контейнера (для удобства в CLI).
+    ports:
+      - "5173:5173"                         # Пробрасываем порт 5173 наружу для доступа с браузера.
+    volumes:
+      - ./FE:/app                           # Монтируем локальные файлы фронта для hot-reload.
+      - /app/node_modules                   # Не синхронизируем node_modules.
+    networks:
+      - app-network                         # Фронт и бэк общаются через одну сеть.
+    command: npm run devdocker              # Команда запуска dev-сервера Vite (из package.json).
+
+  # mongo:                                    # Третий сервис — база данных MongoDB.
+  #   image: mongo:7.0                        # Используем официальный образ MongoDB версии 7.0.
+  #   container_name: mongo                   # Явное имя контейнера.
+  #   restart: always                         # Автоматический перезапуск, если контейнер упадёт.
+  #   ports:
+  #     - "27017:27017"                       # Пробрасываем порт Mongo наружу (можно подключаться из Compass).
+  #   volumes:
+  #     - mongo-data:/data/db                 # Том для хранения данных базы (сохранится при пересборке).
+  #   networks:
+  #     - app-network                         # Подключаем Mongo к той же сети, чтобы backend мог её видеть.
+
+# volumes:                                    # Определяем все именованные тома (persistent storage).
+#   mongo-data:                               # Том для MongoDB данных (хранится вне контейнера).
+
+networks:                                   # Определяем пользовательскую сеть Docker.
+  app-network:                              # Сеть, объединяющая все сервисы проекта.
+    driver: bridge                          # Тип сети: bridge (изолированная локальная сеть Docker).

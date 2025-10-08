@@ -1,5 +1,5 @@
-import { ResetForm } from '../../molecules/resetForm/ResetForm';
-import styles from './restPage.module.css';
+import { ResetForm } from '../../components/authLogin/resetForm/ResetForm';
+import styles from './resetPage.module.css';
 
 export const ResetPage = () => {
   return (

@@ -13,16 +13,37 @@
 //   if (token) config.headers.Authorization = `Bearer ${token}`;
 //   return config;
 // });
+
+// import axios from 'axios';
+
+// const base_url = 'http://localhost:3000/api';
+
+// export const $api = axios.create({ baseURL: base_url });
+
+// $api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('token');
+//   if (token) config.headers.Authorization = `Bearer ${token}`;
+//   return config;
+// });
+
+// export const socketURL = 'http://localhost:3000';
+
 import axios from 'axios';
 
-const base_url = 'http://localhost:3000/api';
+const baseURL =
+  import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || 'http://localhost:3000/api';
 
-export const $api = axios.create({ baseURL: base_url });
+export const $api = axios.create({
+  baseURL,
+  withCredentials: false,
+});
 
 $api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-export const socketURL = 'http://localhost:3000';

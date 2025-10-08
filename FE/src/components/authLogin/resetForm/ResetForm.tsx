@@ -4,12 +4,10 @@ import { Link } from 'react-router-dom';
 import { $api } from '../../../api/api';
 import CustomButton from '../../ui/customButton/CustomButton';
 import CustomInput from '../../ui/customInput/CustomInput';
-import trouble from '../../assets/trouble_logging _in.svg';
+import trouble from '../../../assets/trouble_logging _in.svg';
 import { HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 
 export const ResetForm = () => {
- 
-
   const [userObject, setUserObject] = useState({
     email: '',
     password: '',
@@ -23,13 +21,13 @@ export const ResetForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
-    setUserObject(prev => ({
+    setUserObject((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
-  const handleCheckUser = async e => {
+  const handleCheckUser = async (e) => {
     e.preventDefault();
     setError('');
     try {
@@ -39,15 +37,16 @@ export const ResetForm = () => {
       if (response.status === 200) {
         setIsPasswordReset(true);
       } else {
-        setError('User not found'); 
+        setError('User not found');
       }
     } catch (error) {
       console.error('Ошибка при проверке пользователя:', error);
-      setError('Error checking user'); 
+      setError('Error checking user');
     }
   };
 
-  const handleUpdatePassword = async e => { //any!!
+  const handleUpdatePassword = async (e) => {
+    //any!!
     e.preventDefault();
     setError('');
     try {
@@ -56,15 +55,15 @@ export const ResetForm = () => {
         newPassword,
       });
       if (response.status === 200) {
-        alert('Password updated successfully'); 
+        alert('Password updated successfully');
         setIsPasswordReset(false);
         setNewPassword('');
       } else {
-        setError('Error updating password'); 
+        setError('Error updating password');
       }
     } catch (error) {
       console.error('Ошибка при обновлении пароля:', error);
-      setError('Error updating password'); 
+      setError('Error updating password');
     }
   };
 
@@ -75,15 +74,16 @@ export const ResetForm = () => {
         onSubmit={isPasswordReset ? handleUpdatePassword : handleCheckUser}
       >
         <img src={trouble} alt="logo" />
-        <h5>Trouble logging in?</h5> 
+        <h5>Trouble logging in?</h5>
         <p className={styles.instruction}>
-          Enter your email and we'll send you a link to get back into your account.
-        </p> 
+          Enter your email and we'll send you a link to get back into your
+          account.
+        </p>
 
         <CustomInput
-          placeholder="Enter your email" 
+          placeholder="Enter your email"
           value={userObject.email}
-          onChange={value => handleInputChange('email', value)}
+          onChange={(value) => handleInputChange('email', value)}
           type="email"
           style={{
             paddingLeft: '8px',
@@ -118,18 +118,14 @@ export const ResetForm = () => {
         {error && <p className={styles.errorMessage}>{error}</p>}
 
         <CustomButton
-          text={
-            isPasswordReset
-              ? 'Save new password' 
-              : 'Reset password' 
-          }
+          text={isPasswordReset ? 'Save new password' : 'Reset password'}
           style={{ width: '268px', height: '32px' }}
           type="submit"
         />
 
         <div className={styles.lineBox}>
           <div className={styles.line}></div>
-          <p>OR</p> 
+          <p>OR</p>
           <div className={styles.line}></div>
         </div>
 
@@ -148,4 +144,3 @@ export const ResetForm = () => {
     </div>
   );
 };
-
