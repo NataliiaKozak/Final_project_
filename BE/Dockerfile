@@ -15,7 +15,7 @@ RUN npm install
 
 # Открываем порты
 EXPOSE 3000
-EXPOSE 3005
+EXPOSE 3000
 
 # Запускаем приложение (команда переопределена в docker-compose)
 CMD ["npm", "run", "dev"]

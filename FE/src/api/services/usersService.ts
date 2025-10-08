@@ -11,15 +11,28 @@
 // };
 
 //2
+// import { $api } from '../api';
+// import type { IUser } from '../../interfaces/api.interface';
+
+// export const getUserByIdApi = async (userId: string): Promise<IUser> => {
+//   try {
+//     const { data } = await $api.get<IUser>(`/api/users/${userId}`);
+//     return data;
+//   } catch (err) {
+//     console.error(err);
+//     throw new Error('Ошибка при получении пользователя');
+//   }
+// };
+
 import { $api } from '../api';
-import type { IUser } from '../../interfaces/api.interface';
+import type { IUser } from '../../interfaces/user.interface';
 
 export const getUserByIdApi = async (userId: string): Promise<IUser> => {
   try {
-    const { data } = await $api.get<IUser>(`/api/users/${userId}`);
+    const { data } = await $api.get<IUser>(`/users/${userId}`);
     return data;
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.error(e);
     throw new Error('Ошибка при получении пользователя');
   }
 };

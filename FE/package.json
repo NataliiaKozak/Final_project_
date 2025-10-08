@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "devdocker": "vite --host 0.0.0.0 --port 5173 --strictPort"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

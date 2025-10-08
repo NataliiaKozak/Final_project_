@@ -9,9 +9,9 @@ import searchRoutes from "./src/routes/searchRoutes.js";
 import followRoutes from "./src/routes/followRoutes.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
 const app = express();
-// cors. Разрешить только фронту с 3001 порта
+// cors. Разрешить только фронту с 5173 порта
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3001',
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));

@@ -4,8 +4,10 @@ export interface IUser {
   email: string;
   fullName: string;
   bio?: string;
-  profileImage?: string;
   website?: string;
+  profileImage?: string;
+
+  // агрегаты/виртуалы с /api/users/:id
   followersCount?: number;
   followingCount?: number;
   postsCount?: number;
@@ -13,6 +15,15 @@ export interface IUser {
   likesCount?: number;
   notificationsCount?: number;
   isFollowing?: boolean;
+
   createdAt?: string;
   updatedAt?: string;
 }
+export type UpdateProfilePayload = {
+  username?: string;
+  bio?: string;
+  fullName?: string;
+  website?: string;
+  // файл для аватарки, уйдёт как FormData под ключом 'profileImage'
+  profileImageFile?: File | Blob | null;
+};

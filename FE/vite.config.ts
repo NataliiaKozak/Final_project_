@@ -1,39 +1,21 @@
-// import { defineConfig } from 'vite';
-// import react from '@vitejs/plugin-react-swc';
+// Импортируем функцию для создания конфигурации Vite
+import { defineConfig } from 'vite'
 
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react()],
-// });
+// Подключаем плагин React для поддержки JSX, Fast Refresh и других фич
+import react from '@vitejs/plugin-react'
 
-// import { defineConfig } from "vite";
-// import react from "@vitejs/plugin-react";
-// import path from "path";
-
-// export default defineConfig({
-//   plugins: [react()],
-//   resolve: {
-//     alias: {
-//       "@": path.resolve(__dirname, "src")
-//     }
-//   },
-//   server: {
-//     port: 3000
-//   }
-// });
-
-
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-// import path from "node:path";
-// import { fileURLToPath } from "node:url";
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
+// Экспортируем конфигурацию Vite
 export default defineConfig({
-  server: { host: true, port: 3001 },
+  // Подключаем плагины Vite (в данном случае — только React)
   plugins: [react()],
-  // resolve: { alias: { "@": path.resolve(__dirname, "src") } },
-  // server: { port: 3001 }
-});
+
+  // Настройки dev-сервера Vite
+  server: {
+    port: 5173,   // Порт, на котором будет запущен frontend (http://localhost:5173)
+
+    host: true    //  Очень важно для работы внутри Docker-контейнера!
+    // Указывает, что сервер должен быть доступен снаружи (не только на localhost)
+    // Иначе frontend будет запускаться, но недоступен из браузера вне контейнера
+  }
+})
+

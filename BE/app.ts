@@ -13,10 +13,10 @@ import notificationRoutes from "./src/routes/notificationRoutes.js";
 
 const app: Application = express();
 
-// cors. Разрешить только фронту с 3001 порта
+// cors. Разрешить только фронту с 5173 порта
 app.use(cors({
-  origin: process.env.CLIENT_URL || ['http://localhost:3001', 'http://localhost:5173'], 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: process.env.CLIENT_URL || 'http://localhost:5173', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true, 
 }));
 

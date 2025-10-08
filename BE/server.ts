@@ -7,14 +7,26 @@ dotenv.config();
 
 const PORT: number | string = process.env.PORT || 3000;
 
-app.listen(PORT, async () => {
-  try {
-    await connectDB();
-    console.log(`Server running on http://localhost:${PORT}`);
-  } catch (err) {
-    console.error('Error connecting server', err);
-  }
-});
+// app.listen(PORT, async () => {
+//   try {
+//     await connectDB();
+//     console.log(`Server running on http://localhost:${PORT}`);
+//   } catch (err) {
+//     console.error('Error connecting server', err);
+//   }
+// });
+
+connectDB()
+  .then(() => {
+    // Стартуем сервер ТОЛЬКО после успешного подключения
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('DB connection failed:', err);
+    process.exit(1); // чтобы процесс не висел без БД
+  });
 
 // сокет
 // import http from 'http';
@@ -35,7 +47,7 @@ app.listen(PORT, async () => {
 // // подключаем Socket.IO
 // const io = new Server(server, {
 //   cors: {
-//     origin: process.env.CLIENT_URL || 'http://localhost:3001',
+//     origin: process.env.CLIENT_URL || 'http://localhost:5173',
 //     credentials: true,
 //     },
 // //   transports: ['websocket', 'polling'],

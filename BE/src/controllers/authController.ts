@@ -142,7 +142,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     if (process.env.NODE_ENV !== 'production') {
       console.log('[DEV] reset token:', token);
       // опционально: готовая ссылка для фронта
-      // console.log(`[DEV] reset link: http://localhost:3001/reset-password?token=${token}`);
+      // console.log(`[DEV] reset link: http://localhost:5173/reset-password?token=${token}`);
     }
 
     // Отправляем письмо — в prod не возвращаем токен в ответе

@@ -27,7 +27,7 @@ app.listen(PORT, async () => {
 // // подключаем Socket.IO
 // const io = new Server(server, {
 //   cors: {
-//     origin: process.env.CLIENT_URL || 'http://localhost:3001',
+//     origin: process.env.CLIENT_URL || 'http://localhost:5173',
 //     credentials: true,
 //     },
 // //   transports: ['websocket', 'polling'],

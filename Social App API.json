@@ -22,7 +22,7 @@
                   "pm.test(\"CORS: Access-Control-Allow-Origin present\", function () {",
                   "  const h = pm.response.headers.get(\"Access-Control-Allow-Origin\");",
                   "  pm.expect(h, \"header exists\").to.exist;",
-                  "  pm.expect(h, \"matches expected origin\").to.equal(pm.environment.get(\"corsOrigin\") || \"http://localhost:3001\");",
+                  "  pm.expect(h, \"matches expected origin\").to.equal(pm.environment.get(\"corsOrigin\") || \"http://localhost:5173\");",
                   "});"
                 ]
               }
@@ -257,7 +257,7 @@
                   "pm.test(\"CORS: Access-Control-Allow-Origin present\", function () {",
                   "  const h = pm.response.headers.get(\"Access-Control-Allow-Origin\");",
                   "  pm.expect(h, \"header exists\").to.exist;",
-                  "  pm.expect(h, \"matches expected origin\").to.equal(pm.environment.get(\"corsOrigin\") || \"http://localhost:3001\");",
+                  "  pm.expect(h, \"matches expected origin\").to.equal(pm.environment.get(\"corsOrigin\") || \"http://localhost:5173\");",
                   "});",
                   "",
                   "var schemaUser = {",
@@ -1369,7 +1369,7 @@
     },
     {
       "key": "corsOrigin",
-      "value": "http://localhost:3001"
+      "value": "http://localhost:5173"
     }
   ]
 }
