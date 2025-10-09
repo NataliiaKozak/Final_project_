@@ -10,7 +10,7 @@ dotenv.config();
 // const ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES_IN || "1d"; // срок жизни access токена
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 const JWT_RESET_SECRET = process.env.JWT_RESET_SECRET || 'dev_reset_secret';
-const ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES_IN || '1d';
+const JWT_ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES || '1d';
 // 🔹 Генерация токенов
 // Access токен (для авторизации)
 // export const generateToken = (user: { _id: Types.ObjectId }) => {
@@ -19,7 +19,7 @@ const ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES_IN || '1d';
 //   );
 // };
 export const generateToken = (user) => {
-    return jwt.sign({ user_id: user._id.toString() }, JWT_SECRET, { expiresIn: ACCESS_EXPIRES } // подсказали тип
+    return jwt.sign({ user_id: user._id.toString() }, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRES } // подсказали тип
     );
 };
 // Проверка Access токена

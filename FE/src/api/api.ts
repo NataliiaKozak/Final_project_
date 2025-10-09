@@ -47,3 +47,5 @@ $api.interceptors.request.use((config) => {
   return config;
 });
 
+// export const socketURL = 'http://ichgram:3000';
+

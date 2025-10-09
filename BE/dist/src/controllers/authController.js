@@ -55,8 +55,13 @@ export const registerUser = async (req, res) => {
 // =================== LOGIN ===================
 export const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = (await User.findOne({ email })); // вместо any → IUser
+        //чтобы на фронте инпут “Username or email” → поле emailOrUsername
+        // const { email, password } = req.body;
+        // const user = (await User.findOne({ email })) as IUser | null; // вместо any → IUser
+        const { emailOrUsername, password } = req.body;
+        const user = await User.findOne({
+            $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+        }).select('+password'); //после проверки в постманн про пароль при put
         if (!user) {
             res.status(400).json({ message: 'Неверные учетные данные' });
             return;
@@ -70,7 +75,7 @@ export const loginUser = async (req, res) => {
         //   typeof (user as any).comparePassword === 'function'
         //     ? await (user as any).comparePassword(password)
         //     : await bcrypt.compare(password, user.password);
-        // переносим логику проверки пароля в модель 
+        // переносим логику проверки пароля в модель
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             res.status(400).json({ message: 'Неверные учетные данные' });
@@ -105,13 +110,24 @@ export const requestPasswordReset = async (req, res) => {
             return res.status(400).json({ message: 'Пользователь не найден' });
         }
         const token = generateResetToken(user._id.toString());
+        // МИНИ-добавка: показываем токен в DEV
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('[DEV] reset token:', token);
+            // опционально: готовая ссылка для фронта
+            // console.log(`[DEV] reset link: http://localhost:5173/reset-password?token=${token}`);
+        }
         // Отправляем письмо — в prod не возвращаем токен в ответе
         await sendResetPasswordEmail(email, token);
         // console.log("token: ", token)
-        // Для разработки можно вернуть token (удалить в проде)
-        res.json({
-            message: 'Ссылка для сброса пароля отправлена на email' /*, token */,
-        });
+        // 🔹 МИНИ-добавка: в DEV отдаем токен в ответе (чтобы удобно скопировать в Postman)
+        if (process.env.NODE_ENV !== 'production') {
+            return res.json({
+                message: 'Ссылка для сброса пароля отправлена на email',
+                token,
+            });
+        }
+        // PROD-ответ без токена
+        res.json({ message: 'Ссылка для сброса пароля отправлена на email' });
     }
     catch (err) {
         const error = err;
@@ -121,6 +137,18 @@ export const requestPasswordReset = async (req, res) => {
         });
     }
 };
+//     // Для разработки можно вернуть token (удалить в проде)
+//     res.json({
+//       message: 'Ссылка для сброса пароля отправлена на email' /*, token */,
+//     });
+//   } catch (err: unknown) {
+//     const error = err as Error;
+//     res.status(500).json({
+//       message: 'Ошибка при запросе сброса пароля',
+//       error: error.message,
+//     });
+//   }
+// };
 // =================== RESET PASSWORD ===================
 export const resetPassword = async (req, res) => {
     try {

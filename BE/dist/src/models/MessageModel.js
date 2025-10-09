@@ -6,5 +6,4 @@ const MessageSchema = new Schema({
 }, { timestamps: true } //  автоматически
 );
 export default mongoose.model('Message', MessageSchema);
-//recipient  receiver кому отправлено
 //# sourceMappingURL=MessageModel.js.map

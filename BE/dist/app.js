@@ -7,12 +7,13 @@ import likeRoutes from "./src/routes/likeRoutes.js";
 import commentRoutes from "./src/routes/commentRoutes.js";
 import searchRoutes from "./src/routes/searchRoutes.js";
 import followRoutes from "./src/routes/followRoutes.js";
+import messageRoutes from "./src/routes/messageRoutes.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
 const app = express();
 // cors. Разрешить только фронту с 5173 порта
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 app.use(express.json()); // для JSON
@@ -28,7 +29,8 @@ app.use("/api/posts", postRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/search", searchRoutes);
-app.use("/api/follow", followRoutes);
+app.use("/api/follows", followRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 // обработчик "не найдено" (404)
 app.use((req, res) => {

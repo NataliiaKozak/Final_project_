@@ -20,18 +20,22 @@ export const uploadToS3 = async (file, folder) => {
         .resize({ width: 1080, withoutEnlargement: true }) // не увеличиваем, если фото меньше
         .jpeg({ quality: 80 }) // конвертируем в JPEG с 80% качеством
         .toBuffer();
+    //добавлено при проверке в постман из-за проблем с фото
+    const bucket = process.env.S3_BUCKET_NAME;
     // const key = `${folder}/${uuidv4()}-${file.originalname}`;
     const key = `${folder}/${uuidv4()}-${file.originalname.replace(/\s+/g, '_')}`; //убирает пробелы
     const command = new PutObjectCommand({
-        Bucket: process.env.S3_BUCKET_NAME,
+        // Bucket: process.env.S3_BUCKET_NAME!,
+        Bucket: bucket,
         Key: key,
         // Body: file.buffer,
         Body: processedImage, // загружаем обработанный файл
         // ContentType: file.mimetype,
         ContentType: 'image/jpeg',
-        ACL: 'public-read', //чтобы файл был доступен по URL/можно убрать и настроить bucket policy
+        // ACL: 'public-read', //чтобы файл был доступен по URL/можно убрать и настроить bucket policy/убрано из-за проверки
+        CacheControl: 'public, max-age=31536000, immutable', //добавлено при проверке в постман
     });
     await s3.send(command);
-    return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    return `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 };
 //# sourceMappingURL=s3.js.map

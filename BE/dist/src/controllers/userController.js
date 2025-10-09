@@ -3,7 +3,7 @@ import Post from '../models/PostModel.js';
 import Comment from '../models/CommentModel.js';
 import Like from '../models/LikeModel.js';
 import Notification from '../models/NotificationModel.js';
-import Subscription from '../models/SubscriptionModel.js';
+import Follow from '../models/FollowModel.js';
 import multer from 'multer';
 import { uploadToS3 } from '../config/s3.js';
 const storage = multer.memoryStorage();
@@ -19,7 +19,7 @@ res) => {
         // // const user = await User.findById(id).select('-password');
         // const user = await User.findById(req.params.id)
         //   .select("-password") // скрываем  хэш пароля при выдаче данных пользователю.
-        //   .populate("followers", "username profile_image")
+        //   .populate("followers", "username profileImage")
         //   .populate("following", "username profileImage");//вместо того чтобы возвращать только массив ObjectId,
         //   // ты сразу получаешь данные подписчиков/подписок
         const id = req.params.id;
@@ -40,7 +40,7 @@ res) => {
         // проверяем, подписан ли текущий пользователь (для чужого профиля)
         let isFollowing = false;
         if (req.user?.id && req.user.id !== id) {
-            const existing = await Subscription.findOne({
+            const existing = await Follow.findOne({
                 follower: req.user.id,
                 following: id,
             });
@@ -65,11 +65,14 @@ res) => {
 // 🔹 Обновление профиля
 export const updateProfile = async (req, res) => {
     try {
+        //TEMP
+        console.log('[PUT /api/users] has file?', !!req.file, req.file?.mimetype, req.file?.size);
         const userId = req.user?.id;
         if (!userId)
             return res.status(401).json({ message: 'Unauthorized' });
         const { username, bio, fullName, website } = req.body;
-        const user = await User.findById(userId);
+        //после поверки в Постманн, чтобы не возвращать пароль
+        const user = await User.findById(userId).select('-password');
         if (!user)
             return res.status(404).json({ message: 'User not found' });
         // обновляем только если поля пришли
@@ -83,10 +86,15 @@ export const updateProfile = async (req, res) => {
             user.website = website;
         if (req.file) {
             const imageUrl = await uploadToS3(req.file, 'profileImages');
+            // console.log('[PUT /api/users] imageUrl:', imageUrl);
             user.profileImage = imageUrl;
         }
         await user.save();
-        res.json(user);
+        //после проверки в Постманн: не возвращать пароль
+        // const { password, __v, ...safe } = user.toObject();
+        const { __v, ...safe } = user.toObject();
+        return res.json(safe);
+        // res.json(user);
     }
     catch (err) {
         const error = err;
