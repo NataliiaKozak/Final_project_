@@ -1,4 +1,4 @@
-import EditProfileForm from '../../molecules/editProfileForm/EditProfileForm';
+import EditProfileForm from '../../components/profiles/editProfileForm/EditProfileForm';
 
 const EditProfilePage = () => {
   return (

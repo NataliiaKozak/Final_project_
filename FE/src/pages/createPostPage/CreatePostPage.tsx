@@ -21,10 +21,13 @@ const CreatePostPage: React.FC = () => {
   return (
     <div className={styles.createPostPage}>
       <h1 className={styles.createPostTitle}>Create new post</h1>
-      {/* <ImageForm closeModal={() => {}} /> no-op, чтобы не ругался тип */}
-      <ImageForm /> // no-op, чтобы не ругался тип
+      {/* {/* <ImageForm closeModal={() => {}} /> no-op, чтобы не ругался тип.  */}
+      {/* сейчас проп не обязателен
+      связано с components/create/imageForm/ImageForm.ts */}  */
+      <ImageForm closeModal={() => {}}/> 
     </div>
   );
 };
+
 
 export default CreatePostPage;

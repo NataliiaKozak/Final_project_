@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation  } from 'react-router-dom';
 import styles from './menubar.module.css';
 
 import homeIcon from '../../../assets/homeIcon.svg';
@@ -23,12 +23,7 @@ import NotificationsBar from '../../notifications/notificationsBar/Notifications
 const Menubar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
-  const [activeLink, setActiveLink] = useState<string>('');
-  const [modalSize, setModalSize] = useState<
-    'default' | 'left' | 'large' | 'small'
-  >('default');
-
-  const userId = localStorage.getItem('userId') || 'mockUserId';
+  const [modalSize, setModalSize] = useState<'default' | 'left' | 'large' | 'small'>('default');
 
   const openModal = (type: string) => {
     setIsModalOpen(true);
@@ -39,7 +34,7 @@ const Menubar = () => {
         break;
       case 'notifications':
         setModalSize('left');
-        setModalContent(<NotificationsBar />); // ← не передаем userId . не принимает пропсы, он сам берёт user из Redux
+        setModalContent(<NotificationsBar />);
         break;
       case 'create':
         setModalSize('large');
@@ -55,16 +50,9 @@ const Menubar = () => {
     setModalContent(null);
   };
 
-  const handleLinkClick = (link: string) => setActiveLink(link);
-
   return (
     <nav className={styles.menubar}>
-      <NavLink
-        to="/home"
-        className={({ isActive }) =>
-          isActive ? styles.activeLink : styles.link
-        }
-      >
+      <NavLink to="/home" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
         {({ isActive }) => (
           <>
             <img src={isActive ? homeIconActive : homeIcon} alt="Home" />
@@ -75,13 +63,10 @@ const Menubar = () => {
 
       <NavLink
         to="/search"
-        className={({ isActive }) =>
-          isActive ? styles.activeLink : styles.link
-        }
+        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
         onClick={(e) => {
           e.preventDefault();
           openModal('search');
-          handleLinkClick('search');
         }}
       >
         {({ isActive }) => (
@@ -92,35 +77,19 @@ const Menubar = () => {
         )}
       </NavLink>
 
-      <NavLink
-        to="/explore"
-        className={({ isActive }) =>
-          isActive ? styles.activeLink : styles.link
-        }
-      >
+      <NavLink to="/explore" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
         {({ isActive }) => (
           <>
-            <img
-              src={isActive ? exploreIconActive : exploreIcon}
-              alt="Explore"
-            />
+            <img src={isActive ? exploreIconActive : exploreIcon} alt="Explore" />
             <span>Explore</span>
           </>
         )}
       </NavLink>
 
-      <NavLink
-        to="/messages"
-        className={({ isActive }) =>
-          isActive ? styles.activeLink : styles.link
-        }
-      >
+      <NavLink to="/messages" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
         {({ isActive }) => (
           <>
-            <img
-              src={isActive ? messagesIconActive : messagesIcon}
-              alt="Messages"
-            />
+            <img src={isActive ? messagesIconActive : messagesIcon} alt="Messages" />
             <span>Messages</span>
           </>
         )}
@@ -128,21 +97,15 @@ const Menubar = () => {
 
       <NavLink
         to="/notifications"
-        className={({ isActive }) =>
-          isActive ? styles.activeLink : styles.link
-        }
+        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
         onClick={(e) => {
           e.preventDefault();
           openModal('notifications');
-          handleLinkClick('notifications');
         }}
       >
         {({ isActive }) => (
           <>
-            <img
-              src={isActive ? notificationsIconActive : notificationsIcon}
-              alt="Notifications"
-            />
+            <img src={isActive ? notificationsIconActive : notificationsIcon} alt="Notifications" />
             <span>Notifications</span>
           </>
         )}
@@ -150,13 +113,10 @@ const Menubar = () => {
 
       <NavLink
         to="/create"
-        className={({ isActive }) =>
-          isActive ? styles.activeLink : styles.link
-        }
+        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
         onClick={(e) => {
           e.preventDefault();
           openModal('create');
-          handleLinkClick('create');
         }}
       >
         {({ isActive }) => (
@@ -167,14 +127,289 @@ const Menubar = () => {
         )}
       </NavLink>
 
-      <CustomModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        content={modalContent}
-        modalSize={modalSize}
-      />
+      <CustomModal isOpen={isModalOpen} onClose={closeModal} content={modalContent} modalSize={modalSize} />
     </nav>
   );
 };
 
 export default Menubar;
+// // попытка исправить баг с закрыванием окна after false
+// const Menubar = () => {
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+//   const [modalSize, setModalSize] = useState<'default' | 'left' | 'large' | 'small'>('default');
+
+//   // 🔹 Закрываем модалку при любой смене маршрута
+//   const location = useLocation();
+//   useEffect(() => {
+//     setIsModalOpen(false);
+//     setModalContent(null);
+//   }, [location.pathname]);
+//   // модалка будет закрываться при клике на другой пункт меню/смене URL.
+  
+  
+//   const openModal = (type: 'search' | 'notifications' | 'create') => {
+//     setIsModalOpen(true);
+//     switch (type) {
+//       case 'search':
+//         setModalSize('left');
+//         setModalContent(<SearchContent />);
+//         break;
+//       case 'notifications':
+//         setModalSize('left');
+//         setModalContent(<NotificationsBar />);
+//         break;
+//       case 'create':
+//         setModalSize('large');
+//         setModalContent(<CreatePostPage />);
+//         break;
+//     }
+//   };
+
+//   const closeModal = () => {
+//     setIsModalOpen(false);
+//     setModalContent(null);
+//   };
+
+//   return (
+//     <nav className={styles.menubar}>
+//       <NavLink to="/home" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? homeIconActive : homeIcon} alt="Home" />
+//             <span>Home</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/search"
+//         className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+//         onClick={(e) => {
+//           e.preventDefault();
+//           openModal('search');
+//         }}
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? searchIconActive : searchIcon} alt="Search" />
+//             <span>Search</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink to="/explore" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? exploreIconActive : exploreIcon} alt="Explore" />
+//             <span>Explore</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink to="/messages" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? messagesIconActive : messagesIcon} alt="Messages" />
+//             <span>Messages</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/notifications"
+//         className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+//         onClick={(e) => {
+//           e.preventDefault();
+//           openModal('notifications');
+//         }}
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? notificationsIconActive : notificationsIcon} alt="Notifications" />
+//             <span>Notifications</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/create"
+//         className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+//         onClick={(e) => {
+//           e.preventDefault();
+//           openModal('create');
+//         }}
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? createIconActive : createIcon} alt="Create" />
+//             <span>Create</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <CustomModal isOpen={isModalOpen} onClose={closeModal} content={modalContent} modalSize={modalSize} />
+//     </nav>
+//   );
+// };
+
+// export default Menubar;
+
+// const Menubar = () => {
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+//   const [activeLink, setActiveLink] = useState<string>('');
+//   const [modalSize, setModalSize] = useState<
+//     'default' | 'left' | 'large' | 'small'
+//   >('default');
+
+//   const userId = localStorage.getItem('userId') || 'mockUserId';
+
+//   const openModal = (type: string) => {
+//     setIsModalOpen(true);
+//     switch (type) {
+//       case 'search':
+//         setModalSize('left');
+//         setModalContent(<SearchContent />);
+//         break;
+//       case 'notifications':
+//         setModalSize('left');
+//         setModalContent(<NotificationsBar />); // ← не передаем userId . не принимает пропсы, он сам берёт user из Redux
+//         break;
+//       case 'create':
+//         setModalSize('large');
+//         setModalContent(<CreatePostPage />);
+//         break;
+//       default:
+//         setModalContent(null);
+//     }
+//   };
+
+//   const closeModal = () => {
+//     setIsModalOpen(false);
+//     setModalContent(null);
+//   };
+
+//   const handleLinkClick = (link: string) => setActiveLink(link);
+
+//   return (
+//     <nav className={styles.menubar}>
+//       <NavLink
+//         to="/home"
+//         className={({ isActive }) =>
+//           isActive ? styles.activeLink : styles.link
+//         }
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? homeIconActive : homeIcon} alt="Home" />
+//             <span>Home</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/search"
+//         className={({ isActive }) =>
+//           isActive ? styles.activeLink : styles.link
+//         }
+//         onClick={(e) => {
+//           e.preventDefault();
+//           openModal('search');
+//           handleLinkClick('search');
+//         }}
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? searchIconActive : searchIcon} alt="Search" />
+//             <span>Search</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/explore"
+//         className={({ isActive }) =>
+//           isActive ? styles.activeLink : styles.link
+//         }
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img
+//               src={isActive ? exploreIconActive : exploreIcon}
+//               alt="Explore"
+//             />
+//             <span>Explore</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/messages"
+//         className={({ isActive }) =>
+//           isActive ? styles.activeLink : styles.link
+//         }
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img
+//               src={isActive ? messagesIconActive : messagesIcon}
+//               alt="Messages"
+//             />
+//             <span>Messages</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/notifications"
+//         className={({ isActive }) =>
+//           isActive ? styles.activeLink : styles.link
+//         }
+//         onClick={(e) => {
+//           e.preventDefault();
+//           openModal('notifications');
+//           handleLinkClick('notifications');
+//         }}
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img
+//               src={isActive ? notificationsIconActive : notificationsIcon}
+//               alt="Notifications"
+//             />
+//             <span>Notifications</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <NavLink
+//         to="/create"
+//         className={({ isActive }) =>
+//           isActive ? styles.activeLink : styles.link
+//         }
+//         onClick={(e) => {
+//           e.preventDefault();
+//           openModal('create');
+//           handleLinkClick('create');
+//         }}
+//       >
+//         {({ isActive }) => (
+//           <>
+//             <img src={isActive ? createIconActive : createIcon} alt="Create" />
+//             <span>Create</span>
+//           </>
+//         )}
+//       </NavLink>
+
+//       <CustomModal
+//         isOpen={isModalOpen}
+//         onClose={closeModal}
+//         content={modalContent}
+//         modalSize={modalSize}
+//       />
+//     </nav>
+//   );
+// };
+
+// export default Menubar;

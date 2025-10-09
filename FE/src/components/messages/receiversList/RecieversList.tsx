@@ -1,114 +1,94 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../redux/store';
-import { getUsersWithChats } from '../../redux/slices/userSlice';
+import type { AppDispatch, RootState } from '../../../redux/store';
+import { fetchMessages } from '../../../redux/slices/messagesSlice';
+import type { IMessage } from '../../../interfaces/message.interface';
+import type { IUser } from '../../../interfaces/user.interface';
 import styles from './recieversList.module.css';
-import parseData from '../../helpers/parseData';
-import profilePlaceholder from '../../assets/profile-placeholder.svg';
-const RecieversList: React.FC = () => {
+import profilePlaceholder from '../../../assets/profile-placeholder.svg';
+
+interface RecieversListProps {
+  onSelectRecipient: (user: IUser | null) => void;
+  selectedRecipient: IUser | null;
+}
+
+function isPopulatedUser(
+  v: string | { _id: string; username: string; profileImage?: string }
+): v is { _id: string; username: string; profileImage?: string } {
+  return typeof v === 'object' && v !== null && '_id' in v;
+}
+
+const RecieversList: React.FC<RecieversListProps> = ({ onSelectRecipient, selectedRecipient }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-
-  const { user, loading, error } = useSelector(
-    (state: RootState) => state.user
-  );
-  const { username } = useSelector((state: RootState) => state.auth.user!);
-
-  const [activeUserId, setActiveUserId] = useState<string | null>(() =>
-    localStorage.getItem('activeUserId')
-  );
+  const authUser = useSelector((s: RootState) => s.auth.user);
+  const { items, loading, error } = useSelector((s: RootState) => s.messages);
 
   useEffect(() => {
-    dispatch(getUsersWithChats());
-  }, [dispatch]);
-
-  const handleSelectUser = (
-    targetUserId: string,
-    lastMessageDate: string | null
-  ) => {
-    setActiveUserId(targetUserId);
-    localStorage.setItem('activeUserId', targetUserId);
-    navigate('/messages', { state: { targetUserId, lastMessageDate } });
-  };
-
-  const getLastMessageDate = (messages: any[]) => {
-    if (!messages || messages.length === 0) {
-      return null;
+    if (authUser?._id) {
+      dispatch(fetchMessages(authUser._id));
     }
+  }, [dispatch, authUser?._id]);
 
-    try {
-      const timestamps = messages
-        .map((message) => new Date(message.created_at).getTime())
-        .filter((time) => !isNaN(time));
+  // Строим список собеседников из массива сообщений
+  const recipients: IUser[] = useMemo(() => {
+    if (!authUser?._id) return [];
+    const map = new Map<string, IUser>();
 
-      if (timestamps.length === 0) {
-        return null;
+    items.forEach((m: IMessage) => {
+      const me = authUser._id;
+
+      const other =
+        (isPopulatedUser(m.sender) ? m.sender._id : m.sender) === me
+          ? m.recipient
+          : m.sender;
+
+      const otherId = isPopulatedUser(other) ? other._id : other;
+      const otherUsername = isPopulatedUser(other) ? other.username : 'user';
+      const otherImage = isPopulatedUser(other) ? other.profileImage : undefined;
+
+      if (!map.has(otherId)) {
+        map.set(otherId, {
+          _id: otherId,
+          username: otherUsername,
+          email: '',         // нет в сообщении — оставляем пустым
+          fullName: otherUsername,
+          profileImage: otherImage,
+        });
       }
+    });
 
-      const lastMessageTimestamp = Math.max(...timestamps);
-      const lastMessageDate = new Date(lastMessageTimestamp);
-
-      return lastMessageDate.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch (error) {
-      console.error('Error processing message dates:', error);
-      return null;
-    }
-  };
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    console.error('An error occurred:', error);
-    return <p>Error: {error}</p>;
-  }
+    return Array.from(map.values());
+  }, [items, authUser?._id]);
 
   return (
-    <div className={styles.recieversList}>
-      <h4>{username}</h4>
-      <ul>
-        {user.map((chatUser) => {
-          const isActive = chatUser._id === activeUserId;
-          const lastMessageDate = getLastMessageDate(chatUser.messages);
+    <aside className={styles.list}>
+      <div className={styles.header}>Dialogs</div>
 
+      {loading && <div className={styles.status}>Loading...</div>}
+      {error && <div className={styles.error}>{error}</div>}
+
+      <ul className={styles.items}>
+        {recipients.map((u) => {
+          const active = selectedRecipient?._id === u._id;
           return (
             <li
-              className={`${styles.recieversList_userBox} ${
-                isActive ? styles.active : ''
-              }`}
-              key={chatUser._id}
-              onClick={() => handleSelectUser(chatUser._id, lastMessageDate)}
+              key={u._id}
+              className={`${styles.item} ${active ? styles.active : ''}`}
+              onClick={() => onSelectRecipient(u)}
             >
               <img
-                className={styles.userBox_img}
-                src={chatUser.profile_image || profilePlaceholder}
-                alt={chatUser.username}
+                src={u.profileImage || profilePlaceholder}
+                alt={u.username}
+                className={styles.avatar}
               />
-              <span className={styles.userBox_data}>
-                <p className={styles.userBox_dataP1}>{chatUser.username}</p>
-                <p className={styles.userBox_dataP2}>
-                  {chatUser.username} sent a message. •
-                  {parseData(chatUser.lastMessage)}
-                  {lastMessageDate && (
-                    <span className={styles.lastMessageDate}>
-                      {lastMessageDate}
-                    </span>
-                  )}
-                </p>
-              </span>
+              <div className={styles.meta}>
+                <div className={styles.username}>{u.username}</div>
+              </div>
             </li>
           );
         })}
       </ul>
-    </div>
+    </aside>
   );
 };
 

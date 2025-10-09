@@ -3,16 +3,15 @@ import s from './customButton.module.css';
 
 interface ButtonProps {
   text: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>; // было: () => void
   variant?: 'primary' | 'secondary' | 'danger';
   disabled?: boolean;
   icon?: React.ReactNode;
   className?: string;
   style?: CSSProperties;
-  type?: 'button' | 'submit' | 'reset'; // добавлено свойство type
+  type?: 'button' | 'submit' | 'reset';
 }
 
-// Основная функция компонента Button
 const CustomButton: React.FC<ButtonProps> = ({
   text,
   onClick,
@@ -21,7 +20,7 @@ const CustomButton: React.FC<ButtonProps> = ({
   icon,
   className = '',
   style = {},
-  type = 'button', // значение по умолчанию для type
+  type = 'button',
 }) => {
   const buttonClass = [
     s.button,
@@ -34,7 +33,7 @@ const CustomButton: React.FC<ButtonProps> = ({
 
   return (
     <button
-      type={type} // применяем type
+      type={type}
       className={buttonClass}
       onClick={onClick}
       disabled={disabled}
@@ -47,3 +46,50 @@ const CustomButton: React.FC<ButtonProps> = ({
 };
 
 export default CustomButton;
+// interface ButtonProps {
+//   text: string;
+//   // onClick?: () => void;
+//   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+//   variant?: 'primary' | 'secondary' | 'danger';
+//   disabled?: boolean;
+//   icon?: React.ReactNode;
+//   className?: string;
+//   style?: CSSProperties;
+//   type?: 'button' | 'submit' | 'reset'; // добавлено свойство type
+// }
+
+// // Основная функция компонента Button
+// const CustomButton: React.FC<ButtonProps> = ({
+//   text,
+//   onClick,
+//   variant = 'primary',
+//   disabled = false,
+//   icon,
+//   className = '',
+//   style = {},
+//   type = 'button', // значение по умолчанию для type
+// }) => {
+//   const buttonClass = [
+//     s.button,
+//     variant ? s[variant] : s.primary,
+//     disabled ? s.disabled : '',
+//     className,
+//   ]
+//     .filter(Boolean)
+//     .join(' ');
+
+//   return (
+//     <button
+//       type={type} // применяем type
+//       className={buttonClass}
+//       onClick={onClick}
+//       disabled={disabled}
+//       style={style}
+//     >
+//       {icon && <span className={s.icon}>{icon}</span>}
+//       <span className={s.text}>{text}</span>
+//     </button>
+//   );
+// };
+
+// export default CustomButton;

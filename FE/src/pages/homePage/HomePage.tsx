@@ -1,5 +1,5 @@
 import React from 'react';
-import HomePagePosts from '../../molecules/homePagePosts/HomePagePosts';
+import HomePagePosts from '../../components/home/homePagePosts/HomePagePosts';
 import styles from './HomePage.module.css';
 import allUpdates from '../../assets/allUdate.png';
 

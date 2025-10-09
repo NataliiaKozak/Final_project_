@@ -10,19 +10,38 @@ interface IFollowPanel {
   setFollow: (newFollow: ILocalFollow) => void;
 }
 
-const FollowsPanel: FC<IFollowPanel> = ({ userId, setFollow, follow }) => {
+const FollowsPanel: FC<IFollowPanel> = ({ userId, follow, setFollow }) => {
   useEffect(() => {
-    const handleGetFollowers = async () => {
-      const response = await $api.get(`/follows/${userId}/followers`); // GET followers
-      setFollow({ ...follow, followers: response.data.length });
-    };
-    const handleGetFollowing = async () => {
-      const response = await $api.get(`/follows/${userId}/following`); // GET following
-      setFollow({ ...follow, following: response.data.length });
+    const fetchFollowers = async () => {
+      try {
+        // твой бэк: GET /follows/:userId/followers
+        const res = await $api.get(`/follows/${userId}/followers`);
+        const count = Array.isArray(res.data) ? res.data.length : 0;
+        setFollow({
+          followers: count,
+          following: follow.following,
+        });
+      } catch {
+        // без улучшайзинга
+      }
     };
 
-    if (follow.followers === 'Loading...') handleGetFollowers();
-    if (follow.following === 'Loading...') handleGetFollowing();
+    const fetchFollowing = async () => {
+      try {
+        // твой бэк: GET /follows/:userId/following
+        const res = await $api.get(`/follows/${userId}/following`);
+        const count = Array.isArray(res.data) ? res.data.length : 0;
+        setFollow({
+          followers: follow.followers,
+          following: count,
+        });
+      } catch {
+        // без улучшайзинга
+      }
+    };
+
+    if (follow.followers === 'Loading...') fetchFollowers();
+    if (follow.following === 'Loading...') fetchFollowing();
   }, [userId, follow, setFollow]);
 
   return (
@@ -44,3 +63,43 @@ const FollowsPanel: FC<IFollowPanel> = ({ userId, setFollow, follow }) => {
 };
 
 export default FollowsPanel;
+// interface IFollowPanel {
+//   userId: string;
+//   follow: ILocalFollow;
+//   setFollow: (newFollow: ILocalFollow) => void;
+// }
+
+// const FollowsPanel: FC<IFollowPanel> = ({ userId, setFollow, follow }) => {
+//   useEffect(() => {
+//     const handleGetFollowers = async () => {
+//       const response = await $api.get(`/follows/${userId}/followers`); // GET followers
+//       setFollow({ ...follow, followers: response.data.length });
+//     };
+//     const handleGetFollowing = async () => {
+//       const response = await $api.get(`/follows/${userId}/following`); // GET following
+//       setFollow({ ...follow, following: response.data.length });
+//     };
+
+//     if (follow.followers === 'Loading...') handleGetFollowers();
+//     if (follow.following === 'Loading...') handleGetFollowing();
+//   }, [userId, follow, setFollow]);
+
+//   return (
+//     <>
+//       {follow.followers !== 'Loading...' && (
+//         <p>
+//           <span className={styles.text}>{follow.followers}</span>
+//           followers
+//         </p>
+//       )}
+//       {follow.following !== 'Loading...' && (
+//         <p>
+//           <span className={styles.text}>{follow.following}</span>
+//           following
+//         </p>
+//       )}
+//     </>
+//   );
+// };
+
+// export default FollowsPanel;
