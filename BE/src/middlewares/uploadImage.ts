@@ -17,7 +17,7 @@ const processImage = async (req: Request, res: Response, next: NextFunction) => 
       .toBuffer();
 
     req.file.buffer = optimizedBuffer; // заменяем на оптимизированный буфер
-    req.file.mimetype = "image/jpeg"; // указываем новый формат // добавлено после проверки требований 2.10
+    req.file.mimetype = "image/jpeg"; // указываем новый формат
     next();
   } catch (error) {
     console.error("Ошибка при обработке изображения:", error);

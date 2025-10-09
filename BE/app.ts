@@ -22,7 +22,7 @@ app.use(cors({
 
 app.use(express.json());// для JSON
 app.use(express.urlencoded({ extended: true }));// для форм
-// app.use(cookieParser());
+
 
 // роуты
 app.get('/api/data', (req: Request, res: Response) => {
@@ -52,6 +52,3 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 export default app;
 
 
-//Заметки
-// app.use(express.json({ limit: '10mb' })); // important for big base64 images
-// app.get('/api/health', (_req, res) => res.json({ ok: true }));

@@ -28,8 +28,7 @@ export const createNotification = async (
 
     await notificationDoc.save();
     return notificationDoc;
-  } catch (error) { //добавить unknown?
-    // const error = err as Error; //добавить?
+  } catch (error) { 
     console.error("Ошибка при создании уведомления:", error);
     return;
   }
@@ -70,8 +69,8 @@ export const markAsRead = async (req: RequestWithUser, res: Response): Promise<v
 
     await Notification.updateMany({ user: req.user.id, isRead: false }, { $set: { isRead: true } });
     res.json({ message: "Все уведомления отмечены как прочитанные" });
-  } catch (err: unknown) {//нужно было добавить unknown?
-    const error = err as Error;//нужно было добавить?
+  } catch (err: unknown) {
+    const error = err as Error;
     console.error("Ошибка при обновлении уведомлений:", error);
     res.status(500).json({ message: "Ошибка при обновлении уведомлений", error });
   }

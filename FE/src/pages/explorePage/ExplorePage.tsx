@@ -5,14 +5,15 @@ import { getAllPublicPosts } from '../../redux/slices/postsSlice';
 // import PostModal from '../../components/posts/postModal/PostModal'; //вместо pages/explorePage/ExplorePostModal.tsx
 import styles from './ExplorePage.module.css';
 
-
 import type { PostPreview } from '../../interfaces/post.interface';
 import ExplorePostModal from '../../components/search/ExplorePostModal';
-
+import { $api } from 'api/api';
 
 export const Explore: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { posts, loading, error } = useSelector((state: RootState) => state.posts);
+  const { posts, loading, error } = useSelector(
+    (state: RootState) => state.posts
+  );
   // Используем твой тип превью
   const [selectedPost, setSelectedPost] = useState<PostPreview | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,9 +31,11 @@ export const Explore: FC = () => {
     setSelectedPost(null);
     setIsModalOpen(false);
   };
+  let posts2 = getAllPublicPosts();
+  console.log('11', selectedPost);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>{error}</div>;
 
   return (
     <div className={styles.pageContainer}>
@@ -47,13 +50,15 @@ export const Explore: FC = () => {
                   ? `${styles.postContainer} ${styles.largePost}`
                   : styles.postContainer
               }
-              onClick={() => handleImageClick({ _id: item._id, image: item.image, createdAt: item.createdAt })}
+              onClick={() =>
+                handleImageClick({
+                  _id: item._id,
+                  image: item.image,
+                  createdAt: item.createdAt,
+                })
+              }
             >
-              <img
-                src={item.image}
-                alt="Post image"
-                className={styles.image}
-              />
+              <img src={item.image} alt="Post image" className={styles.image} />
             </div>
           ))}
         </div>

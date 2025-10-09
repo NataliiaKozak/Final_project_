@@ -24,24 +24,20 @@ const PostSchema = new Schema<IPost>(
   { timestamps: true, id: false }
 );
 
-// Виртуальные поля // стало (устойчиво к undefined) не подтягивались посты
+// Виртуальные поля // 
 PostSchema.virtual('likesCount').get(function (this: IPost) {
-  // return this.likes.length;
   return (this.likes ?? []).length;
 });
 
 PostSchema.virtual('commentsCount').get(function (this: IPost) {
-  // return this.comments.length;
   return (this.comments ?? []).length;
 });
 
-//для фронта визуально без 2 id
 PostSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: (_doc, ret) => {
-    // ret.id = String(ret._id);
-    delete ret.id; // ← убираем _id
+     delete ret.id; 
     return ret;
   },
 });

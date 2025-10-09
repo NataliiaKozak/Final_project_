@@ -38,7 +38,6 @@ export const addComment = async (
       user: userId,
       post: post._id,
       text,
-      // author: post.author?._id // только user, без author
     });
 
     await comment.save();
@@ -80,8 +79,6 @@ export const deleteComment = async (
     // проверяем только владельца комментария
     if (
       comment.user.toString() !== userId
-      // comment.user.toString() !== userId
-      // && comment.author?.toString() !== userId
     ) {
       res.status(403).json({ message: 'Нет прав для удаления' });
       return;
@@ -104,7 +101,6 @@ export const getPostComments = async (
     const { postId } = req.params;
     const comments = await Comment.find({ post: postId })
       .populate('user', 'username profileImage');
-      // .populate('author', 'username profileImage');
 
     res.json(comments);
   } catch (error) {

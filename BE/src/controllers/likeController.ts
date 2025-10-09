@@ -48,8 +48,8 @@ export const toggleLike = async (
   }
 };
 
-//Дополнительная функциональность. По макету не требуется
-// ====================Получить лайки поста=========================?????
+//Дополнительная функциональность. 
+// ====================Получить лайки поста=========================
 // export const getPostLikes = async (
 //   req: Request,
 //   res: Response
@@ -81,16 +81,6 @@ export const toggleLikeComment = async (
       return;
     }
 
-    //в связи с удалением автора
-    // const comment = await Comment.findById(commentId).populate("author");
-    // const comment = await Comment.findById(commentId).populate(
-    //   'author',
-    //   '_id username profileImage'
-    // );
-    // if (!comment) {
-    //   res.status(404).json({ message: 'Комментарий не найден' });
-    //   return;
-    // }
     const comment = await Comment.findById(commentId).populate("user", "_id username profileImage");
     if (!comment) {
       res.status(404).json({ message: "Комментарий не найден" });
@@ -133,7 +123,7 @@ export const toggleLikeComment = async (
   }
 };
 
-//по макету не требуется
+
 // ================Получить лайки комментария=======================
 // export const getCommentLikes = async (
 //   req: Request,

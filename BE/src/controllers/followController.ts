@@ -17,9 +17,8 @@ export const getFollowers = async (req: Request, res: Response) => {
       "username profileImage"
     );
 
-    // followers: Follow[]; each .follower is populated (document) or ObjectId
     const result = followers.map((s) =>
-      (s.follower as unknown) // приведение безопаснее чем any
+      (s.follower as unknown)
     );
 
     res.json(result);
@@ -56,7 +55,7 @@ export const followUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = req.params; // target to follow
+    const { userId } = req.params; 
     const followerId = req.user?.id;
 
     if (!followerId) {
@@ -126,9 +125,4 @@ export const unfollowUser = async (
     res.status(500).json({ message: "Ошибка при отписке" });
   }
 };
-// Если у тебя есть Follow коллекция — используй её (она уже есть у тебя).
-// После добавления/удаления записи в Follow:
-// Инкремент / декремент числовых полей followers_count / following_count пользователя через $inc, либо обновляй массивы followers/following через $addToSet / $pull (если ты их хранишь).
-// Пример:
-// await User.findByIdAndUpdate(targetUserId, { $inc: { followers_count: 1 }, $addToSet: { followers: followerId } });
-// await User.findByIdAndUpdate(followerId, { $inc: { following_count: 1 }, $addToSet: { following: targetUserId } });
+

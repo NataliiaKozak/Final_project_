@@ -1,39 +1,8 @@
-// import { Request, Response } from "express";
-// import Message from "../models/MessageModel";
-// import { RequestWithUser } from "../middlewares/authMiddleware";
-
-// // Загрузка истории сообщений между двумя пользователями
-// export const getMessages = async (req: RequestWithUser, res: Response) => {
-//   try {
-//     const userId = req.user?.id;
-//     const { targetUserId } = req.params;
-
-//     if (!userId) {
-//       res.status(401).json({ message: "Неавторизованный пользователь" });
-//       return;
-//     }
-
-//     const messages = await Message.find({
-//       $or: [
-//         { sender: userId, receiver: targetUserId },
-//         { sender: targetUserId, receiver: userId },
-//       ],
-//     }).sort({ createdAt: 1 });
-
-//     res.json(messages);
-//   } catch (err) {
-//     res.status(500).json({ message: "Ошибка при получении сообщений" });
-//   }
-// };
-
-
-//OR:
-
 import { Request, Response } from "express";
 import Message from "../models/MessageModel.js";
 import { RequestWithUser } from "../middlewares/authMiddleware.js";
 
-// 🔹 Получить историю сообщений между двумя пользователями
+// Получить историю сообщений между двумя пользователями
 export const getMessages = async (req: RequestWithUser, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;      // второй участник

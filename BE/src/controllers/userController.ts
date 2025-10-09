@@ -15,20 +15,12 @@ export const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// 🔹 Получение профиля пользователя
+// Получение профиля пользователя
 export const getProfile = async (
   req: RequestWithUser,//используем расширенный тип
   res: Response
 ): Promise<void> => {
   try {
-    // const { id } = req.params;//берёт :id из URL (например, /users/123)
-    // // const user = await User.findById(id).select('-password');
-    // const user = await User.findById(req.params.id)
-    //   .select("-password") // скрываем  хэш пароля при выдаче данных пользователю.
-    //   .populate("followers", "username profileImage")
-    //   .populate("following", "username profileImage");//вместо того чтобы возвращать только массив ObjectId,
-    //   // ты сразу получаешь данные подписчиков/подписок
-
     const id = req.params.id;
 
     const user = await User.findById(id)
@@ -40,8 +32,7 @@ export const getProfile = async (
       res.status(404).json({ message: 'Пользователь не найден' });
       return;
     }
-    // const { id } = req.params;
-    // Считаем статистику
+     // Считаем статистику
     const postsCount = await Post.countDocuments({ author: id });
     const commentsCount = await Comment.countDocuments({ user: id });
     const likesCount = await Like.countDocuments({ user: id });
@@ -72,7 +63,7 @@ export const getProfile = async (
   }
 };
 
-// 🔹 Обновление профиля
+//  Обновление профиля
 export const updateProfile = async (req: RequestWithUser, res: Response) => {
   try {
     //TEMP
@@ -94,16 +85,13 @@ export const updateProfile = async (req: RequestWithUser, res: Response) => {
 
     if (req.file) {
       const imageUrl = await uploadToS3(req.file, 'profileImages');
-      // console.log('[PUT /api/users] imageUrl:', imageUrl);
       user.profileImage = imageUrl;
     }
 
     await user.save();
-    //после проверки в Постманн: не возвращать пароль
-    // const { password, __v, ...safe } = user.toObject();
     const {__v, ...safe } = user.toObject();
 return res.json(safe);
-    // res.json(user);
+
 
   } catch (err: unknown) {
     const error = err as Error;
@@ -113,34 +101,4 @@ return res.json(safe);
   }
 };
 
-// const userId = req.user?.id;
-//     if (!userId) {
-//       res.status(401).json({ message: "Unauthorized" });
-//       return;
-//     }
 
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       res.status(404).json({ message: "User not found" });
-//       return;
-//     }
-
-//     if (req.body.username) user.username = req.body.username;
-//     if (req.body.fullName) user.fullName = req.body.fullName;
-//     if (req.body.bio) user.bio = req.body.bio;
-//     if (req.body.website) user.website = req.body.website;
-
-//     if (req.file) {
-//       const imageUrl = await uploadToS3(req.file, "profileImages");
-//       user.profileImage = imageUrl;
-//     }
-
-//     await user.save();
-//     res.json(user);
-//   } catch (err: unknown) {
-//     const error = err as Error;
-//     res
-//       .status(500)
-//       .json({ message: "Ошибка при обновлении профиля", error: error.message });
-//   }
-// };

@@ -5,7 +5,6 @@ const router = Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-// router.post("/request-reset", requestPasswordReset);
 router.post("/forgot-password", requestPasswordReset)
 router.post("/reset-password", resetPassword);
 

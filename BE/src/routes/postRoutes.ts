@@ -9,7 +9,6 @@ import {
   explorePosts,
 } from '../controllers/postController.js';
 import { protect } from '../middlewares/authMiddleware.js';
-// import { upload } from '../middlewares/uploadMiddleware'; // только upload, без sharp
 import { upload, processImage } from "../middlewares/uploadImage.js"; //с оптимизацией
 
 const router = Router();

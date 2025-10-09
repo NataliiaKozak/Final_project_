@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose'; //чтобы создавать ObjectId для Mongo
-import multer from 'multer'; //библиотека для загрузки файлов.
+import multer from 'multer'; //библиотека для загрузки файлов
 import Post, { IPost } from '../models/PostModel.js';
 import User from '../models/UserModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js'; //расширенный тип запроса (с req.user).
@@ -12,7 +12,6 @@ export const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
-//upload потом используется в маршрутах (upload.single("image")
 
 /* ==================== Получить все посты ====================*/
 export const getAllPosts = async (
@@ -20,13 +19,11 @@ export const getAllPosts = async (
   res: Response
 ): Promise<void> => {
   try {
-    const posts = await Post.find() //достаём все посты из базы (например, для ленты)
+    const posts = await Post.find() //достаём все посты из базы 
       .populate('author', 'username profileImage fullName') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
       .sort({ createdAt: -1 }); //новые сверху
 
-    // Виртуальные поля (likesCount, commentsCount) добавятся автоматически
-
-    res.json(posts); //Отправляем клиенту список постов
+     res.json(posts); //Отправляем клиенту список постов
   } catch (err: unknown) {
     const error = err as Error;
     res
@@ -43,37 +40,8 @@ export const getUserPosts = async (
   try {
     const { userId } = req.params; //из URL /api/posts/user/:userId
 
-    //     const user = await User.findById(userId).populate('posts'); //Ищем пользователя в базе и сразу подтягиваем его posts через populate
-    //     изменение из-за виртуального поля posts в UserModel.ts. Posts теперь берутся через виртуалку в UserModel
-    //     const user = await User.findById(userId)
-    //       .populate({
-    //         path: "posts",
-    //         populate: { path: "author", select: "username profileImage" }, // подтянем автора в каждом посте
-    //       })
-    //       .select("username profileImage fullName posts"); // отдаем только нужное, мы исключаем пароль и ненужные поля
-
-    //        if (!user) {
-    //       res.status(404).json({ message: 'Пользователь не найден' });
-    //       return;
-    //     }
-
-    //     res.json(user.posts);
-    //   } catch (err: unknown) {
-    //     const error = err as Error;
-    //     res
-    //       .status(500)
-    //       .json({ message: 'Ошибка при получении постов', error: error.message });
-    //   }
-    // };
-
-    // populate('posts') немного тяжелее по производительности, чем Post.find({ author: userId }), потому что:
-    // populate делает два запроса (ищет User, потом Post). // Post.find делает сразу прямой запрос.
-    // Если нам нужно вернуть профиль пользователя вместе с постами → лучше использовать populate("posts").
-    // Если мы хотим отдельный эндпоинт только для постов → лучше Post.find({ author }).
-
-    // Ищем посты напрямую по Post (без user.posts, т.к. массива posts нет в UserModel)
+     // Ищем посты напрямую по Post (без user.posts, т.к. массива posts нет в UserModel)
     const posts = await Post.find({ author: userId })
-      // .populate('author', 'username profileImage')
       .select('_id image createdAt') // только превью для профиля
       .sort({ createdAt: -1 });
 
@@ -96,12 +64,7 @@ export const getPostById = async (
   res: Response
 ): Promise<void> => {
   try {
-    // const post = await Post.findById(req.params.id).populate(
-    //   'author',
-    //   'username fullName profileImage'
-    // );
-
-    //Проверка ID
+     //Проверка ID
     if (!Types.ObjectId.isValid(req.params.id)) {
       res.status(400).json({ message: 'Некорректный ID поста' });
       return;
@@ -112,9 +75,6 @@ export const getPostById = async (
         path: 'comments',
         populate: { path: 'user', select: 'username fullName profileImage' },
       });
-    //при открытии детального экрана поста уже будут автор поста,
-    // картинка и описание поста,массив комментариев с авторами
-    // виртуальные поля likesCount, commentsCount подтянутся автоматически (виртуалы)
 
     if (!post) {
       res.status(404).json({ message: 'Пост не найден' });
@@ -135,12 +95,12 @@ export const createPost = async (
   res: Response
 ): Promise<void> => {
   try {
-    //Проверяем, что пользователь авторизован (req.user.id)
+    //Проверка авторизации пользователя (req.user.id)
     if (!req.user?.id) {
       res.status(401).json({ message: 'Неавторизованный пользователь' });
       return;
     }
-    //Проверяем, что файл загружен
+    //Проверка загрузки файла
     if (!req.file) {
       res.status(400).json({ message: 'Изображение обязательно' });
       return;
@@ -160,8 +120,7 @@ export const createPost = async (
     // Загружаем фото в S3
     const imageUrl = await uploadToS3(req.file, 'posts'); //Загружаем файл в S3 → получаем imageUrl
 
-    // author сохраняем как ObjectId (иначе TS ругается на string → ObjectId)
-    //Создаём новый Post
+      //Создаём новый Post. author сохраняем как ObjectId
     const newPost: IPost = new Post({
       author: new Types.ObjectId(req.user.id),
       image: imageUrl,
@@ -171,11 +130,6 @@ export const createPost = async (
 
     await newPost.save(); //Сохраняем его в базе
 
-    //удалено за ненадобностью
-    // await User.findByIdAndUpdate(req.user.id, {
-    //   $push: { posts: newPost._id },
-    // }); //Дополнительно обновляем User: добавляем в массив posts ID нового поста
-
     res.status(201).json(newPost);
   } catch (err: unknown) {
     const error = err as Error;
@@ -184,28 +138,6 @@ export const createPost = async (
       .json({ message: 'Ошибка при создании поста', error: error.message });
   }
 };
-
-// // Создание поста с загрузкой фото в S3
-// export const createPost = async (req: RequestWithUser, res: Response) => {
-//   try {
-//     const userId = req.user?.id;
-//     if (!userId) return res.status(401).json({ message: "Unauthorized" });
-
-//     if (!req.file) return res.status(400).json({ message: "Image required" });
-
-//     const imageUrl = await uploadToS3(req.file, "posts");
-
-//     const user = await User.findById(userId);
-//     if (!user) return res.status(404).json({ message: "User not found" });
-
-//     const post = new Post({
-//       user_id: user._id,
-//       image_url: imageUrl,
-//       user_name: user.username,
-//       profileImage: user.profileImage,
-//       caption: req.body.caption,
-//       created_at: new Date(),
-//     });
 
 /*=================== Обновление поста =================================*/
 export const updatePost = async (
@@ -235,9 +167,6 @@ export const updatePost = async (
       res.status(403).json({ message: 'Нет прав для редактирования' });
       return;
     }
-
-    //Если есть новое описание → обновляем.
-    // if (req.body.description) post.description = req.body.description;
 
     // проверка: если описание есть → ограничиваем 200 символов
     if (req.body.description) {
@@ -319,40 +248,7 @@ export const explorePosts = async (
     }
 
     const sampleSize = postCount < 10 ? postCount : 10;
-    //Выбираем случайно 10 постов($sample)
-
-    // ⚡️ Берём случайные посты через aggregate + джоин к User
-    // const posts = await Post.aggregate([
-    //   { $sample: { size: sampleSize } },
-    //   // { $sort: { createdAt: -1 } }, //добавлено
-    // ])
-    //   .lookup({
-    //     //подключаем данные о пользователях (авторах)
-    //     from: 'users',
-    //     localField: 'author',
-    //     foreignField: '_id',
-    //     as: 'author',
-    //   })
-    //   .unwind({ path: '$author', preserveNullAndEmptyArrays: true }) //разворачиваем массив авторов
-    //   .project({
-    //     //берём только нужные поля
-    //     image: 1,
-    //     description: 1,
-    //     createdAt: 1,
-    //     'author.username': 1,
-    //     'author.profileImage': 1,
-    //     likes: 1,
-    //     comments: 1,
-    //   });
-
-    //вариант
-    //   const posts = await Post.aggregate([
-    //   { $sample: { size: sampleSize } },
-    //   { $sort: { createdAt: -1 } },
-    // ]);
-
-    // res.json(posts);
-    // const sampleSize = Math.min(total, 10); // можно поменять на любое фиксированное число
+    
     const posts = await Post.aggregate([
       { $sample: { size: sampleSize } },
       { $project: { _id: 1, image: 1, createdAt: 1 } }, // только превью

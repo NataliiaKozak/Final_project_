@@ -1,32 +1,3 @@
-// import { Request, Response } from 'express';
-// import User from '../models/UserModel.js';
-
-// export const searchUsers = async (
-//   req: Request,
-//   res: Response
-// ): Promise<void> => {
-//   try {
-//     const { query } = req.query;
-//     if (!query) {
-//       res.status(400).json({ message: 'Запрос не может быть пустым' });
-//       return;
-//     }
-
-//     const users = await User.find({
-//       $or: [
-//         { username: { $regex: query, $options: 'i' } },
-//         { fullName: { $regex: query, $options: 'i' } },
-//       ],
-//     }).select('username fullName profileImage');
-//     // .limit(20); //можно добавить
-
-//     res.json(users);
-//     console.log('[ctrl] searchUsers hit', req.query);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Ошибка при поиске пользователей' });
-//   }
-// };
-
 import { Request, Response } from 'express';
 import User from '../models/UserModel.js';
 
@@ -41,7 +12,6 @@ export const searchUsers = async (
   try {
     // Забираем query строго как строку
     const raw = req.query.query;
-    // const q = Array.isArray(raw) ? raw[0] : raw ? String(raw) : "";
     const q = String(req.query?.query ?? '').trim();
     if (!q.trim()) {
       res.status(400).json({ message: 'Запрос не может быть пустым' });
@@ -63,7 +33,6 @@ export const searchUsers = async (
     console.error('[searchUsers] error:', error);
     res.status(500).json({
       message: 'Ошибка при поиске пользователей',
-      // во время разработки полезно видеть причину:
       error: error?.message,
     });
   }

@@ -17,28 +17,22 @@ export const uploadToS3 = async (file: Express.Multer.File, folder: string) => {
   if (!file) {
     throw new Error('Файл отсутствует');
   }
-  //  обрабатываем изображение перед загрузкой
+  // обрабатываем изображение перед загрузкой
   const processedImage = await sharp(file.buffer)
-    // .resize(1080) // ширина макс. 1080px
     .resize({ width: 1080, withoutEnlargement: true }) // не увеличиваем, если фото меньше
     .jpeg({ quality: 80 }) // конвертируем в JPEG с 80% качеством
     .toBuffer();
 
   //добавлено при проверке в постман из-за проблем с фото
   const bucket = process.env.S3_BUCKET_NAME!;
-  // const key = `${folder}/${uuidv4()}-${file.originalname}`;
   const key = `${folder}/${uuidv4()}-${file.originalname.replace(/\s+/g, '_')}`; //убирает пробелы
 
   const command = new PutObjectCommand({
-    // Bucket: process.env.S3_BUCKET_NAME!,
     Bucket: bucket,
     Key: key,
-    // Body: file.buffer,
     Body: processedImage, // загружаем обработанный файл
-    // ContentType: file.mimetype,
     ContentType: 'image/jpeg',
-    // ACL: 'public-read', //чтобы файл был доступен по URL/можно убрать и настроить bucket policy/убрано из-за проверки
-    CacheControl: 'public, max-age=31536000, immutable', //добавлено при проверке в постман
+    CacheControl: 'public, max-age=31536000, immutable', 
   });
 
   await s3.send(command);
