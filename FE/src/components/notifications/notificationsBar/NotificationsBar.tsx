@@ -1,4 +1,4 @@
-import styles from './notificationBar.module.css';
+import styles from './notificationsBar.module.css';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { $api } from '../../../api/api';

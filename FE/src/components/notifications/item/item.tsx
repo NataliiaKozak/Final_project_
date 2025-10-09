@@ -1,4 +1,4 @@
-import styles from '../notificationBar.module.css';
+import styles from '../notificationsBar/notificationsBar.module.css';
 import { FC, useEffect, useState } from 'react';
 import { getUserByIdApi } from '../../../api/services/usersService';
 import { $api } from '../../../api/api';

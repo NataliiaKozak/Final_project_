@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import styles from './ImageForm.module.css';
 import { $api } from '../../../api/api';
-import profilePlaceholder from '../../assets/profile-placeholder.svg';
+import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 
 interface ImageFormProps {
   closeModal: () => void;
