@@ -1,0 +1,31 @@
+.postList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  padding: 40px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.postList > img {
+  max-width: 300px;
+  height: 312px;
+  object-fit: cover;
+  gap: 10px;
+  object-position: center;
+}
+
+@media (max-width: 1024px) {
+  .postList {
+    padding: 25px;
+  }
+  .postList > img {
+    height: 200px;
+  }
+}
+
+@media (max-width: 765px) {
+  .postList {
+    padding: 10px;
+  }
+}

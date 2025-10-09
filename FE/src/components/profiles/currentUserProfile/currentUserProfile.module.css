@@ -1,0 +1,197 @@
+.currentUserProfile {
+  display: flex;
+  padding: 30px 0 0 20px;
+  gap: 95px;
+}
+.btn {
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 18px;
+  transition: background-color 0.3s ease;
+}
+.gradient_border {
+  position: relative;
+  min-width: 168px;
+  height: 168px;
+  border-radius: 50%;
+}
+
+.gradient_border::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.gradient_border_inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gradient_border_inner > img {
+  width: 170px;
+  height: 164px;
+  object-fit: cover;
+}
+
+.currentUserProfile_rightside {
+  display: flex;
+  flex-direction: column;
+  width: 435px;
+}
+
+.currentUserProfile_rightside_btnBox {
+  display: flex;
+  gap: 20px;
+}
+
+.currentUserProfile_rightside_btnBox p {
+  font-size: 19.84px;
+  font-weight: 400;
+  line-height: 25px;
+}
+
+.currentUserProfile_statistic {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+  font-size: 16px;
+  line-height: 18px;
+}
+
+.currentUserProfile_statisticCount {
+  font-weight: 600;
+}
+
+.currentUserProfile_statisticBio {
+  width: 97%;
+  line-height: 18px;
+}
+
+.webLink {
+  display: flex;
+  gap: 5px;
+  color: var(--color-text-link);
+  cursor: pointer;
+}
+
+@media (max-width: 1200px) {
+  .currentUserProfile {
+    padding: 30px 20px;
+    gap: 60px;
+  }
+
+  .currentUserProfile_rightside {
+    width: 400px;
+  }
+
+  .currentUserProfile_rightside_btnBox {
+    gap: 15px;
+  }
+
+  .currentUserProfile_statistic {
+    font-size: 15px;
+  }
+
+  .gradient_border {
+    min-width: 140px;
+    height: 140px;
+  }
+
+  .gradient_border_inner > img {
+    width: 130px;
+    height: 130px;
+  }
+
+  .currentUserProfile_statisticBio {
+    width: 100%;
+  }
+
+  .currentUserProfile_statisticCount {
+    font-size: 15px;
+  }
+
+  .webLink {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 992px) {
+  .currentUserProfile {
+    flex-direction: column;
+    align-items: start;
+    gap: 30px;
+  }
+
+  .currentUserProfile_rightside {
+    width: 100%;
+    text-align: center;
+  }
+
+  .currentUserProfile_rightside_btnBox {
+    gap: 40px;
+    margin: 0 auto;
+  }
+
+  .currentUserProfile_statistic {
+    font-size: 14px;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .gradient_border {
+    margin: 0 auto;
+    min-width: 104px;
+    height: 109px;
+  }
+
+  .gradient_border_inner > img {
+    width: 110px;
+    height: 110px;
+  }
+
+  .webLink {
+    font-size: 13px;
+    margin: 0 auto;
+  }
+
+  .currentUserProfile_statisticBio {
+    /* Уменьшаем ширину био */
+    font-size: 14px; /* Уменьшаем размер шрифта био */
+    margin: 10px auto;
+    width: 60%;
+  }
+
+  .currentUserProfile_statisticCount {
+    font-size: 14px; /* Уменьшаем размер текста постов */
+  }
+}
+
+@media (max-width: 567px) {
+  .btn {
+    max-width: 90px;
+    font-size: 12px;
+  }
+  .currentUserProfile_rightside_btnBox {
+    gap: 10px;
+  }
+}

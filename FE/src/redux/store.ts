@@ -15,12 +15,11 @@
 
 // export default store;
 
-
 import { configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '../redux/slices/authSlice';
 import userReducer from '../redux/slices/userSlice';
-import postsReducer from '../redux/slices/postsSlice'; 
+import postsReducer from '../redux/slices/postsSlice';
 import likesReducer from '../redux/slices/likesSlice';
 import commentsReducer from '../redux/slices/commentsSlice';
 import followReducer from '../redux/slices/followSlice';

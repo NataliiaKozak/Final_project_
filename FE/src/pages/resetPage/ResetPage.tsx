@@ -1,4 +1,4 @@
-import { ResetForm } from '../../components/authLogin/resetForm/ResetForm';
+import { ResetForm } from '../../components/auth/resetForm/ResetForm';
 import styles from './resetPage.module.css';
 
 export const ResetPage = () => {

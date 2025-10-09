@@ -1,20 +1,39 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { IUser } from '../../interfaces/user.interface';
 
-type AuthUser = Pick<
+// type AuthUser = Pick<
+//   IUser,
+//   '_id' | 'username' | 'email' | 'fullName' | 'profileImage'
+// >;
+
+export type AuthUser = Pick<
   IUser,
   '_id' | 'username' | 'email' | 'fullName' | 'profileImage'
->;
+> & {
+  bio?: string;
+  website?: string;
+  postsCount?: number;
+  // если нужно сразу — раскомментируй:
+  // followersCount?: number;
+  // followingCount?: number;
+};
 
 interface AuthState {
   token: string | null;
   user: AuthUser | null;
 }
 
+// const initialState: AuthState = {
+//   token: localStorage.getItem('token'),
+//   user: localStorage.getItem('user')
+//     ? JSON.parse(localStorage.getItem('user')!)
+//     : null,
+// };
+
 const initialState: AuthState = {
   token: localStorage.getItem('token'),
   user: localStorage.getItem('user')
-    ? JSON.parse(localStorage.getItem('user')!)
+    ? (JSON.parse(localStorage.getItem('user')!) as AuthUser)
     : null,
 };
 

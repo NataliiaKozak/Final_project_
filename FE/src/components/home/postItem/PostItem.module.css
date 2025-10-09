@@ -1,0 +1,163 @@
+.postItem {
+  display: flex;
+  flex-direction: column;
+  height: 720px;
+  width: 404px;
+  border: 1px solid gray;
+  border-radius: 10px;
+  font-size: 12px;
+  padding-bottom: 40px;
+}
+
+.postImage {
+  width: 404px;
+  height: 503px;
+  object-fit: contain;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid gray;
+  border-top: 1px solid gray;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.avatarContainer {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.bottomBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.avatar {
+  position: absolute;
+  inset: 0;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  border-radius: 50%;
+}
+
+.userInfo {
+  display: flex;
+  gap: 6px;
+  margin-left: 6px;
+}
+
+.userName {
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  padding-top: 10px;
+  gap: 14px;
+}
+
+.likesCount {
+  margin-left: 4px;
+}
+
+.commentsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commentText {
+  font-size: 12px;
+  color: var(--color-dark-gray);
+}
+
+.likeIcon {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.unliked {
+  color: rgb(236, 234, 234);
+  stroke: black;
+  stroke-width: 3px;
+}
+.bottomBlock {
+  padding: 10px;
+}
+.commentsContainer {
+  padding: 10px;
+}
+.liked {
+  color: red;
+  stroke: none;
+}
+
+@media (max-width: 1200px) {
+  .postItem {
+    height: auto;
+  }
+
+  .postImage {
+    max-height: 250px;
+  }
+
+  .avatarContainer {
+    width: 25px;
+    height: 25px;
+  }
+
+  .avatar {
+    width: 20px;
+    height: 20px;
+  }
+
+  .userInfo {
+    align-items: flex-start;
+  }
+  .userInfo > span {
+    font-size: clamp(10px, 2vw + 1px, 10px);
+  }
+  .likesCount {
+    font-size: 10px;
+  }
+
+  .commentText {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .postImage {
+    width: 580px;
+    border: radius 5px;
+  }
+
+  .postItem {
+    display: flex;
+    justify-content: center;
+  }
+  .postImage {
+    max-height: 350px;
+  }
+}
+
+@media (max-width: 568px) {
+  .postImage {
+    width: 500px;
+  }
+
+  .postItem {
+    display: flex;
+    justify-content: center;
+  }
+  .postImage {
+    max-height: 280px;
+  }
+}

@@ -1,0 +1,41 @@
+.postList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+  gap: 4px;
+  padding: 40px;
+  width: 90%;
+  margin: 0 auto;
+}
+.postlistOther {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 90vw;
+  margin: 0 auto;
+}
+.postList > img {
+  width: 300px;
+  height: 312px;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .postList {
+    position: relative;
+    right: 10%;
+    min-width: 100%;
+  }
+  .postList > img {
+    min-width: 90px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 765px) {
+  .postList {
+    padding: 20px;
+    width: 90%;
+  }
+}

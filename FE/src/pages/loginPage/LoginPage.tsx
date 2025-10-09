@@ -1,5 +1,5 @@
 import styles from './loginPage.module.css';
-import { LoginForm } from '../../components/authLogin/loginForm/LoginForm';
+import { LoginForm } from '../../components/auth/loginForm/LoginForm';
 
 import phoneFrame from '../../assets/loginScreen/phone.png';
 import screen1 from '../../assets/loginScreen/screenshot1.png';
