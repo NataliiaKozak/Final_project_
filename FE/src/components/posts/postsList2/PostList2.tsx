@@ -34,7 +34,7 @@ const PostsList: React.FC = () => {
           .map((post) => (
             <img
               key={post._id}
-              src={post.image} // ← в твоём бэке поле image (S3 URL)
+              src={post.image} // ← в бэке поле image (S3 URL)
               alt="post-thumbnail"
               onClick={() => handleImageClick(post)}
               style={{ cursor: 'pointer' }}

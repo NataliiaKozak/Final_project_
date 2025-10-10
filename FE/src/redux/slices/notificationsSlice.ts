@@ -72,7 +72,6 @@ const notificationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchNotifications
       .addCase(fetchNotifications.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -81,7 +80,6 @@ const notificationsSlice = createSlice({
         fetchNotifications.fulfilled,
         (state, action: PayloadAction<Notification[]>) => {
           state.loading = false;
-          // как и было в чужом коде — берём последние 10
           state.actions = action.payload.slice(0, 10);
         }
       )

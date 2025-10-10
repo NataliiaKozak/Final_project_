@@ -19,19 +19,3 @@
   "include": ["src", "vite.config.ts", "env.d.ts", "global.d.ts"]
 }
 
-// {
-//   "compilerOptions": {
-//     "target": "ES2020",
-//     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-//     "module": "ESNext",
-//     "moduleResolution": "bundler",
-//     "jsx": "react-jsx",
-//     "strict": true,
-//     "skipLibCheck": true,
-//     "noEmit": true,
-//     "baseUrl": "./src",             // вот так, а не ../FE/src
-//     "resolveJsonModule": true,
-//     "isolatedModules": true
-//   },
-//   "include": ["src"]
-// }

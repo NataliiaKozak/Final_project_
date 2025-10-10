@@ -93,7 +93,7 @@ const commentsSlice = createSlice({
     setComments: (state, action: PayloadAction<IComment[]>) => {
       state.comments = action.payload;
     },
-    // при закрытии модалки можно очищать список:
+    // при закрытии модалки очищать список:
     // clearComments: (state) => { state.comments = []; state.error = null; },
   },
   extraReducers: (builder) => {
@@ -142,6 +142,5 @@ const commentsSlice = createSlice({
 });
 
 export const { setComments } = commentsSlice.actions;
-// export const { setComments, clearComments } = commentsSlice.actions;
 
 export default commentsSlice.reducer;

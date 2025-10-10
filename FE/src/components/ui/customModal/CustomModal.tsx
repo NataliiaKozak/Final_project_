@@ -1,4 +1,3 @@
-// CustomModal.tsx
 import React from 'react';
 import styles from './customModal.module.css';
 

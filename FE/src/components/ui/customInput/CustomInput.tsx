@@ -10,7 +10,7 @@ interface InputProps {
   type?: 'text' | 'password' | 'email';
   className?: string;
   style?: CSSProperties;
-  showError?: boolean; // Сделайте это свойство необязательным
+  showError?: boolean;
 }
 
 // Компонент CustomInput

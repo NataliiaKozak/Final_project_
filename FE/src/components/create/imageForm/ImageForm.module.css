@@ -16,10 +16,6 @@
   transition: transform 0.3s ease-in-out;
 }
 
-/* .uploadIcon:hover {
-  transform: scale(3);
-} */
-
 .formContainer {
   height: 400px;
   margin-top: 30px;

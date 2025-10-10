@@ -1,20 +1,3 @@
-// import { configureStore } from '@reduxjs/toolkit';
-
-// import authReducer from './slices/authSlice';
-// import userReducer from './slices/userSlice';
-
-// const store = configureStore({
-//   reducer: {
-//     user: userReducer,
-//     auth: authReducer,
-//   },
-// });
-
-// export type RootState = ReturnType<typeof store.getState>;
-// export type AppDispatch = typeof store.dispatch;
-
-// export default store;
-
 import { configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '../redux/slices/authSlice';
@@ -39,12 +22,7 @@ const store = configureStore({
     messages: messagesReducer,
     search: searchReducer,
   },
-  // если вдруг ругнётся на FormData в санках — можно включить это:
-  // middleware: (getDefault) =>
-  //   getDefault({
-  //     serializableCheck: false,
-  //   }),
-  devTools: import.meta.env.MODE !== 'production',
+   devTools: import.meta.env.MODE !== 'production',
 });
 
 export type RootState = ReturnType<typeof store.getState>;

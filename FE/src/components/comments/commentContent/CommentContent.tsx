@@ -8,66 +8,6 @@ import styles from './commentContent.module.css';
 import parseData from '../../../helpers/parseData';
 import type { IComment } from '../../../interfaces/comment.interface';
 
-
-// interface CommentContentProps {
-//   postId: string;
-// }
-
-// export const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
-//   const dispatch = useDispatch();
-//   const comments = useSelector((state: RootState) => state.comments.comments);
-//   const currentUser = useSelector((state: RootState) => state.auth.user);
-//   const loading = useSelector((state: RootState) => state.comments.loading);
-
-//   const dispatch = useDispatch<AppDispatch>();
-//   useEffect(() => {
-//     dispatch(fetchComments(postId));
-//   }, [dispatch, postId]);
-
-//   const handleLikeComment = async (commentId: string) => {
-//     if (!currentUser || !currentUser._id) return;
-//     try {
-//       await dispatch(likeComment({ commentId })).unwrap();
-//       dispatch(fetchComments(postId));
-//     } catch (err) {
-//       console.error('Ошибка при лайке комментария:', err);
-//     }
-//   };
-
-//   if (loading) return <p>Loading comments...</p>;
-
-//   return (
-//     <div className={styles.commentsSection}>
-//       {comments.map((comment) => (
-//         <div key={comment._id} className={styles.comment}>
-//           <img
-//             src={comment.user?.profileImage || profilePlaceholder}
-//             alt="comment-avatar"
-//             className={styles.commentAvatar}
-//           />
-//           <div className={styles.commentContent}>
-//             <p>
-//               <strong>{comment.user?.username || 'Anonymous'}</strong>
-//               {' · '}
-//               {parseData(comment.createdAt)}
-//             </p>
-//             <p>{comment.text}</p>
-//           </div>
-//           <div className={styles.commentActions}>
-//             <FaHeart
-//               className={styles.likeIcon}
-//               onClick={() => handleLikeComment(comment._id)}
-//               title="Like"
-//             />
-//             {/* если понадобится число лайков — можно показать comment.likesCount ?? 0 */}
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default CommentContent;
 interface CommentContentProps {
   postId: string;
 }

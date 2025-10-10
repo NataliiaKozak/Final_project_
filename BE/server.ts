@@ -1,20 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import app from './app.js'; // Express app
+import app from './app.js'; 
 import connectDB from './src/config/db.js';
 
 dotenv.config();
 
 const PORT: number | string = process.env.PORT || 3000;
-
-// app.listen(PORT, async () => {
-//   try {
-//     await connectDB();
-//     console.log(`Server running on http://localhost:${PORT}`);
-//   } catch (err) {
-//     console.error('Error connecting server', err);
-//   }
-// });
 
 connectDB()
   .then(() => {

@@ -50,7 +50,7 @@ const RecieversList: React.FC<RecieversListProps> = ({ onSelectRecipient, select
         map.set(otherId, {
           _id: otherId,
           username: otherUsername,
-          email: '',         // нет в сообщении — оставляем пустым
+          email: '', // нет в сообщении — оставляем пустым
           fullName: otherUsername,
           profileImage: otherImage,
         });

@@ -67,7 +67,8 @@ const likesSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
-    // опционально: принудительно выставить флаг (если UI знает текущее состояние)
+    // опционально: принудительно выставить флаг 
+    // (если UI знает текущее состояние) - задать нужное значение, когда оно известно точно.
     setPostLiked(state, { payload }: PayloadAction<{ postId: string; liked: boolean }>) {
       state.byPostId[payload.postId] = payload.liked;
     },
@@ -83,10 +84,10 @@ const likesSlice = createSlice({
       })
       .addCase(toggleLikePost.fulfilled, (state, { payload }) => {
         state.loading = false;
-        // оптимистичный flip локального флага
+        // оптимистичный flip локального флага - моментально меняем UI (true/false) до ответа
         const prev = !!state.byPostId[payload.postId];
         state.byPostId[payload.postId] = !prev;
-        // ВАЖНО: counts не трогаем — если нужно, рефетч поста/ленты в UI.
+        // counts не трогаем — если нужно, рефетч поста/ленты в UI - заново грузим с бэка
       })
       .addCase(toggleLikePost.rejected, (state, { payload }) => {
         state.loading = false;
@@ -113,6 +114,3 @@ export const { clearLikes, setPostLiked, setCommentLiked } = likesSlice.actions;
 export default likesSlice.reducer;
 
 
-// рефетч — заново грузим с бэка;
-// оптимистичный flip — моментально меняем UI (true/false) до ответа;
-// принудительно выставить — задаём нужное значение, когда оно известно точно.

@@ -61,7 +61,6 @@ const MessagesRoom: React.FC<MessagesRoomProps> = ({ selectedRecipient }) => {
           })}
       </div>
 
-      {/* Отправку нового сообщения / сокеты не добавляю — это вне ТЗ */}
     </section>
   );
 };
