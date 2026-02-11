@@ -25,10 +25,9 @@ export const toggleLike = async (
       return;
     }
 
-    const existingLike = await Like.findOne({ user: userId, post: postId });
+    const deleted = await Like.findOneAndDelete({ user: userId, post: postId });
 
-    if (existingLike) {
-      await existingLike.deleteOne();
+    if (deleted) {
       res.json({ message: 'Лайк удалён' });
       return;
     }
@@ -87,13 +86,12 @@ export const toggleLikeComment = async (
       return;
     }
 
-    const existingLike = await Like.findOne({
+    const deleted = await Like.findOneAndDelete({
       user: userId,
       comment: commentId,
     });
 
-    if (existingLike) {
-      await existingLike.deleteOne();
+    if (deleted) {
       res.json({ message: 'Лайк комментария удалён' });
       return;
     }

@@ -61,7 +61,7 @@ function OtherProfile() {
         const isFollow = data.some((u) => u._id === userId);
         setIsFollowing(isFollow);
       } catch (e) {
-        console.error('Error check following:', error);
+        console.error('Error check following:', e);
         setIsFollowing(false);
       }
     };
@@ -96,7 +96,7 @@ function OtherProfile() {
         followers: prev.followers !== 'Loading...' ? prev.followers - 1 : prev.followers,
       }));
     } catch (e) {
-      console.error('Error unfollow:', error);
+      console.error('Error unfollow:', e);
     }
   };
 

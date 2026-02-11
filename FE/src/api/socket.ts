@@ -1,4 +1,5 @@
-// Минимальный singleton-клиент под твой бэк (auth через token, события joinRoom/sendMessage/receiveMessage)
+// Минимальный singleton-клиент под  бэк (auth через token, события joinRoom/sendMessage/receiveMessage)
+
 // import { io, Socket } from 'socket.io-client';
 // import type { IMessage } from '../interfaces/message.interface';
 
@@ -8,8 +9,8 @@
 //   if (socket?.connected) return socket;
 
 //   socket = io(apiBaseUrl, {
-//     auth: { token },               // твой middleware читает socket.handshake.auth.token
-//     transports: ['websocket'],     // без лишнего «улучшайзинга»
+//     auth: { token },               // middleware читает socket.handshake.auth.token
+//     transports: ['websocket'],     
 //   });
 
 //   return socket;

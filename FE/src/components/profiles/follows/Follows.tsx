@@ -42,7 +42,8 @@ const FollowsPanel: FC<IFollowPanel> = ({ userId, follow, setFollow }) => {
 
     if (follow.followers === 'Loading...') fetchFollowers();
     if (follow.following === 'Loading...') fetchFollowing();
-  }, [userId, follow, setFollow]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   return (
     <>

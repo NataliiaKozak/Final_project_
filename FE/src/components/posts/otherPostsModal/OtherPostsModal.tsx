@@ -90,7 +90,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
     if (!text) return;
 
     try {
-      await dispatch(addComment({ postId: post._id, text })).unwrap?.();
+      await dispatch(addComment({ postId: post._id, text })).unwrap();
       setNewComment('');
       setCommentsCount((prev) => prev + 1); // локальный инкремент
       setError(null);

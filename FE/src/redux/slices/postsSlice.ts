@@ -7,12 +7,16 @@ type ApiError = { message?: string };
 
 interface PostsState {
   posts: IPost[]; // лента: GET /posts
+  explore: PostPreview[];
+  otherUserPosts: PostPreview[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: PostsState = {
   posts: [],
+  explore: [],
+  otherUserPosts: [],
   loading: false,
   error: null,
 };
@@ -78,7 +82,7 @@ export const likePost = createAsyncThunk<
     const { data } = await $api.post<{ message: string; like?: unknown; likes_count?: number }>(
       `/likes/post/${postId}`
     );
-    return { postId, likesCount: (data as any).likes_count }; // если контроллер начнет возвращать счётчик
+    return { postId, likesCount: data.likes_count };
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(err.response?.data?.message ?? 'Ошибка изменения лайка');
@@ -132,8 +136,9 @@ const postsSlice = createSlice({
       .addCase(getAllPublicPosts.pending, (state) => {
         state.loading = true; state.error = null;
       })
-      .addCase(getAllPublicPosts.fulfilled, (_state, _action) => {
-            // при необходимости сделаем отдельное поле state.explore: PostPreview[]
+      .addCase(getAllPublicPosts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.explore = action.payload;
       })
       .addCase(getAllPublicPosts.rejected, (state, action) => {
         state.loading = false; state.error = action.payload ?? 'Error loading explore posts';
@@ -143,8 +148,9 @@ const postsSlice = createSlice({
       .addCase(getOtherUserPosts.pending, (state) => {
         state.loading = true; state.error = null;
       })
-      .addCase(getOtherUserPosts.fulfilled, (_state, _action) => {
-        // аналогично: это превью, лучше хранить отдельно. 
+      .addCase(getOtherUserPosts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.otherUserPosts = action.payload;
       })
       .addCase(getOtherUserPosts.rejected, (state, action) => {
         state.loading = false; state.error = action.payload ?? 'Error loading user posts';

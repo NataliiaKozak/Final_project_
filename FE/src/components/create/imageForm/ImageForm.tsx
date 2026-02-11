@@ -4,6 +4,7 @@ import { RootState } from '../../../redux/store';
 import styles from './ImageForm.module.css';
 import { $api } from '../../../api/api';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
+import placeCreate from '../../../assets/place-create.svg';
 
 interface ImageFormProps {
   closeModal: () => void;
@@ -100,7 +101,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
         <div className={styles.fileInputContainer}>
           <label htmlFor="fileInput" className={styles.uploadLabel}>
             <img
-              src={filePath || '/src/assets/place-create.svg'}
+              src={filePath || placeCreate}
               alt="Uploaded file"
               className={styles.uploadIcon}
             />

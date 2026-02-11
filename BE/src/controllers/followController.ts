@@ -5,7 +5,7 @@ import { createNotification } from "./notificationController.js";
 import { Types } from "mongoose";
 
 /* GET followers of userId */
-export const getFollowers = async (req: Request, res: Response) => {
+export const getFollowers = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;
     if (!Types.ObjectId.isValid(userId)) {
@@ -17,9 +17,7 @@ export const getFollowers = async (req: Request, res: Response) => {
       "username profileImage"
     );
 
-    const result = followers.map((s) =>
-      (s.follower as unknown)
-    );
+    const result = followers.map((s) => s.follower);
 
     res.json(result);
   } catch (error) {
@@ -29,7 +27,7 @@ export const getFollowers = async (req: Request, res: Response) => {
 };
 
 /* GET following of userId */
-export const getFollowing = async (req: Request, res: Response) => {
+export const getFollowing = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;
     if (!Types.ObjectId.isValid(userId)) {
@@ -41,7 +39,7 @@ export const getFollowing = async (req: Request, res: Response) => {
       "username profileImage"
     );
 
-    const result = following.map((s) => (s.following as unknown));
+    const result = following.map((s) => s.following);
     res.json(result);
   } catch (error) {
     console.error(error);

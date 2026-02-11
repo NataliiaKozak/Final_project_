@@ -16,18 +16,22 @@ connectDB()
   })
   .catch((err) => {
     console.error('DB connection failed:', err);
-    process.exit(1); // чтобы процесс не висел без БД
+    process.exit(1); 
   });
 
-// сокет
+// socket
 // import http from 'http';
 // import dotenv from 'dotenv';
 // import { Server } from 'socket.io';
-// import app from './app';
-// import connectDB from './src/config/db';
-// import { verifySocketToken } from './src/config/jwt';
-// import Message from './src/models/MessageModel';
+// import app from './app.js';
+// import connectDB from './src/config/db.js';
+// import { verifySocketToken } from './src/config/jwt.js';
+// import Message from './src/models/MessageModel.js';
 
+//  import express from 'express';
+// // import dotenv from 'dotenv';
+// // import app from './app.js'; 
+// // import connectDB from './src/config/db.js';
 // dotenv.config();
 
 // const PORT: number = Number(process.env.PORT) || 3000;

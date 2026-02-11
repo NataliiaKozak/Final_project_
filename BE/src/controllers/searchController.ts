@@ -11,7 +11,6 @@ export const searchUsers = async (
 ): Promise<void> => {
   try {
     // Забираем query строго как строку
-    const raw = req.query.query;
     const q = String(req.query?.query ?? '').trim();
     if (!q.trim()) {
       res.status(400).json({ message: 'Запрос не может быть пустым' });
@@ -29,11 +28,12 @@ export const searchUsers = async (
       .lean(); // быстрее, без лишних Mongoose-объектов
 
     res.json(users);
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as Error;
     console.error('[searchUsers] error:', error);
     res.status(500).json({
       message: 'Ошибка при поиске пользователей',
-      error: error?.message,
+      error: error.message,
     });
   }
 };

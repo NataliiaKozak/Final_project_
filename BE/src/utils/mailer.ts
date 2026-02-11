@@ -3,6 +3,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.error('MAILER: EMAIL_USER или EMAIL_PASS не заданы в .env');
+}
+
+if (!process.env.CLIENT_URL) {
+  console.error('MAILER: CLIENT_URL не задан в .env');
+}
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {

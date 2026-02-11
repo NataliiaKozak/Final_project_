@@ -35,12 +35,15 @@ const EditProfileForm: React.FC = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      dispatch(
-        setUser({
-          token: localStorage.getItem('token') || '',
-          user: data,
-        })
-      );
+      const token = localStorage.getItem('token');
+      if (token) {
+        dispatch(
+          setUser({
+            token,
+            user: data,
+          })
+        );
+      }
       localStorage.setItem('user', JSON.stringify(data));
       console.log('User updated successfully');
     } catch (error) {

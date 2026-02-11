@@ -30,6 +30,7 @@ class HomePagePosts extends React.Component<{}, State> {
 
   componentDidMount() {
     this.getAllPosts();
+    this.handleCheckMyFollowing();
   }
 
   getAllPosts = async () => {
@@ -128,11 +129,6 @@ class HomePagePosts extends React.Component<{}, State> {
 
   render() {
     const { posts, loading, error, likesCounts, selectedPost } = this.state;
-
-    if (this.state.followingList === null) {
-      // однократная инициализация списка подписок
-      this.handleCheckMyFollowing();
-    }
 
     if (loading) return <p>loading...</p>;
     if (error) return <p>{error}</p>;

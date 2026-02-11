@@ -16,7 +16,7 @@ export type PostPreview = { _id: string; image: string; createdAt: string };
 const PostsListOther: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { userId } = useParams<{ userId: string }>();
-  const { posts, loading, error } = useSelector((state: RootState) => state.posts);
+  const { otherUserPosts, loading, error } = useSelector((state: RootState) => state.posts);
 
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null); 
 
@@ -33,7 +33,7 @@ const PostsListOther: React.FC = () => {
   return (
     <div className={styles.postlistOther}>
       <div className={styles.postList}>
-        {[...posts].reverse().map((post: IPost) => ( 
+        {[...otherUserPosts].reverse().map((post) => ( 
           <img
             key={post._id}
             src={post.image}

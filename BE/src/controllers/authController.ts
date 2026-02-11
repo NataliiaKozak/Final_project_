@@ -19,6 +19,19 @@ export const registerUser = async (
   try {
     const { username, email, password, fullName } = req.body;
 
+    // Валидация email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      res.status(400).json({ message: 'Некорректный формат email' });
+      return;
+    }
+
+    // Валидация пароля
+    if (!password || password.length < 6) {
+      res.status(400).json({ message: 'Пароль должен содержать минимум 6 символов' });
+      return;
+    }
+
     const existing = await User.findOne({ $or: [{ email }, { username }] });
     if (existing) {
       const errors: Record<string, string> = {};
@@ -103,7 +116,10 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 export const requestPasswordReset = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: 'Email обязателен' });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Некорректный формат email' });
+    }
     const user = await User.findOne({ email });
     if (!user) {
         return res.status(400).json({ message: 'Пользователь не найден' });
