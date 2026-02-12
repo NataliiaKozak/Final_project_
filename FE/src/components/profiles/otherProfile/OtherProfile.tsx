@@ -109,6 +109,9 @@ function OtherProfile() {
 
   return (
     <div>
+      <button className={styles.backButton} onClick={() => navigate(-1)}>
+        ← Back
+      </button>
       {currentUser ? (
         <div className={styles.otherProfile}>
           <span className={styles.gradient_border}>

@@ -35,6 +35,17 @@ export const RegisterForm = () => {
     general: '',
   });
 
+  const [emailError, setEmailError] = useState('');
+
+  const validateEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (userObject.email && !emailRegex.test(userObject.email)) {
+      setEmailError('Введите корректный email');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const handleInputChange = (field: keyof RegisterPayload) => (value: string) => {
     setUserObject(prev => ({ ...prev, [field]: value }));
   };
@@ -78,10 +89,11 @@ export const RegisterForm = () => {
           placeholder={'Email'}
           value={userObject.email}
           onChange={handleInputChange('email')}
+          onBlur={validateEmail}
           type="email"
           style={{ paddingLeft: '8px', backgroundColor: '#FAFAFA', color: '#737373' }}
         />
-        {error.email && <p className={styles.errorMessage}>{error.email}</p>}
+        {(emailError || error.email) && <p className={styles.errorMessage}>{emailError || error.email}</p>}
         <CustomInput
           placeholder={'Full name'}
           value={userObject.fullName}
