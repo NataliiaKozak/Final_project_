@@ -127,7 +127,7 @@
     align-items: center;
   }
   .otherProfile_rightside_btnBox {
-    width: 100vw;
+    width: 100%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -151,7 +151,7 @@
     max-width: 85vw;
     justify-content: center;
     align-items: center;
-    padding-left: 50px;
+    padding-left: 15px;
   }
   .gradient_border_inner {
     width: 100px;

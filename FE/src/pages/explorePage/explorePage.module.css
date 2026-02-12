@@ -41,3 +41,18 @@
     width: calc(100% - 50px);
   }
 }
+
+@media (max-width: 568px) {
+  .content {
+    width: 100%;
+    padding: 10px;
+  }
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .largePost {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}

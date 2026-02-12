@@ -42,7 +42,7 @@
 }
 
 .ModalSmall {
-  width: 400px;
+  width: min(90vw, 400px);
   height: 240px;
   margin: 0 auto;
   border-radius: 12px;
@@ -81,10 +81,14 @@
   }
   @media (max-width: 568px) {
     .ModalLeft {
-      left: 17%;
-      width: 68%;
+      left: 5%;
+      width: 90%;
       height: fit-content;
       max-height: 80vh;
+    }
+    .ModalLarge {
+      width: 95%;
+      height: 80vh;
     }
     .searchContent input {
       display: block;

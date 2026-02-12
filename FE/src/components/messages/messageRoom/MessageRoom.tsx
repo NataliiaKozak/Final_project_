@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../../redux/store';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import type { AppDispatch, RootState } from '../../../redux/store';
+import { sendMessage, addMessage, fetchMessages } from '../../../redux/slices/messagesSlice';
+import { connectSocket, getSocket, disconnectSocket } from '../../../api/socket';
 import type { IMessage } from '../../../interfaces/message.interface';
 import type { IUser } from '../../../interfaces/user.interface';
 import styles from './messageRoom.module.css';
@@ -16,8 +18,53 @@ interface MessagesRoomProps {
 }
 
 const MessagesRoom: React.FC<MessagesRoomProps> = ({ selectedRecipient }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const authUser = useSelector((s: RootState) => s.auth.user);
   const { items, loading, error } = useSelector((s: RootState) => s.messages);
+  const [text, setText] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Подключение к сокету
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const apiBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/api\/?$/, '');
+    connectSocket(apiBaseUrl, token);
+
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
+
+  // Подключение к комнате + слушатель входящих сообщений
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !selectedRecipient?._id) return;
+
+    socket.emit('joinRoom', { targetUserId: selectedRecipient._id });
+
+    const handleReceive = (msg: IMessage) => {
+      dispatch(addMessage(msg));
+    };
+    socket.on('receiveMessage', handleReceive);
+
+    return () => {
+      socket.off('receiveMessage', handleReceive);
+    };
+  }, [selectedRecipient?._id, dispatch]);
+
+  // Загрузка истории при смене собеседника
+  useEffect(() => {
+    if (selectedRecipient?._id) {
+      dispatch(fetchMessages(selectedRecipient._id));
+    }
+  }, [selectedRecipient?._id, dispatch]);
+
+  // Авто-скролл вниз
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [items]);
 
   const dialogMessages: IMessage[] = useMemo(() => {
     if (!selectedRecipient?._id || !authUser?._id) return [];
@@ -28,11 +75,25 @@ const MessagesRoom: React.FC<MessagesRoomProps> = ({ selectedRecipient }) => {
       const senderId = isPopulatedUser(m.sender) ? m.sender._id : m.sender;
       const recipientId = isPopulatedUser(m.recipient) ? m.recipient._id : m.recipient;
 
-      const pair1 = senderId === me && recipientId === otherId;
-      const pair2 = senderId === otherId && recipientId === me;
-      return pair1 || pair2;
+      return (senderId === me && recipientId === otherId) ||
+             (senderId === otherId && recipientId === me);
     });
   }, [items, selectedRecipient?._id, authUser?._id]);
+
+  const handleSend = () => {
+    const trimmed = text.trim();
+    if (!trimmed || !selectedRecipient?._id) return;
+
+    dispatch(sendMessage({ recipientId: selectedRecipient._id, text: trimmed }));
+    setText('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
     <section className={styles.room}>
@@ -59,8 +120,28 @@ const MessagesRoom: React.FC<MessagesRoomProps> = ({ selectedRecipient }) => {
               </div>
             );
           })}
+        <div ref={messagesEndRef} />
       </div>
 
+      {selectedRecipient && (
+        <div className={styles.inputArea}>
+          <input
+            type="text"
+            className={styles.input}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Message..."
+          />
+          <button
+            className={styles.sendButton}
+            onClick={handleSend}
+            disabled={!text.trim()}
+          >
+            Send
+          </button>
+        </div>
+      )}
     </section>
   );
 };

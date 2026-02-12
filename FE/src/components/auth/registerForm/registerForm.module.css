@@ -67,3 +67,16 @@
    .errorMessage{
     color: rgb(190, 55, 55);
    }
+
+@media (max-width: 480px) {
+  .registerForm {
+    width: 90vw;
+    padding: 20px 16px;
+  }
+  .registerForm input {
+    width: 100%;
+  }
+  .haveAccountBox {
+    width: 90vw;
+  }
+}

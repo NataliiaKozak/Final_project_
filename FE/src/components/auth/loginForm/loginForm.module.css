@@ -134,3 +134,25 @@
 .screenImage.fade-out {
   animation: fade-out 2s ease-in-out;
 }
+
+@media (max-width: 800px) {
+  .leftSection {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginForm {
+    width: 90vw;
+    padding: 20px 16px;
+  }
+  .loginForm input {
+    width: 100%;
+  }
+  .haveAccountBox {
+    width: 90vw;
+  }
+  .container {
+    padding: 0 10px;
+  }
+}

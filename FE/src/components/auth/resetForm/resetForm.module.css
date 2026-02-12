@@ -83,3 +83,16 @@ color: var(--color-text-grey);
       border-radius: var(--border-radius-xxs);
       margin-top: 84px;
      }
+
+@media (max-width: 480px) {
+  .resetForm {
+    width: 90vw;
+    padding: 20px 16px 0;
+  }
+  .resetForm input {
+    width: 100%;
+  }
+  .back {
+    width: 90vw;
+  }
+}

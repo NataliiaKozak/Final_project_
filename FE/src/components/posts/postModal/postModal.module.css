@@ -481,6 +481,7 @@
     font-size: 12px;
     height: 90vh;
     left: auto;
+    width: 90vw;
   }
   .modalContent_leftside {
     width: 100%;
@@ -488,5 +489,23 @@
   }
   .modalContent_rightside {
     width: 100%;
+  }
+}
+
+@media (max-width: 568px) {
+  .modalContent {
+    width: 95vw;
+    height: 85vh;
+    left: auto;
+    flex-direction: column;
+  }
+  .modalContent_leftside {
+    height: 25%;
+  }
+  .actionMenu {
+    width: 80vw;
+  }
+  .deleteConfirmation {
+    left: 10%;
   }
 }

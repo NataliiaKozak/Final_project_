@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../../redux/store';
-import { fetchMessages } from '../../../redux/slices/messagesSlice';
+import { fetchAllConversations } from '../../../redux/slices/messagesSlice';
 import type { IMessage } from '../../../interfaces/message.interface';
 import type { IUser } from '../../../interfaces/user.interface';
 import styles from './recieversList.module.css';
@@ -25,7 +25,7 @@ const RecieversList: React.FC<RecieversListProps> = ({ onSelectRecipient, select
 
   useEffect(() => {
     if (authUser?._id) {
-      dispatch(fetchMessages(authUser._id));
+      dispatch(fetchAllConversations());
     }
   }, [dispatch, authUser?._id]);
 
