@@ -49,8 +49,8 @@ export const getProfile = async (
     }
     res.status(200).json({
       ...user.toObject(),
-      followersCount: user.followers.length,
-      followingCount: user.following.length,
+      followersCount: await Follow.countDocuments({ following: id }),
+      followingCount: await Follow.countDocuments({ follower: id }),
       postsCount,
       commentsCount,
       likesCount,

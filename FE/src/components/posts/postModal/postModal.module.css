@@ -137,10 +137,9 @@
 .modalContent_rightside_notifications > span {
   padding: 2px;
   display: flex;
-  max-width: 20px;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
 }
 .modalContent_rightside_notifications_date {
   font-size: 12px;

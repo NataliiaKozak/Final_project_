@@ -11,6 +11,8 @@ function SearchContent() {
   const dispatch = useDispatch<AppDispatch>();
   const [query, setQuery] = useState('');
   const results = useSelector((state: RootState) => state.search.results);
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const filtered = results?.filter((u) => u._id !== authUser?._id) ?? [];
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,8 +39,8 @@ function SearchContent() {
       </div>
       <h5>Recent</h5>
       <div className={styles.searchContent_list}>
-        {results && results.length > 0 ? (
-          results.map((user) => (
+        {filtered.length > 0 ? (
+          filtered.map((user) => (
             <div
               key={user._id}
               className={styles.searchContent_listImage}

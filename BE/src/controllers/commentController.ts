@@ -41,6 +41,7 @@ export const addComment = async (
     });
 
     await comment.save();
+    await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
     // =================Уведомление автору поста===============
     if (post.author && post.author._id.toString() !== userId) {
@@ -85,6 +86,7 @@ export const deleteComment = async (
     }
 
     await comment.deleteOne();
+    await Post.findByIdAndUpdate(comment.post, { $pull: { comments: commentId } });
     res.json({ message: 'Комментарий удалён' });
   } catch (error) {
     console.error('Ошибка при удалении комментария:', error);

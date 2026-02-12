@@ -7,12 +7,12 @@ import styles from './ExplorePage.module.css';
 
 import type { PostPreview } from '../../interfaces/post.interface';
 import ExplorePostModal from '../../components/search/ExplorePostModal';
-import { $api } from 'api/api';
+import { $api } from '../../api/api';
 
 export const Explore: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { posts, loading, error } = useSelector(
-    (state: RootState) => state.posts
+  const { explore, loading, error } = useSelector(
+    (state: RootState) => state.posts,
   );
   // Используем твой тип превью
   const [selectedPost, setSelectedPost] = useState<PostPreview | null>(null);
@@ -39,7 +39,7 @@ export const Explore: FC = () => {
     <div className={styles.pageContainer}>
       <main className={styles.content}>
         <div className={styles.gallery}>
-          {posts.map((item, index) => (
+          {explore.map((item, index) => (
             <div
               key={item._id}
               className={

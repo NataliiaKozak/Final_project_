@@ -123,6 +123,7 @@ function OtherProfile() {
           <div className={styles.otherProfile_rightside}>
             <div className={styles.otherProfile_rightside_btnBox}>
               <p>{currentUser.username}</p>
+              {currentUser.fullName && <p style={{ color: 'var(--color-text-grey)', fontWeight: 400 }}>{currentUser.fullName}</p>}
 
               <CustomButton
                 text={isFollowing ? 'Unfollow' : 'Follow'}

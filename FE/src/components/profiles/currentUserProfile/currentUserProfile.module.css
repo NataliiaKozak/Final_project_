@@ -17,8 +17,8 @@
 }
 .gradient_border {
   position: relative;
-  min-width: 168px;
-  height: 168px;
+  min-width: 120px;
+  height: 120px;
   border-radius: 50%;
 }
 
@@ -48,8 +48,8 @@
 }
 
 .gradient_border_inner > img {
-  width: 170px;
-  height: 164px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
 }
 
@@ -80,6 +80,7 @@
 
 .currentUserProfile_statisticCount {
   font-weight: 600;
+  margin-right: 4px;
 }
 
 .currentUserProfile_statisticBio {

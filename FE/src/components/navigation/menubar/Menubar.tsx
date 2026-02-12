@@ -21,12 +21,16 @@ import CreatePostPage from '../../../pages/createPostPage/CreatePostPage';
 import NotificationsBar from '../../notifications/notificationsBar/NotificationsBar';
 
 const Menubar = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
   const [modalSize, setModalSize] = useState<'default' | 'left' | 'large' | 'small'>('default');
 
   const openModal = (type: string) => {
-    setIsModalOpen(true);
+    if (activePanel === type) {
+      closeModal();
+      return;
+    }
+    setActivePanel(type);
     switch (type) {
       case 'search':
         setModalSize('left');
@@ -46,7 +50,7 @@ const Menubar = () => {
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
+    setActivePanel(null);
     setModalContent(null);
   };
 
@@ -127,7 +131,7 @@ const Menubar = () => {
         )}
       </NavLink>
 
-      <CustomModal isOpen={isModalOpen} onClose={closeModal} content={modalContent} modalSize={modalSize} />
+      <CustomModal isOpen={activePanel !== null} onClose={closeModal} content={modalContent} modalSize={modalSize} />
     </nav>
   );
 };

@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '../../ui/customButton/CustomButton';
 import FollowsPanel from '../../profiles/follows/Follows';
 import { logout } from '../../../redux/slices/authSlice';
+import { getUserById } from '../../../redux/slices/userSlice';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import { ILocalFollow } from '../../../interfaces/follow.interface';
-import { RootState } from '../../../redux/store';
+import type { AppDispatch, RootState } from '../../../redux/store';
 import styles from './currentUserProfile.module.css';
 import web from '../../../assets/web.svg';
 
 const CurrentUserProfile: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
+  const currentUser = useSelector((state: RootState) => state.user.currentUser);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?._id) dispatch(getUserById(user._id));
+  }, [dispatch, user?._id]);
   const [follow, setFollow] = useState<ILocalFollow>({
     followers: 'Loading...',
     following: 'Loading...',
@@ -47,6 +53,7 @@ const CurrentUserProfile: React.FC = () => {
       <div className={styles.currentUserProfile_rightside}>
         <div className={styles.currentUserProfile_rightside_btnBox}>
           <p>{user.username}</p>
+          {user.fullName && <p style={{ color: 'var(--color-text-grey)', fontWeight: 400 }}>{user.fullName}</p>}
           <CustomButton
             className={styles.btn}
             text="Edit profile"
@@ -69,7 +76,7 @@ const CurrentUserProfile: React.FC = () => {
         <div className={styles.currentUserProfile_statistic}>
           <p>
             <span className={styles.currentUserProfile_statisticCount}>
-              {user.postsCount ?? 0}
+              {currentUser?.postsCount ?? user.postsCount ?? 0}
             </span>
             posts
           </p>

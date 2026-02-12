@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import type { AppDispatch, RootState } from '../../../redux/store';
 import { addComment } from '../../../redux/slices/commentsSlice';
 import profilePlaceholder from '../../../assets/photo-placeholder.svg';
@@ -58,6 +59,7 @@ const EmojiPicker: React.FC<{ onSelectEmoji: (emoji: string) => void }> = ({
 
 const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const [newComment, setNewComment] = useState('');
@@ -71,6 +73,10 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedDescription, setEditedDescription] = useState(post.description ?? '');
   const [editedImageFile, setEditedImageFile] = useState<File | null>(null);
+
+  const isMyPost =
+    (typeof post.author === 'string' ? post.author : post.author?._id) ===
+    currentUser?._id;
 
   // безопасные поля автора (author: string | { ... })
   const authorName =
@@ -110,8 +116,8 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
     }
     try {
       // БЭК: POST /likes/post/:postId — toggle
-      await $api.post(`/likes/post/${post._id}`);
-      setLikesCount((p) => p + 1);
+      const { data } = await $api.post(`/likes/post/${post._id}`);
+      setLikesCount(data.likesCount);
     } catch (err) {
       console.error('Ошибка при лайке поста:', err);
     }
@@ -145,6 +151,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      post.description = editedDescription;
       setShowEditModal(false);
       onUpdatePosts();
     } catch (error) {
@@ -189,9 +196,11 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               </div>
             </div>
 
-            <button className={styles.moreOptionsButton} onClick={toggleActionMenu}>
-              <FaEllipsisV />
-            </button>
+            {isMyPost && (
+              <button className={styles.moreOptionsButton} onClick={toggleActionMenu}>
+                <FaEllipsisV />
+              </button>
+            )}
           </div>
 
           {showActionMenu && (
@@ -213,7 +222,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                 Edit
               </button>
 
-              <button className={styles.actionButton} onClick={() => setShowActionMenu(false)}>
+              <button className={styles.actionButton} onClick={() => { navigate(`/post/${post._id}`); setShowActionMenu(false); }}>
                 Go to post
               </button>
 

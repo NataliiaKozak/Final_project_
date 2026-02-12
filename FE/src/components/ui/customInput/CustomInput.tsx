@@ -11,6 +11,7 @@ interface InputProps {
   className?: string;
   style?: CSSProperties;
   showError?: boolean;
+  onBlur?: () => void;
 }
 
 // Компонент CustomInput
@@ -23,6 +24,7 @@ const CustomInput: React.FC<InputProps> = ({
   type = 'text',
   className = '',
   style = {},
+  onBlur,
 }) => {
   // Обработчик изменений
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,8 +40,9 @@ const CustomInput: React.FC<InputProps> = ({
       <input
         type={type}
         placeholder={placeholder}
-        value={value} // Используем переданное значение напрямую
-        onChange={handleInputChange} // Используем переданный обработчик
+        value={value}
+        onChange={handleInputChange}
+        onBlur={onBlur}
         className={styles.input}
         style={style}
       />

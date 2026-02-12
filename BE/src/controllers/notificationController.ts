@@ -89,3 +89,30 @@ export const markAsRead = async (
       .json({ message: 'Ошибка при обновлении уведомлений', error: error.message });
   }
 };
+
+// Отметить одно уведомление как прочитанное
+export const markOneAsRead = async (
+  req: RequestWithUser,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: 'Неавторизованный доступ' });
+      return;
+    }
+    const { id } = req.params;
+    const notification = await Notification.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      { $set: { isRead: true } },
+      { new: true },
+    );
+    if (!notification) {
+      res.status(404).json({ message: 'Уведомление не найдено' });
+      return;
+    }
+    res.json(notification);
+  } catch (err: unknown) {
+    const error = err as Error;
+    res.status(500).json({ message: 'Ошибка при обновлении уведомления', error: error.message });
+  }
+};

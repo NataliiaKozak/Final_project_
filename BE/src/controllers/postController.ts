@@ -19,9 +19,13 @@ export const getAllPosts = async (
   res: Response
 ): Promise<void> => {
   try {
-    const posts = await Post.find() //достаём все посты из базы 
-      .populate('author', 'username profileImage fullName') //вместо author: ObjectId подставляем данные о пользователе (имя + фото профиля)
-      .sort({ createdAt: -1 }); //новые сверху
+    const filter: Record<string, unknown> = {};
+    if (req.query.excludeAuthor) {
+      filter.author = { $ne: req.query.excludeAuthor };
+    }
+    const posts = await Post.find(filter)
+      .populate('author', 'username profileImage fullName')
+      .sort({ createdAt: -1 });
 
      res.json(posts); //Отправляем клиенту список постов
   } catch (err: unknown) {

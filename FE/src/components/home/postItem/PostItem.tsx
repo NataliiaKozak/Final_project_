@@ -1,6 +1,7 @@
 import React, { useState, useEffect, MouseEvent } from 'react';
 import { FaHeart, FaRegComment } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '../../ui/customButton/CustomButton';
 import { $api } from '../../../api/api';
@@ -31,6 +32,7 @@ const PostItem: React.FC<PostItemProps> = ({
   handleRemoveSomeFollow,
 }) => {
   const [isLiked, setIsLiked] = useState(false);
+  const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const myId = currentUser?._id ?? '';
 
@@ -39,6 +41,11 @@ const PostItem: React.FC<PostItemProps> = ({
   const authorAvatar = typeof item.author === 'string' ? undefined : item.author?.profileImage;
 
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+
+  const goToProfile = (e: MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/profile/${authorId}`);
+  };
 
   // если автор — я, не показываем карточку (как в чужом коде)
   if (!currentUser) return null;
@@ -105,11 +112,13 @@ const PostItem: React.FC<PostItemProps> = ({
             src={authorAvatar || profilePlaceholder}
             alt="avatar"
             className={styles.avatar}
+            onClick={goToProfile}
+            style={{ cursor: 'pointer' }}
           />
         </div>
 
         <div className={styles.userInfo}>
-          <span className={styles.userName}>{authorName}</span>
+          <span className={styles.userName} onClick={goToProfile} style={{ cursor: 'pointer' }}>{authorName}</span>
           <span className={styles.greytext}>&#8226; {parseData(item.createdAt)} &#8226;</span>
 
           {isFollowing !== null && (

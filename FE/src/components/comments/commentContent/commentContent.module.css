@@ -8,6 +8,13 @@
 .comment {
     display: flex;
     gap: 15px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-line);
+}
+
+.commentActions {
+    user-select: none;
 }
 
 .commentAvatar {

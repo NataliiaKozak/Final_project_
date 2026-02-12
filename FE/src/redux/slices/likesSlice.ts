@@ -7,14 +7,16 @@ type ApiError = { message?: string };
 interface LikesState {
   byPostId: Record<string, boolean>;    // локальный флаг "я лайкнул этот пост"
   byCommentId: Record<string, boolean>; // локальный флаг "я лайкнул этот комментарий"
-  loading: boolean;
+  loadingByPostId: Record<string, boolean>;
+  loadingByCommentId: Record<string, boolean>;
   error: string | null;
 }
 
 const initialState: LikesState = {
   byPostId: {},
   byCommentId: {},
-  loading: false,
+  loadingByPostId: {},
+  loadingByCommentId: {},
   error: null,
 };
 
@@ -22,13 +24,13 @@ const initialState: LikesState = {
 
 // POST /likes/post/:postId  (toggle like)
 export const toggleLikePost = createAsyncThunk<
-  { postId: string },
+  { postId: string; liked: boolean; likesCount: number },
   string,
   { rejectValue: string }
 >('likes/toggleLikePost', async (postId, { rejectWithValue }) => {
   try {
-    await $api.post(`/likes/post/${postId}`);
-    return { postId };
+    const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${postId}`);
+    return { postId, liked: data.liked, likesCount: data.likesCount };
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(err.response?.data?.message ?? 'Ошибка изменения лайка поста');
@@ -39,13 +41,13 @@ export const toggleLikePost = createAsyncThunk<
 
 // POST /likes/comment/:commentId  (toggle like)
 export const toggleLikeComment = createAsyncThunk<
-  { commentId: string },
+  { commentId: string; liked: boolean; likesCount: number },
   string,
   { rejectValue: string }
 >('likes/toggleLikeComment', async (commentId, { rejectWithValue }) => {
   try {
-    await $api.post(`/likes/comment/${commentId}`);
-    return { commentId };
+    const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/comment/${commentId}`);
+    return { commentId, liked: data.liked, likesCount: data.likesCount };
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(err.response?.data?.message ?? 'Ошибка изменения лайка комментария');
@@ -64,8 +66,9 @@ const likesSlice = createSlice({
     clearLikes(state) {
       state.byPostId = {};
       state.byCommentId = {};
+      state.loadingByPostId = {};
+      state.loadingByCommentId = {};
       state.error = null;
-      state.loading = false;
     },
     // опционально: принудительно выставить флаг 
     // (если UI знает текущее состояние) - задать нужное значение, когда оно известно точно.
@@ -78,34 +81,30 @@ const likesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(toggleLikePost.pending, (state) => {
-        state.loading = true;
+      .addCase(toggleLikePost.pending, (state, action) => {
+        state.loadingByPostId[action.meta.arg] = true;
         state.error = null;
       })
       .addCase(toggleLikePost.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        // оптимистичный flip локального флага - моментально меняем UI (true/false) до ответа
-        const prev = !!state.byPostId[payload.postId];
-        state.byPostId[payload.postId] = !prev;
-        // counts не трогаем — если нужно, рефетч поста/ленты в UI - заново грузим с бэка
+        state.loadingByPostId[payload.postId] = false;
+        state.byPostId[payload.postId] = payload.liked;
       })
-      .addCase(toggleLikePost.rejected, (state, { payload }) => {
-        state.loading = false;
-        state.error = payload ?? 'Ошибка изменения лайка поста';
+      .addCase(toggleLikePost.rejected, (state, action) => {
+        state.loadingByPostId[action.meta.arg] = false;
+        state.error = action.payload ?? 'Ошибка изменения лайка поста';
       })
 
-      .addCase(toggleLikeComment.pending, (state) => {
-        state.loading = true;
+      .addCase(toggleLikeComment.pending, (state, action) => {
+        state.loadingByCommentId[action.meta.arg] = true;
         state.error = null;
       })
       .addCase(toggleLikeComment.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        const prev = !!state.byCommentId[payload.commentId];
-        state.byCommentId[payload.commentId] = !prev;
+        state.loadingByCommentId[payload.commentId] = false;
+        state.byCommentId[payload.commentId] = payload.liked;
       })
-      .addCase(toggleLikeComment.rejected, (state, { payload }) => {
-        state.loading = false;
-        state.error = payload ?? 'Ошибка изменения лайка комментария';
+      .addCase(toggleLikeComment.rejected, (state, action) => {
+        state.loadingByCommentId[action.meta.arg] = false;
+        state.error = action.payload ?? 'Ошибка изменения лайка комментария';
       });
   },
 });

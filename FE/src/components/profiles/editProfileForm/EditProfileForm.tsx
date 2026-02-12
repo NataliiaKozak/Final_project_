@@ -19,6 +19,7 @@ const EditProfileForm: React.FC = () => {
   const [profileImage, setProfileImage] = useState(user?.profileImage || '');
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [charCount, setCharCount] = useState(bio.length);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -45,9 +46,11 @@ const EditProfileForm: React.FC = () => {
         );
       }
       localStorage.setItem('user', JSON.stringify(data));
-      console.log('User updated successfully');
+      setSuccessMessage('Profile updated successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error updating user profile:', error);
+      setSuccessMessage('');
     }
   };
 
@@ -70,6 +73,8 @@ const EditProfileForm: React.FC = () => {
   return (
     <form className={styles.editProfileForm} onSubmit={handleSubmit}>
       <h4>Edit profile</h4>
+
+      {successMessage && <p style={{ color: 'green', fontWeight: 600, marginBottom: 12 }}>{successMessage}</p>}
 
       <div className={styles.editProfileForm_imgForm}>
         <img

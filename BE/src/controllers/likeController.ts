@@ -28,7 +28,8 @@ export const toggleLike = async (
     const deleted = await Like.findOneAndDelete({ user: userId, post: postId });
 
     if (deleted) {
-      res.json({ message: 'Лайк удалён' });
+      const likesCount = await Like.countDocuments({ post: postId });
+      res.json({ liked: false, likesCount });
       return;
     }
 
@@ -40,7 +41,8 @@ export const toggleLike = async (
       await createNotification(post.author._id, userId, 'liked_post', post._id);
     }
 
-    res.json({ message: 'Лайк добавлен', like });
+    const likesCount = await Like.countDocuments({ post: postId });
+    res.json({ liked: true, likesCount });
   } catch (error) {
     console.error('Ошибка при изменении лайка:', error);
     res.status(500).json({ message: 'Ошибка при изменении лайка' });
@@ -92,29 +94,23 @@ export const toggleLikeComment = async (
     });
 
     if (deleted) {
-      res.json({ message: 'Лайк комментария удалён' });
+      await Comment.findByIdAndUpdate(commentId, { $pull: { likes: userId } });
+      const likesCount = await Like.countDocuments({ comment: commentId });
+      res.json({ liked: false, likesCount });
       return;
     }
 
     const like = new Like({ user: userId, comment: commentId });
     await like.save();
 
-    // Уведомление теперь автору комментария (comment.user), а не "author"
-    // if (comment.author && comment.author.toString() !== userId) {
-    //   await createNotification(
-    //     comment.author,
-    //     userId,
-    //     'liked_comment',
-    //     undefined,
-    //     comment._id
-    //   );
-    // }
+    await Comment.findByIdAndUpdate(commentId, { $addToSet: { likes: userId } });
+
     if (comment.user && comment.user.toString() !== userId) {
       await createNotification(comment.user, userId, "liked_comment", undefined, comment._id);
     }
 
-
-    res.json({ message: 'Лайк комментария добавлен', like });
+    const likesCount = await Like.countDocuments({ comment: commentId });
+    res.json({ liked: true, likesCount });
   } catch (error) {
     console.error('Ошибка при изменении лайка комментария:', error);
     res.status(500).json({ message: 'Ошибка при изменении лайка комментария' });
