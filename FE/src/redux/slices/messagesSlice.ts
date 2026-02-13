@@ -18,52 +18,64 @@ const initialState: MessagesState = {
 };
 
 // GET /messages — все диалоги
-export const fetchAllConversations = createAsyncThunk<IMessage[], void, { rejectValue: string }>(
-  'messages/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try {
-      const { data } = await $api.get<IMessage[]>('/messages');
-      return data;
-    } catch (err) {
-      if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки диалогов');
-      }
-      return rejectWithValue('Ошибка загрузки диалогов');
+export const fetchAllConversations = createAsyncThunk<
+  IMessage[],
+  void,
+  { rejectValue: string }
+>('messages/fetchAll', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await $api.get<IMessage[]>('/messages');
+    return data;
+  } catch (err) {
+    if (isAxiosError<ApiError>(err)) {
+      return rejectWithValue(
+        err.response?.data?.message ?? 'Ошибка загрузки диалогов',
+      );
     }
+    return rejectWithValue('Ошибка загрузки диалогов');
   }
-);
+});
 
 // GET /messages/:userId
-export const fetchMessages = createAsyncThunk<IMessage[], string, { rejectValue: string }>(
-  'messages/fetch',
-  async (userId, { rejectWithValue }) => {
-    try {
-      const { data } = await $api.get<IMessage[]>(`/messages/${userId}`);
-      return data;
-    } catch (err) {
-      if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки сообщений');
-      }
-      return rejectWithValue('Ошибка загрузки сообщений');
+export const fetchMessages = createAsyncThunk<
+  IMessage[],
+  string,
+  { rejectValue: string }
+>('messages/fetch', async (userId, { rejectWithValue }) => {
+  try {
+    const { data } = await $api.get<IMessage[]>(`/messages/${userId}`);
+    return data;
+  } catch (err) {
+    if (isAxiosError<ApiError>(err)) {
+      return rejectWithValue(
+        err.response?.data?.message ?? 'Ошибка загрузки сообщений',
+      );
     }
+    return rejectWithValue('Ошибка загрузки сообщений');
   }
-);
+});
 
 // POST /messages
-export const sendMessage = createAsyncThunk<IMessage, { recipientId: string; text: string }, { rejectValue: string }>(
-  'messages/send',
-  async ({ recipientId, text }, { rejectWithValue }) => {
-    try {
-      const { data } = await $api.post<IMessage>('/messages', { recipientId, text });
-      return data;
-    } catch (err) {
-      if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка отправки сообщения');
-      }
-      return rejectWithValue('Ошибка отправки сообщения');
+export const sendMessage = createAsyncThunk<
+  IMessage,
+  { recipientId: string; text: string },
+  { rejectValue: string }
+>('messages/send', async ({ recipientId, text }, { rejectWithValue }) => {
+  try {
+    const { data } = await $api.post<IMessage>('/messages', {
+      recipientId,
+      text,
+    });
+    return data;
+  } catch (err) {
+    if (isAxiosError<ApiError>(err)) {
+      return rejectWithValue(
+        err.response?.data?.message ?? 'Ошибка отправки сообщения',
+      );
     }
+    return rejectWithValue('Ошибка отправки сообщения');
   }
-);
+});
 
 const messagesSlice = createSlice({
   name: 'messages',
@@ -82,20 +94,32 @@ const messagesSlice = createSlice({
     },
   },
   extraReducers: (b) => {
-    b
-      .addCase(fetchAllConversations.pending, (s) => { s.loading = true; s.error = null; })
-      .addCase(fetchAllConversations.fulfilled, (s, a: PayloadAction<IMessage[]>) => {
-        s.loading = false; s.items = a.payload;
-      })
+    b.addCase(fetchAllConversations.pending, (s) => {
+      s.loading = true;
+      s.error = null;
+    })
+      .addCase(
+        fetchAllConversations.fulfilled,
+        (s, a: PayloadAction<IMessage[]>) => {
+          s.loading = false;
+          s.items = a.payload;
+        },
+      )
       .addCase(fetchAllConversations.rejected, (s, a) => {
-        s.loading = false; s.error = a.payload ?? 'Ошибка загрузки диалогов';
+        s.loading = false;
+        s.error = a.payload ?? 'Ошибка загрузки диалогов';
       })
-      .addCase(fetchMessages.pending, (s) => { s.loading = true; s.error = null; })
+      .addCase(fetchMessages.pending, (s) => {
+        s.loading = true;
+        s.error = null;
+      })
       .addCase(fetchMessages.fulfilled, (s, a: PayloadAction<IMessage[]>) => {
-        s.loading = false; s.items = a.payload;
+        s.loading = false;
+        s.items = a.payload;
       })
       .addCase(fetchMessages.rejected, (s, a) => {
-        s.loading = false; s.error = a.payload ?? 'Ошибка загрузки сообщений';
+        s.loading = false;
+        s.error = a.payload ?? 'Ошибка загрузки сообщений';
       })
       .addCase(sendMessage.fulfilled, (s, a: PayloadAction<IMessage>) => {
         const exists = s.items.some((m) => m._id === a.payload._id);

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose'; //чтобы создавать ObjectId для Mongo
 import multer from 'multer'; //библиотека для загрузки файлов
 import Post, { IPost } from '../models/PostModel.js';
+import Like from '../models/LikeModel.js';
+import Comment from '../models/CommentModel.js';
 import User from '../models/UserModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js'; //расширенный тип запроса (с req.user).
 import { uploadToS3 } from '../config/s3.js'; //функция для загрузки изображений в Amazon S3
@@ -15,19 +17,33 @@ export const upload = multer({
 
 /* ==================== Получить все посты ====================*/
 export const getAllPosts = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response
 ): Promise<void> => {
   try {
+    const currentUserId = req.user?.id;
     const filter: Record<string, unknown> = {};
     if (req.query.excludeAuthor) {
       filter.author = { $ne: req.query.excludeAuthor };
     }
     const posts = await Post.find(filter)
       .populate('author', 'username profileImage fullName')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
-     res.json(posts); //Отправляем клиенту список постов
+    // Считаем реальные likesCount, commentsCount и isLikedByMe
+    const postsWithCounts = await Promise.all(
+      posts.map(async (post) => {
+        const likesCount = await Like.countDocuments({ post: post._id });
+        const commentsCount = await Comment.countDocuments({ post: post._id });
+        const isLikedByMe = currentUserId
+          ? (await Like.exists({ user: currentUserId, post: post._id })) !== null
+          : false;
+        return { ...post, likesCount, commentsCount, isLikedByMe };
+      })
+    );
+
+     res.json(postsWithCounts);
   } catch (err: unknown) {
     const error = err as Error;
     res
@@ -38,22 +54,35 @@ export const getAllPosts = async (
 
 /* =================== Посты конкретного пользователя ===================== */
 export const getUserPosts = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = req.params; //из URL /api/posts/user/:userId
+    const { userId } = req.params;
+    const currentUserId = req.user?.id;
 
-     // Ищем посты напрямую по Post (без user.posts, т.к. массива posts нет в UserModel)
     const posts = await Post.find({ author: userId })
-      .select('_id image createdAt') // только превью для профиля
-      .sort({ createdAt: -1 });
+      .populate('author', 'username profileImage fullName')
+      .sort({ createdAt: -1 })
+      .lean();
 
     if (!posts || posts.length === 0) {
       res.status(404).json({ message: 'У пользователя нет постов' });
       return;
     }
-    res.json(posts);
+
+    const postsWithCounts = await Promise.all(
+      posts.map(async (post) => {
+        const likesCount = await Like.countDocuments({ post: post._id });
+        const commentsCount = await Comment.countDocuments({ post: post._id });
+        const isLikedByMe = currentUserId
+          ? (await Like.exists({ user: currentUserId, post: post._id })) !== null
+          : false;
+        return { ...post, likesCount, commentsCount, isLikedByMe };
+      })
+    );
+
+    res.json(postsWithCounts);
   } catch (err: unknown) {
     const error = err as Error;
     res
@@ -64,7 +93,7 @@ export const getUserPosts = async (
 
 /* ================== Пост по ID (детальный просмотр)=======================*/
 export const getPostById = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response
 ): Promise<void> => {
   try {
@@ -78,13 +107,22 @@ export const getPostById = async (
       .populate({
         path: 'comments',
         populate: { path: 'user', select: 'username fullName profileImage' },
-      });
+      })
+      .lean();
 
     if (!post) {
       res.status(404).json({ message: 'Пост не найден' });
       return;
     }
-    res.json(post);
+
+    const currentUserId = req.user?.id;
+    const likesCount = await Like.countDocuments({ post: post._id });
+    const commentsCount = await Comment.countDocuments({ post: post._id });
+    const isLikedByMe = currentUserId
+      ? (await Like.exists({ user: currentUserId, post: post._id })) !== null
+      : false;
+
+    res.json({ ...post, likesCount, commentsCount, isLikedByMe });
   } catch (err: unknown) {
     const error = err as Error;
     res

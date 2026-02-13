@@ -7,18 +7,17 @@ dotenv.config();
 export const registerUser = async (req, res) => {
     try {
         const { username, email, password, fullName } = req.body;
-        // Проверка уникальности (email или username)
-        // было:
-        // const existingUser = await User.findOne({ email });
-        //     if (existingUser) {
-        //        res.status(400).json({ message: "Email уже используется" });
-        //        return;
-        //     }
-        //     const existingUserName = await User.findOne({ username });
-        //     if (existingUserName) {
-        //        res.status(400).json({ message: "Username уже используется" });
-        //        return;
-        //     }
+        // Валидация email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            res.status(400).json({ message: 'Некорректный формат email' });
+            return;
+        }
+        // Валидация пароля
+        if (!password || password.length < 6) {
+            res.status(400).json({ message: 'Пароль должен содержать минимум 6 символов' });
+            return;
+        }
         const existing = await User.findOne({ $or: [{ email }, { username }] });
         if (existing) {
             const errors = {};
@@ -55,9 +54,7 @@ export const registerUser = async (req, res) => {
 // =================== LOGIN ===================
 export const loginUser = async (req, res) => {
     try {
-        //чтобы на фронте инпут “Username or email” → поле emailOrUsername
-        // const { email, password } = req.body;
-        // const user = (await User.findOne({ email })) as IUser | null; // вместо any → IUser
+        // поле emailOrUsername
         const { emailOrUsername, password } = req.body;
         const user = await User.findOne({
             $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
@@ -66,15 +63,6 @@ export const loginUser = async (req, res) => {
             res.status(400).json({ message: 'Неверные учетные данные' });
             return;
         }
-        // Используем метод модели comparePassword, если он есть; иначе bcrypt.compare
-        // (в модели мы добавили userSchema.methods.comparePassword)
-        // теперь можно вызывать метод модели
-        //было
-        // const isMatch = await bcrypt.compare(password, user.password);
-        // const isMatch =
-        //   typeof (user as any).comparePassword === 'function'
-        //     ? await (user as any).comparePassword(password)
-        //     : await bcrypt.compare(password, user.password);
         // переносим логику проверки пароля в модель
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
@@ -98,28 +86,26 @@ export const loginUser = async (req, res) => {
             .json({ message: 'Ошибка сервера при логине', error: error.message });
     }
 };
-// =================== REQUEST RESET(FORGOT password)  ===================
+// =================== FORGOT password)  ===================
 export const requestPasswordReset = async (req, res) => {
     try {
         const { email } = req.body;
-        if (!email)
-            return res.status(400).json({ message: 'Email обязателен' });
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Некорректный формат email' });
+        }
         const user = await User.findOne({ email });
         if (!user) {
-            // Не даём подсказку о наличии email? Здесь возвращаем 400, но можно вернуть 200 (без утечки).
             return res.status(400).json({ message: 'Пользователь не найден' });
         }
         const token = generateResetToken(user._id.toString());
-        // МИНИ-добавка: показываем токен в DEV
+        // показываем токен в DEV
         if (process.env.NODE_ENV !== 'production') {
             console.log('[DEV] reset token:', token);
-            // опционально: готовая ссылка для фронта
-            // console.log(`[DEV] reset link: http://localhost:5173/reset-password?token=${token}`);
         }
         // Отправляем письмо — в prod не возвращаем токен в ответе
         await sendResetPasswordEmail(email, token);
-        // console.log("token: ", token)
-        // 🔹 МИНИ-добавка: в DEV отдаем токен в ответе (чтобы удобно скопировать в Postman)
+        // в DEV отдаем токен в ответе (чтобы удобно скопировать в Postman)
         if (process.env.NODE_ENV !== 'production') {
             return res.json({
                 message: 'Ссылка для сброса пароля отправлена на email',
@@ -137,18 +123,6 @@ export const requestPasswordReset = async (req, res) => {
         });
     }
 };
-//     // Для разработки можно вернуть token (удалить в проде)
-//     res.json({
-//       message: 'Ссылка для сброса пароля отправлена на email' /*, token */,
-//     });
-//   } catch (err: unknown) {
-//     const error = err as Error;
-//     res.status(500).json({
-//       message: 'Ошибка при запросе сброса пароля',
-//       error: error.message,
-//     });
-//   }
-// };
 // =================== RESET PASSWORD ===================
 export const resetPassword = async (req, res) => {
     try {

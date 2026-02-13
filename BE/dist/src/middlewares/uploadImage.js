@@ -13,7 +13,7 @@ const processImage = async (req, res, next) => {
             .jpeg({ quality: 80 })
             .toBuffer();
         req.file.buffer = optimizedBuffer; // заменяем на оптимизированный буфер
-        req.file.mimetype = "image/jpeg"; // указываем новый формат // добавлено после проверки требований 2.10
+        req.file.mimetype = "image/jpeg"; // указываем новый формат
         next();
     }
     catch (error) {

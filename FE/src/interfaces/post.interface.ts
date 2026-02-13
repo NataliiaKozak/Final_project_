@@ -12,8 +12,9 @@ export interface IPost {
       };
   likes?: string[];
   comments?: string[];
-  likesCount?: number; // виртуал
-  commentsCount?: number; // виртуал
+  likesCount?: number;
+  commentsCount?: number;
+  isLikedByMe?: boolean;
   createdAt: string;
   updatedAt: string;
 }

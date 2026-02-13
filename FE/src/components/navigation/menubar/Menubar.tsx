@@ -15,14 +15,21 @@ import createIcon from '../../../assets/create.svg';
 import createIconActive from '../../../assets/create-active.svg';
 
 import CustomModal from '../../ui/customModal/CustomModal';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchContent from '../../search/searchContent/SearchContent';
 import CreatePostPage from '../../../pages/createPostPage/CreatePostPage';
 import NotificationsBar from '../../notifications/notificationsBar/NotificationsBar';
 
 const Menubar = () => {
+  const location = useLocation();
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+
+  // Закрываем модалку при любом переходе (включая Profile)
+  useEffect(() => {
+    setActivePanel(null);
+    setModalContent(null);
+  }, [location.pathname]);
   const [modalSize, setModalSize] = useState<'default' | 'left' | 'large' | 'small'>('default');
 
   const openModal = (type: string) => {
@@ -67,18 +74,14 @@ const Menubar = () => {
 
       <NavLink
         to="/search"
-        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+        className={activePanel === 'search' ? styles.activeLink : styles.link}
         onClick={(e) => {
           e.preventDefault();
           openModal('search');
         }}
       >
-        {({ isActive }) => (
-          <>
-            <img src={isActive ? searchIconActive : searchIcon} alt="Search" />
-            <span>Search</span>
-          </>
-        )}
+        <img src={activePanel === 'search' ? searchIconActive : searchIcon} alt="Search" />
+        <span>Search</span>
       </NavLink>
 
       <NavLink to="/explore" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
@@ -101,34 +104,26 @@ const Menubar = () => {
 
       <NavLink
         to="/notifications"
-        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+        className={activePanel === 'notifications' ? styles.activeLink : styles.link}
         onClick={(e) => {
           e.preventDefault();
           openModal('notifications');
         }}
       >
-        {({ isActive }) => (
-          <>
-            <img src={isActive ? notificationsIconActive : notificationsIcon} alt="Notifications" />
-            <span>Notifications</span>
-          </>
-        )}
+        <img src={activePanel === 'notifications' ? notificationsIconActive : notificationsIcon} alt="Notifications" />
+        <span>Notifications</span>
       </NavLink>
 
       <NavLink
         to="/create"
-        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+        className={activePanel === 'create' ? styles.activeLink : styles.link}
         onClick={(e) => {
           e.preventDefault();
           openModal('create');
         }}
       >
-        {({ isActive }) => (
-          <>
-            <img src={isActive ? createIconActive : createIcon} alt="Create" />
-            <span>Create</span>
-          </>
-        )}
+        <img src={activePanel === 'create' ? createIconActive : createIcon} alt="Create" />
+        <span>Create</span>
       </NavLink>
 
       <CustomModal isOpen={activePanel !== null} onClose={closeModal} content={modalContent} modalSize={modalSize} />

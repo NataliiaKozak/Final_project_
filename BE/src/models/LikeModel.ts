@@ -18,8 +18,14 @@ const LikeSchema = new Schema<ILike>(
   { timestamps: true }
 );
 
-// индексы для уникальности лайков
-LikeSchema.index({ user: 1, post: 1 }, { unique: true, sparse: true });
-LikeSchema.index({ user: 1, comment: 1 }, { unique: true, sparse: true });
+// индексы для уникальности лайков (partialFilterExpression — индекс только для документов с реальным ObjectId)
+LikeSchema.index(
+  { user: 1, post: 1 },
+  { unique: true, partialFilterExpression: { post: { $type: 'objectId' } } }
+);
+LikeSchema.index(
+  { user: 1, comment: 1 },
+  { unique: true, partialFilterExpression: { comment: { $type: 'objectId' } } }
+);
 
 export default mongoose.model<ILike>('Like', LikeSchema);

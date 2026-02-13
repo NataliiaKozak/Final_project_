@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "devdocker": "vite --host 0.0.0.0 --port 5173 --strictPort"
+    "devdocker": "vite --host 0.0.0.0 --port 5173 --strictPort",
+    "start": "npm run dev"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -13,12 +13,11 @@ const app = express();
 // cors. Разрешить только фронту с 5173 порта
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 app.use(express.json()); // для JSON
 app.use(express.urlencoded({ extended: true })); // для форм
-// app.use(cookieParser());
 // роуты
 app.get('/api/data', (req, res) => {
     res.json({ message: 'CORS работает!' });
@@ -42,7 +41,4 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: "Ошибка сервера", error: err.message });
 });
 export default app;
-//Заметки
-// app.use(express.json({ limit: '10mb' })); // important for big base64 images
-// app.get('/api/health', (_req, res) => res.json({ ok: true }));
 //# sourceMappingURL=app.js.map

@@ -8,7 +8,7 @@ import { createNotification } from './notificationController.js';
 //===================== Лайк поста=================================
 export const toggleLike = async (
   req: RequestWithUser,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { postId } = req.params;
@@ -28,6 +28,7 @@ export const toggleLike = async (
     const deleted = await Like.findOneAndDelete({ user: userId, post: postId });
 
     if (deleted) {
+      await Post.findByIdAndUpdate(postId, { $pull: { likes: deleted._id } });
       const likesCount = await Like.countDocuments({ post: postId });
       res.json({ liked: false, likesCount });
       return;
@@ -35,6 +36,7 @@ export const toggleLike = async (
 
     const like = new Like({ user: userId, post: postId });
     await like.save();
+    await Post.findByIdAndUpdate(postId, { $addToSet: { likes: like._id } });
 
     //Уведомление автору поста
     if (post.author && post.author._id.toString() !== userId) {
@@ -49,29 +51,29 @@ export const toggleLike = async (
   }
 };
 
-//Дополнительная функциональность. 
+//Дополнительная функциональность.
 // ====================Получить лайки поста=========================
-// export const getPostLikes = async (
-//   req: Request,
-//   res: Response
-// ): Promise<void> => {
-//   try {
-//     const { postId } = req.params;
-//     const likes = await Like.find({ post: postId }).populate(
-//       'user',
-//       'username profileImage'
-//     );
-//     res.json(likes);
-//   } catch (error) {
-//     console.error('Ошибка при получении лайков:', error);
-//     res.status(500).json({ message: 'Ошибка при получении лайков' });
-//   }
-// };
+export const getPostLikes = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { postId } = req.params;
+    const likes = await Like.find({ post: postId }).populate(
+      'user',
+      'username profileImage',
+    );
+    res.json(likes);
+  } catch (error) {
+    console.error('Ошибка при получении лайков:', error);
+    res.status(500).json({ message: 'Ошибка при получении лайков' });
+  }
+};
 
 // ===================Лайк комментария===============================
 export const toggleLikeComment = async (
   req: RequestWithUser,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { commentId } = req.params;
@@ -82,9 +84,12 @@ export const toggleLikeComment = async (
       return;
     }
 
-    const comment = await Comment.findById(commentId).populate("user", "_id username profileImage");
+    const comment = await Comment.findById(commentId).populate(
+      'user',
+      '_id username profileImage',
+    );
     if (!comment) {
-      res.status(404).json({ message: "Комментарий не найден" });
+      res.status(404).json({ message: 'Комментарий не найден' });
       return;
     }
 
@@ -103,10 +108,22 @@ export const toggleLikeComment = async (
     const like = new Like({ user: userId, comment: commentId });
     await like.save();
 
-    await Comment.findByIdAndUpdate(commentId, { $addToSet: { likes: userId } });
+    await Comment.findByIdAndUpdate(commentId, {
+      $addToSet: { likes: userId },
+    });
 
-    if (comment.user && comment.user.toString() !== userId) {
-      await createNotification(comment.user, userId, "liked_comment", undefined, comment._id);
+    const commentAuthorId =
+      typeof comment.user === 'object' && comment.user !== null
+        ? (comment.user as unknown as { _id: string })._id.toString()
+        : String(comment.user);
+    if (commentAuthorId !== userId) {
+      await createNotification(
+        commentAuthorId,
+        userId,
+        'liked_comment',
+        undefined,
+        comment._id,
+      );
     }
 
     const likesCount = await Like.countDocuments({ comment: commentId });
@@ -117,23 +134,22 @@ export const toggleLikeComment = async (
   }
 };
 
-
 // ================Получить лайки комментария=======================
-// export const getCommentLikes = async (
-//   req: Request,
-//   res: Response
-// ): Promise<void> => {
-//   try {
-//     const { commentId } = req.params;
-//     const likes = await Like.find({ comment: commentId }).populate(
-//       'user',
-//       'username profileImage'
-//     );
-//     res.json(likes);
-//   } catch (error) {
-//     console.error('Ошибка при получении лайков комментария:', error);
-//     res
-//       .status(500)
-//       .json({ message: 'Ошибка при получении лайков комментария' });
-//   }
-// };
+export const getCommentLikes = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { commentId } = req.params;
+    const likes = await Like.find({ comment: commentId }).populate(
+      'user',
+      'username profileImage',
+    );
+    res.json(likes);
+  } catch (error) {
+    console.error('Ошибка при получении лайков комментария:', error);
+    res
+      .status(500)
+      .json({ message: 'Ошибка при получении лайков комментария' });
+  }
+};

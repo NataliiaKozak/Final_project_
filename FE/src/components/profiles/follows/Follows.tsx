@@ -12,36 +12,26 @@ interface IFollowPanel {
 
 const FollowsPanel: FC<IFollowPanel> = ({ userId, follow, setFollow }) => {
   useEffect(() => {
-    const fetchFollowers = async () => {
+    const fetchCounts = async () => {
       try {
-        // бэк: GET /follows/:userId/followers
-        const res = await $api.get(`/follows/${userId}/followers`);
-        const count = Array.isArray(res.data) ? res.data.length : 0;
+        const [followersRes, followingRes] = await Promise.all([
+          $api.get(`/follows/${userId}/followers`),
+          $api.get(`/follows/${userId}/following`),
+        ]);
+        const followersCount = Array.isArray(followersRes.data) ? followersRes.data.length : 0;
+        const followingCount = Array.isArray(followingRes.data) ? followingRes.data.length : 0;
         setFollow({
-          followers: count,
-          following: follow.following,
-        });
-      } catch (error){
-        console.error('Error followers:', error);
-      }
-    };
-
-    const fetchFollowing = async () => {
-      try {
-        // бэк: GET /follows/:userId/following
-        const res = await $api.get(`/follows/${userId}/following`);
-        const count = Array.isArray(res.data) ? res.data.length : 0;
-        setFollow({
-          followers: follow.followers,
-          following: count,
+          followers: followersCount,
+          following: followingCount,
         });
       } catch (error) {
-        console.error('Error following:', error);
+        console.error('Error fetching follow counts:', error);
       }
     };
 
-    if (follow.followers === 'Loading...') fetchFollowers();
-    if (follow.following === 'Loading...') fetchFollowing();
+    if (follow.followers === 'Loading...' || follow.following === 'Loading...') {
+      fetchCounts();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 

@@ -31,7 +31,7 @@ const PostItem: React.FC<PostItemProps> = ({
   handleAddSomeFollow,
   handleRemoveSomeFollow,
 }) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(item.isLikedByMe ?? false);
   const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const myId = currentUser?._id ?? '';
@@ -42,30 +42,40 @@ const PostItem: React.FC<PostItemProps> = ({
 
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
 
-  const goToProfile = (e: MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/profile/${authorId}`);
-  };
-
-  // если автор — я, не показываем карточку (как в чужом коде)
-  if (!currentUser) return null;
-  if (authorId === myId) return null;
-
-  // инициализируем флаг подписки из списка
+  // инициализируем флаг подписки из списка (хук ДО условных return)
   useEffect(() => {
     if (listFollowing && authorId) {
       setIsFollowing(listFollowing.includes(authorId));
     }
   }, [authorId, listFollowing]);
 
-  // лайк — toggle на  бэке
+  const goToProfile = (e: MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/profile/${authorId}`);
+  };
+
+  // если автор — я, не показываем карточку
+  if (!currentUser) return null;
+  if (authorId === myId) return null;
+
+  // лайк — toggle на бэке (оптимистичное обновление)
   const handleLike = async () => {
+    const prevLiked = isLiked;
+    const prevCount = likesCount;
+    // мгновенно переключаем UI
+    setIsLiked(!prevLiked);
+    setLikesCount(item._id, prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
     try {
-      await $api.post(`/likes/post/${item._id}`);
-      setIsLiked(prev => !prev);
-      setLikesCount(item._id, isLiked ? likesCount - 1 : likesCount + 1);
+      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${item._id}`);
+      console.log('[PostItem] like response:', data);
+      // синхронизируем с сервером
+      setIsLiked(data.liked);
+      setLikesCount(item._id, data.likesCount);
     } catch (error) {
       console.error('Ошибка при изменении лайка:', error);
+      // откатываем
+      setIsLiked(prevLiked);
+      setLikesCount(item._id, prevCount);
     }
   };
 
@@ -96,7 +106,8 @@ const PostItem: React.FC<PostItemProps> = ({
     }
   };
 
-  const handleClickToFollow = () => {
+  const handleClickToFollow = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isFollowing) {
       handleUnfollow();
     } else {
@@ -142,7 +153,7 @@ const PostItem: React.FC<PostItemProps> = ({
       <div className={styles.bottomBlock}>
         <div className={styles.actions}>
           <FaHeart
-            className={`${styles.likeIcon} ${isLiked ? styles.liked : styles.unliked}`}
+            style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
             onClick={(e) => {
               e.stopPropagation();
               handleLike();

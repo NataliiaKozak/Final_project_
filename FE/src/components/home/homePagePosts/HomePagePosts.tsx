@@ -55,6 +55,17 @@ class HomePagePosts extends React.Component<{}, State> {
         return authorId !== meId;
       });
 
+      // DEBUG: проверяем данные с бэка
+      if (filtered.length > 0) {
+        console.log('[HomePagePosts] first post data:', {
+          _id: filtered[0]._id,
+          likesCount: filtered[0].likesCount,
+          commentsCount: filtered[0].commentsCount,
+          isLikedByMe: filtered[0].isLikedByMe,
+          author: filtered[0].author,
+        });
+      }
+
       const initialLikesCounts = filtered.reduce<Record<string, number>>((acc, p) => {
         acc[p._id] = p.likesCount ?? 0;
         return acc;

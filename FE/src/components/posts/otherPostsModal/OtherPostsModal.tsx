@@ -1,13 +1,14 @@
 //модалка предпросмотра
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { addComment } from '../../../redux/slices/commentsSlice';
 import { AppDispatch, RootState } from '../../../redux/store';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import styles from './otherModal.module.css';
 import { $api } from '../../../api/api';
 import commbtn from '../../../assets/comment_btn.svg';
-import heart from '../../../assets/heart_btn.svg';
+import { FaHeart } from 'react-icons/fa';
 import CommentContent from '../../comments/commentContent/CommentContent';
 import type { IPost } from '../../../interfaces/post.interface';
 
@@ -61,20 +62,31 @@ const EmojiPicker: React.FC<{ onSelectEmoji: (emoji: string) => void }> = ({
 
 const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLiked, setIsLiked] = useState(post.isLikedByMe ?? false);
   const [likesCount, setLikesCount] = useState<number>(post.likesCount ?? 0);
   const [commentsCount, setCommentsCount] = useState<number>(post.commentsCount ?? 0);
 
   // безопасные поля автора (author: string | { ... })
+  const authorId =
+    typeof post.author === 'string' ? post.author : post.author?._id ?? '';
   const authorName =
     typeof post.author === 'string' ? 'User' : post.author?.username ?? 'User';
   const authorImage =
     typeof post.author === 'string'
       ? undefined
       : post.author?.profileImage ?? undefined;
+
+  const goToAuthorProfile = () => {
+    if (authorId) {
+      onClose();
+      navigate(`/profile/${authorId}`);
+    }
+  };
 
   useEffect(() => {
     setLikesCount(post.likesCount ?? 0);
@@ -104,22 +116,19 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
       setError('User not found');
       return;
     }
+    const prevLiked = isLiked;
+    const prevCount = likesCount;
+    setIsLiked(!prevLiked);
+    setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
     try {
-      // бэк: toggle like
-      await $api.post(`/likes/post/${post._id}`);
-      setLikesCount((prev) => prev + 1); // простой локальный инкремент
+      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${post._id}`);
+      console.log('[OtherModal] like response:', data);
+      setIsLiked(data.liked);
+      setLikesCount(data.likesCount);
     } catch (err) {
       console.error('Ошибка при лайке поста:', err);
-    }
-  };
-
-  const handleDeletePost = async () => {
-    try {
-      await $api.delete(`/posts/${post._id}`);
-      onUpdatePosts();
-      onClose();
-    } catch (err) {
-      console.error('Ошибка при удалении поста:', err);
+      setIsLiked(prevLiked);
+      setLikesCount(prevCount);
     }
   };
 
@@ -146,7 +155,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                 </span>
               </span>
               <div className={styles.nameCaption}>
-                <span className={styles.user_name}>{authorName}</span>
+                <span className={styles.user_name} onClick={goToAuthorProfile} style={{ cursor: 'pointer' }}>{authorName}</span>
                 <span className={styles.modalCaption}>{post.description}</span>
               </div>
             </div>
@@ -162,12 +171,12 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                 <img src={commbtn} alt="comment-btn" /> {commentsCount}
               </span>
               <span>
-                <img src={heart} alt="likes" onClick={handleLikePost} /> {likesCount} Likes
+                <FaHeart
+                    onClick={handleLikePost}
+                    style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
+                    size={18}
+                  /> {likesCount} Likes
               </span>
-            </div>
-
-            <div className={styles.modalContent_rightside_notifications_date}>
-              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
 
             <div className={styles.addCommentSection}>
@@ -191,11 +200,6 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
             {error && <p className={styles.errorText}>{error}</p>}
           </div>
 
-          <div className={styles.footerActions}>
-            <button className={styles.deleteButton} onClick={handleDeletePost}>
-              Delete post
-            </button>
-          </div>
         </div>
       </div>
     </div>

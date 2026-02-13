@@ -8,7 +8,7 @@ type ApiError = { message?: string };
 interface PostsState {
   posts: IPost[]; // лента: GET /posts
   explore: PostPreview[];
-  otherUserPosts: PostPreview[];
+  otherUserPosts: IPost[];
   loading: boolean;
   error: string | null;
 }
@@ -55,11 +55,11 @@ export const getAllPublicPosts = createAsyncThunk<PostPreview[], void, { rejectV
 
 
 //  GET /posts/user/:userId
-export const getOtherUserPosts = createAsyncThunk<PostPreview[], string, { rejectValue: string }>(
+export const getOtherUserPosts = createAsyncThunk<IPost[], string, { rejectValue: string }>(
   'posts/getOtherUserPosts',
   async (userId, { rejectWithValue }) => {
     try {
-      const { data } = await $api.get<PostPreview[]>(`/posts/user/${userId}`);
+      const { data } = await $api.get<IPost[]>(`/posts/user/${userId}`);
       return data;
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {

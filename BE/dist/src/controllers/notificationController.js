@@ -1,10 +1,11 @@
-import { Types } from "mongoose";
-import Notification from "../models/NotificationModel.js";
+import { Types } from 'mongoose';
+import Notification from '../models/NotificationModel.js';
 // Создать уведомление
 export const createNotification = async (userId, senderId, type, postId, commentId) => {
     try {
-        if (!Types.ObjectId.isValid(String(userId)) || !Types.ObjectId.isValid(String(senderId))) {
-            console.error("createNotification: invalid userId or senderId");
+        if (!Types.ObjectId.isValid(String(userId)) ||
+            !Types.ObjectId.isValid(String(senderId))) {
+            console.error('createNotification: invalid userId or senderId');
             return;
         }
         const notificationDoc = new Notification({
@@ -18,9 +19,8 @@ export const createNotification = async (userId, senderId, type, postId, comment
         await notificationDoc.save();
         return notificationDoc;
     }
-    catch (error) { //добавить unknown?
-        // const error = err as Error; //добавить?
-        console.error("Ошибка при создании уведомления:", error);
+    catch (error) {
+        console.error('Ошибка при создании уведомления:', error);
         return;
     }
 };
@@ -29,38 +29,63 @@ export const getNotifications = async (req, res) => {
     try {
         const userId = req.user?.id;
         if (!userId)
-            return res.status(401).json({ message: "Неавторизовано" });
+            return res.status(401).json({ message: 'Неавторизовано' });
         const notifications = await Notification.find({ user: userId })
-            .populate("sender", "username profileImage")
-            .populate("post", "image description")
-            .populate("comment", "text")
+            .populate('sender', 'username profileImage')
+            .populate('post', 'image description')
+            .populate('comment', 'text')
             .sort({ createdAt: -1 });
         res.json(notifications);
     }
     catch (err) {
         const error = err;
-        res.status(500).json({ message: "Ошибка", error: error.message });
+        res.status(500).json({ message: 'Ошибка', error: error.message });
     }
 };
 // Отметить все как прочитанные
 export const markAsRead = async (req, res) => {
     try {
         if (!req.user) {
-            res.status(401).json({ message: "Неавторизованный доступ" });
+            res.status(401).json({ message: 'Неавторизованный доступ' });
             return;
         }
-        const unread = await Notification.countDocuments({ user: req.user.id, isRead: false });
+        const unread = await Notification.countDocuments({
+            user: req.user.id,
+            isRead: false,
+        });
         if (unread === 0) {
-            res.status(200).json({ message: "У вас нет непрочитанных уведомлений" });
+            res.status(200).json({ message: 'У вас нет непрочитанных уведомлений' });
             return;
         }
         await Notification.updateMany({ user: req.user.id, isRead: false }, { $set: { isRead: true } });
-        res.json({ message: "Все уведомления отмечены как прочитанные" });
+        res.json({ message: 'Все уведомления отмечены как прочитанные' });
     }
-    catch (err) { //нужно было добавить unknown?
-        const error = err; //нужно было добавить?
-        console.error("Ошибка при обновлении уведомлений:", error);
-        res.status(500).json({ message: "Ошибка при обновлении уведомлений", error });
+    catch (err) {
+        const error = err;
+        console.error('Ошибка при обновлении уведомлений:', error);
+        res
+            .status(500)
+            .json({ message: 'Ошибка при обновлении уведомлений', error: error.message });
+    }
+};
+// Отметить одно уведомление как прочитанное
+export const markOneAsRead = async (req, res) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ message: 'Неавторизованный доступ' });
+            return;
+        }
+        const { id } = req.params;
+        const notification = await Notification.findOneAndUpdate({ _id: id, user: req.user.id }, { $set: { isRead: true } }, { new: true });
+        if (!notification) {
+            res.status(404).json({ message: 'Уведомление не найдено' });
+            return;
+        }
+        res.json(notification);
+    }
+    catch (err) {
+        const error = err;
+        res.status(500).json({ message: 'Ошибка при обновлении уведомления', error: error.message });
     }
 };
 //# sourceMappingURL=notificationController.js.map

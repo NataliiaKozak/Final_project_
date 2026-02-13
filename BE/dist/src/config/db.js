@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
-// const URL = process.env.MONGO_URL;
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {});
@@ -13,6 +12,4 @@ const connectDB = async () => {
     }
 };
 export default connectDB;
-//   const connection = await mongoose.connect(process.env.MONGO_URI as string, {});
-//     console.log("MongoDB connected.", connection.connection.host);
 //# sourceMappingURL=db.js.map

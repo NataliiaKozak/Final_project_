@@ -89,8 +89,9 @@ export const updateProfile = async (req: RequestWithUser, res: Response) => {
     }
 
     await user.save();
+    const postsCount = await Post.countDocuments({ author: userId });
     const {__v, ...safe } = user.toObject();
-return res.json(safe);
+    return res.json({ ...safe, postsCount });
 
 
   } catch (err: unknown) {

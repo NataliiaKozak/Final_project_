@@ -1,5 +1,3 @@
-// import { Request, Response } from 'express';
-// import User from '../models/UserModel.js';
 import User from '../models/UserModel.js';
 function escapeRegExp(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -7,8 +5,6 @@ function escapeRegExp(s) {
 export const searchUsers = async (req, res) => {
     try {
         // Забираем query строго как строку
-        const raw = req.query.query;
-        // const q = Array.isArray(raw) ? raw[0] : raw ? String(raw) : "";
         const q = String(req.query?.query ?? '').trim();
         if (!q.trim()) {
             res.status(400).json({ message: 'Запрос не может быть пустым' });
@@ -24,12 +20,12 @@ export const searchUsers = async (req, res) => {
             .lean(); // быстрее, без лишних Mongoose-объектов
         res.json(users);
     }
-    catch (error) {
+    catch (err) {
+        const error = err;
         console.error('[searchUsers] error:', error);
         res.status(500).json({
             message: 'Ошибка при поиске пользователей',
-            // во время разработки полезно видеть причину:
-            error: error?.message,
+            error: error.message,
         });
     }
 };

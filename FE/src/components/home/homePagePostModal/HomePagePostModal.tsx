@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { addComment, fetchComments } from '../../../redux/slices/commentsSlice';
 import { RootState, AppDispatch } from '../../../redux/store';
 import { $api } from '../../../api/api';
 import styles from './HomePagePostModal.module.css';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
+import { FaHeart } from 'react-icons/fa';
 import commbtn from '../../../assets/comment_btn.svg';
-import heart from '../../../assets/heart_btn.svg';
 import CommentContent from '../../comments/commentContent/CommentContent';
 import type { IPost, PostPreview } from '../../../interfaces/post.interface';
 
@@ -59,10 +60,14 @@ const EmojiPicker: React.FC<{ onSelectEmoji: (emoji: string) => void }> = ({
 
 const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const currentUser = useSelector((s: RootState) => s.auth.user);
 
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLiked, setIsLiked] = useState(
+    'isLikedByMe' in post ? !!post.isLikedByMe : false
+  );
   const [likesCount, setLikesCount] = useState<number>(
     'likesCount' in post && typeof post.likesCount === 'number'
       ? post.likesCount
@@ -116,14 +121,21 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
       setError('User not found');
       return;
     }
+    const prevLiked = isLiked;
+    const prevCount = likesCount;
+    setIsLiked(!prevLiked);
+    setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
     try {
-      //  бэк: toggle
-      await $api.post(`/likes/post/${post._id}`);
-      setLikesCount((p) => p + 1); // локально увеличиваем
+      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${post._id}`);
+      console.log('[Modal] like response:', data);
+      setIsLiked(data.liked);
+      setLikesCount(data.likesCount);
     } catch (err) {
       console.error('Ошибка при лайке поста:', err);
+      setIsLiked(prevLiked);
+      setLikesCount(prevCount);
     }
-  }, [currentUser, post._id]);
+  }, [currentUser, post._id, isLiked, likesCount]);
 
   // Автор 
   const authorUsername =
@@ -132,6 +144,12 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
         ? 'User'
         : post.author?.username ?? 'User'
       : 'User';
+  const authorId =
+    'author' in post
+      ? typeof post.author === 'string'
+        ? post.author
+        : post.author?._id ?? ''
+      : '';
   const authorImage =
     'author' in post
       ? typeof post.author === 'string'
@@ -140,6 +158,13 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
       : undefined;
 
   const description = 'description' in post ? post.description : undefined;
+
+  const goToAuthorProfile = () => {
+    if (authorId) {
+      onClose();
+      navigate(`/profile/${authorId}`);
+    }
+  };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -165,7 +190,11 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
                 </span>
               </span>
               <p>
-                <span className={styles.user_name}>{authorUsername}</span>
+                <span
+                  className={styles.user_name}
+                  onClick={goToAuthorProfile}
+                  style={{ cursor: 'pointer' }}
+                >{authorUsername}</span>
                 {description}
               </p>
             </div>
@@ -187,17 +216,12 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
                   {commentsCount}
                 </span>
                 <span>
-                  <button className={styles.likeIcon} onClick={handleLikePost}>
-                    <img src={heart} alt="likes-button" />
-                  </button>
+                  <FaHeart
+                    onClick={handleLikePost}
+                    style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
+                    size={18}
+                  />
                   {likesCount}
-                </span>
-              </div>
-              <div className={styles.modalContent_rightside_notifications_date}>
-                <span>
-                  {'createdAt' in post
-                    ? new Date(post.createdAt).toLocaleDateString()
-                    : ''}
                 </span>
               </div>
             </div>

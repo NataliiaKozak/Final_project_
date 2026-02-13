@@ -1,8 +1,65 @@
-// import { Request, Response } from "express";
-// import Message from "../models/MessageModel";
-// import { RequestWithUser } from "../middlewares/authMiddleware";
+import { Types } from "mongoose";
 import Message from "../models/MessageModel.js";
-// 🔹 Получить историю сообщений между двумя пользователями
+// Отправить сообщение
+export const sendMessage = async (req, res) => {
+    try {
+        const currentUserId = req.user?.id;
+        if (!currentUserId) {
+            res.status(401).json({ message: "Неавторизованный пользователь" });
+            return;
+        }
+        const { recipientId, text } = req.body;
+        if (!recipientId || !text?.trim()) {
+            res.status(400).json({ message: "recipientId и text обязательны" });
+            return;
+        }
+        if (recipientId === currentUserId) {
+            res.status(400).json({ message: "Нельзя отправить сообщение самому себе" });
+            return;
+        }
+        const message = new Message({
+            sender: new Types.ObjectId(currentUserId),
+            recipient: new Types.ObjectId(recipientId),
+            text: text.trim(),
+        });
+        await message.save();
+        const populated = await message.populate([
+            { path: "sender", select: "username profileImage" },
+            { path: "recipient", select: "username profileImage" },
+        ]);
+        res.status(201).json(populated);
+    }
+    catch (err) {
+        const error = err;
+        console.error("Ошибка при отправке сообщения:", error);
+        res.status(500).json({ message: "Ошибка при отправке сообщения", error: error.message });
+    }
+};
+// Получить все диалоги текущего пользователя (список собеседников)
+export const getAllConversations = async (req, res) => {
+    try {
+        const currentUserId = req.user?.id;
+        if (!currentUserId) {
+            res.status(401).json({ message: "Неавторизованный пользователь" });
+            return;
+        }
+        const messages = await Message.find({
+            $or: [
+                { sender: currentUserId },
+                { recipient: currentUserId },
+            ],
+        })
+            .sort({ createdAt: -1 })
+            .populate("sender", "username profileImage")
+            .populate("recipient", "username profileImage");
+        res.json(messages);
+    }
+    catch (err) {
+        const error = err;
+        res.status(500).json({ message: "Ошибка при загрузке диалогов", error: error.message });
+    }
+};
+// Получить историю сообщений между двумя пользователями
 export const getMessages = async (req, res) => {
     try {
         const { userId } = req.params; // второй участник

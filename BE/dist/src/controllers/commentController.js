@@ -24,9 +24,9 @@ export const addComment = async (req, res) => {
             user: userId,
             post: post._id,
             text,
-            // author: post.author?._id // только user, без author
         });
         await comment.save();
+        await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
         // =================Уведомление автору поста===============
         if (post.author && post.author._id.toString() !== userId) {
             await createNotification(post.author._id, userId, 'commented_post', post._id, comment._id);
@@ -50,14 +50,12 @@ export const deleteComment = async (req, res) => {
             return;
         }
         // проверяем только владельца комментария
-        if (comment.user.toString() !== userId
-        // comment.user.toString() !== userId
-        // && comment.author?.toString() !== userId
-        ) {
+        if (comment.user.toString() !== userId) {
             res.status(403).json({ message: 'Нет прав для удаления' });
             return;
         }
         await comment.deleteOne();
+        await Post.findByIdAndUpdate(comment.post, { $pull: { comments: commentId } });
         res.json({ message: 'Комментарий удалён' });
     }
     catch (error) {
@@ -71,7 +69,6 @@ export const getPostComments = async (req, res) => {
         const { postId } = req.params;
         const comments = await Comment.find({ post: postId })
             .populate('user', 'username profileImage');
-        // .populate('author', 'username profileImage');
         res.json(comments);
     }
     catch (error) {

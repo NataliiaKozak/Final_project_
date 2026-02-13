@@ -1,5 +1,6 @@
 import styles from '../notificationsBar/notificationsBar.module.css';
 import { FC, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getUserByIdApi } from '../../../api/services/usersService';
 import { $api } from '../../../api/api';
 import parseData from '../../../helpers/parseData';
@@ -14,6 +15,7 @@ const NotificationItem: FC<Notification> = ({
   createdAt,
   isRead,
 }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<IUser | null>(null);
   const [read, setRead] = useState<boolean>(isRead);
 
@@ -67,7 +69,7 @@ const NotificationItem: FC<Notification> = ({
       className={styles.notificationItem}
       style={{ background: !read ? '#f3f3f3' : '#FFF' }}
     >
-      <div className={styles.userAvatar_box}>
+      <div className={styles.userAvatar_box} onClick={() => user && navigate(`/profile/${user._id}`)} style={{ cursor: 'pointer' }}>
         <img src={avatar} alt={username} className={styles.avatar} />
         <div>
           <p>

@@ -7,8 +7,8 @@ import profilePlaceholder from '../../../assets/photo-placeholder.svg';
 import { FaEllipsisV } from 'react-icons/fa';
 import styles from './postModal.module.css';
 import { $api } from '../../../api/api';
+import { FaHeart, FaRegComment } from 'react-icons/fa';
 import commbtn from '../../../assets/comment_btn.svg';
-import heart from '../../../assets/heart_btn.svg';
 import CommentContent from '../../comments/commentContent/CommentContent';
 import type { IPost } from '../../../interfaces/post.interface';
 
@@ -66,6 +66,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
   const [error, setError] = useState<string | null>(null);
 
   const [showActionMenu, setShowActionMenu] = useState(false);
+  const [isLiked, setIsLiked] = useState(post.isLikedByMe ?? false);
   const [likesCount, setLikesCount] = useState<number>(post.likesCount ?? 0);
   const [commentsCount, setCommentsCount] = useState<number>(post.commentsCount ?? 0);
 
@@ -73,6 +74,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedDescription, setEditedDescription] = useState(post.description ?? '');
   const [editedImageFile, setEditedImageFile] = useState<File | null>(null);
+  const [displayDescription, setDisplayDescription] = useState(post.description ?? '');
 
   const isMyPost =
     (typeof post.author === 'string' ? post.author : post.author?._id) ===
@@ -114,12 +116,19 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
       setError('User not found');
       return;
     }
+    const prevLiked = isLiked;
+    const prevCount = likesCount;
+    setIsLiked(!prevLiked);
+    setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
     try {
-      // БЭК: POST /likes/post/:postId — toggle
-      const { data } = await $api.post(`/likes/post/${post._id}`);
+      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${post._id}`);
+      console.log('[PostModal] like response:', data);
+      setIsLiked(data.liked);
       setLikesCount(data.likesCount);
     } catch (err) {
       console.error('Ошибка при лайке поста:', err);
+      setIsLiked(prevLiked);
+      setLikesCount(prevCount);
     }
   };
 
@@ -151,7 +160,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      post.description = editedDescription;
+      setDisplayDescription(editedDescription);
       setShowEditModal(false);
       onUpdatePosts();
     } catch (error) {
@@ -192,7 +201,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                 </span>
               </span>
               <div className={styles.nameCaption}>
-                <span className={styles.modalCaption}>{post.description}</span>
+                <span className={styles.modalCaption}>{displayDescription}</span>
               </div>
             </div>
 
@@ -313,13 +322,14 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                 <img src={commbtn} alt="comments" /> {commentsCount}
               </span>
               <span>
-                <img src={heart} alt="likes" onClick={handleLikePost} /> {likesCount} Likes
+                <FaHeart
+                  onClick={handleLikePost}
+                  style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
+                  size={18}
+                />
+                {likesCount} Likes
               </span>
             </div>
-            <div className={styles.modalContent_rightside_notifications_date}>
-              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-            </div>
-
             <div className={styles.addCommentSection}>
               <EmojiPicker onSelectEmoji={(emoji) => setNewComment((p) => p + emoji)} />
               <input

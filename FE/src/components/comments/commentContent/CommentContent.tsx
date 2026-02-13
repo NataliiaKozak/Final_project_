@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
-import {AppDispatch, RootState } from '../../../redux/store';
+import { AppDispatch, RootState } from '../../../redux/store';
 import { fetchComments, likeComment } from '../../../redux/slices/commentsSlice';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import styles from './commentContent.module.css';
@@ -19,8 +20,15 @@ const isPopulatedUser = (
 
 const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const comments = useSelector((s: RootState) => s.comments.comments);
   const loading = useSelector((s: RootState) => s.comments.loading);
+  const currentUser = useSelector((s: RootState) => s.auth.user);
+  const myId = currentUser?._id ?? '';
+
+  const goToProfile = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
 
   useEffect(() => {
     dispatch(fetchComments(postId));
@@ -41,30 +49,37 @@ const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
     <div className={styles.commentsSection}>
       {comments.map((comment) => {
         const u = isPopulatedUser(comment.user) ? comment.user : undefined;
+        const isLiked = (comment.likes ?? []).includes(myId);
+
         return (
           <div key={comment._id} className={styles.comment}>
             <img
               src={u?.profileImage || profilePlaceholder}
               alt="comment-avatar"
               className={styles.commentAvatar}
+              onClick={() => u && goToProfile(u._id)}
+              style={{ cursor: u ? 'pointer' : undefined }}
             />
             <div className={styles.commentContent}>
               <p>
-                <strong>{u?.username || 'Anonymous'}</strong>
+                <strong
+                  onClick={() => u && goToProfile(u._id)}
+                  style={{ cursor: u ? 'pointer' : undefined }}
+                >{u?.username || 'Anonymous'}</strong>
                 {' · '}
                 {parseData(comment.createdAt)}
               </p>
               <p>{comment.text}</p>
             </div>
             <div className={styles.commentActions}>
-              <FaHeart
-                className={styles.likeIcon}
-                onClick={() => handleLikeComment(comment._id)}
-                title="Like"
-              />
-              {/* если бэк сериализует виртуал:
-              <span className={styles.likeCount}>{comment.likesCount ?? 0}</span>
-              */}
+              <span>
+                <FaHeart
+                  className={isLiked ? styles.liked : styles.unliked}
+                  onClick={() => handleLikeComment(comment._id)}
+                  size={14}
+                />
+                <span>{comment.likesCount ?? 0}</span>
+              </span>
             </div>
           </div>
         );
