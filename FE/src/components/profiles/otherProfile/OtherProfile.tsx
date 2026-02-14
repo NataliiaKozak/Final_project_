@@ -148,7 +148,7 @@ function OtherProfile() {
 
             <div className={styles.otherProfile_statistic}>
               <p>
-                <span className={styles.currentUserProfile_statisticCount}>
+                <span className={styles.otherProfile_statisticCount}>
                   {currentUser.postsCount ?? 0}
                 </span>
                 posts

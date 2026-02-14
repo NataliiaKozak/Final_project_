@@ -44,10 +44,11 @@ const NotificationItem: FC<Notification> = ({
     try {
       await $api.patch(`/notifications/${_id}`, { isRead: true });
       setRead(true);
+      if (user) navigate(`/profile/${user._id}`);
     } catch (err: unknown) {
       if (err instanceof Error) console.error('Notification read error:', err.message);
     }
-  }, [_id]);
+  }, [_id, user, navigate]);
 
   const goToProfile = useCallback(() => {
     if (user) navigate(`/profile/${user._id}`);

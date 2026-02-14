@@ -61,13 +61,16 @@
 
 .currentUserProfile_rightside_btnBox {
   display: flex;
-  gap: 20px;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .currentUserProfile_rightside_btnBox p {
   font-size: 19.84px;
   font-weight: 400;
   line-height: 25px;
+  white-space: nowrap;
 }
 
 .currentUserProfile_statistic {
@@ -80,7 +83,7 @@
 
 .currentUserProfile_statisticCount {
   font-weight: 600;
-  margin-right: 4px;
+  margin-right: 6px;
 }
 
 .currentUserProfile_statisticBio {
@@ -151,8 +154,8 @@
   }
 
   .currentUserProfile_rightside_btnBox {
-    gap: 12px;
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-wrap: nowrap;
   }
 
   .currentUserProfile_statistic {

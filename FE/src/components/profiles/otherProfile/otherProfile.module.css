@@ -79,13 +79,16 @@
 
 .otherProfile_rightside_btnBox {
   display: flex;
-  gap: 20px;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .otherProfile_rightside_btnBox p {
   font-size: 19.84px;
   font-weight: 400;
   line-height: 25px;
+  white-space: nowrap;
 }
 
 .otherProfile_statistic {
@@ -98,6 +101,7 @@
 
 .otherProfile_statisticCount {
   font-weight: 600;
+  margin-right: 6px;
 }
 
 .otherProfile_statisticBio {

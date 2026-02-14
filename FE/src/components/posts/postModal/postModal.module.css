@@ -117,13 +117,9 @@
   height: 100%;
 }
 .notifBox {
-  height: 80px;
-  margin-top: 15px;
-
   display: flex;
   flex-direction: column;
-  position: relative;
-  bottom: 40px;
+  margin-top: auto;
 }
 /* Уведомления о лайках и комментариях */
 .modalContent_rightside_notifications {
@@ -141,6 +137,10 @@
   flex-direction: row;
   align-items: center;
   gap: 4px;
+}
+.modalContent_rightside_notifications > span > img {
+  width: 18px;
+  height: 18px;
 }
 .modalContent_rightside_notifications_date {
   font-size: 12px;
