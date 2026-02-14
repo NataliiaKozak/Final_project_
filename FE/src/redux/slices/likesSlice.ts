@@ -33,9 +33,9 @@ export const toggleLikePost = createAsyncThunk<
     return { postId, liked: data.liked, likesCount: data.likesCount };
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка изменения лайка поста');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to toggle post like');
     }
-    return rejectWithValue('Ошибка изменения лайка поста');
+    return rejectWithValue('Failed to toggle post like');
   }
 });
 
@@ -50,9 +50,9 @@ export const toggleLikeComment = createAsyncThunk<
     return { commentId, liked: data.liked, likesCount: data.likesCount };
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка изменения лайка комментария');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to toggle comment like');
     }
-    return rejectWithValue('Ошибка изменения лайка комментария');
+    return rejectWithValue('Failed to toggle comment like');
   }
 });
 
@@ -91,7 +91,7 @@ const likesSlice = createSlice({
       })
       .addCase(toggleLikePost.rejected, (state, action) => {
         state.loadingByPostId[action.meta.arg] = false;
-        state.error = action.payload ?? 'Ошибка изменения лайка поста';
+        state.error = action.payload ?? 'Failed to toggle post like';
       })
 
       .addCase(toggleLikeComment.pending, (state, action) => {
@@ -104,7 +104,7 @@ const likesSlice = createSlice({
       })
       .addCase(toggleLikeComment.rejected, (state, action) => {
         state.loadingByCommentId[action.meta.arg] = false;
-        state.error = action.payload ?? 'Ошибка изменения лайка комментария';
+        state.error = action.payload ?? 'Failed to toggle comment like';
       });
   },
 });

@@ -21,8 +21,8 @@ const CurrentUserProfile: React.FC = () => {
     if (user?._id) dispatch(getUserById(user._id));
   }, [dispatch, user?._id]);
   const [follow, setFollow] = useState<ILocalFollow>({
-    followers: 'Loading...',
-    following: 'Loading...',
+    followers: null,
+    following: null,
   });
 
   if (!user) return <div>Failed to load profile</div>;

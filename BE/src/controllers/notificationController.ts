@@ -2,21 +2,23 @@ import { Response } from 'express';
 import { Types } from 'mongoose';
 import Notification from '../models/NotificationModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js';
+import { toErrorMessage } from '../utils/toErrorMessage.js';
 
-// Создать уведомление
+type NotificationType = 'liked_post' | 'liked_comment' | 'commented_post' | 'followed_user';
+
+// Create notification
 export const createNotification = async (
   userId: string | Types.ObjectId,
   senderId: string | Types.ObjectId,
-  type: 'liked_post' | 'liked_comment' | 'commented_post' | 'followed_user',
+  type: NotificationType,
   postId?: string | Types.ObjectId,
   commentId?: string | Types.ObjectId,
-) => {
+): Promise<void> => {
   try {
     if (
       !Types.ObjectId.isValid(String(userId)) ||
       !Types.ObjectId.isValid(String(senderId))
     ) {
-      console.error('createNotification: invalid userId or senderId');
       return;
     }
 
@@ -30,18 +32,22 @@ export const createNotification = async (
     });
 
     await notificationDoc.save();
-    return notificationDoc;
-  } catch (error) {
-    console.error('Ошибка при создании уведомления:', error);
-    return;
+  } catch (err: unknown) {
+    console.error('Error creating notification:', toErrorMessage(err));
   }
 };
 
-// Получить уведомления пользователя
-export const getNotifications = async (req: RequestWithUser, res: Response) => {
+// Get user notifications
+export const getNotifications = async (
+  req: RequestWithUser,
+  res: Response,
+): Promise<void> => {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: 'Неавторизовано' });
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
 
     const notifications = await Notification.find({ user: userId })
       .populate('sender', 'username profileImage')
@@ -51,19 +57,18 @@ export const getNotifications = async (req: RequestWithUser, res: Response) => {
 
     res.json(notifications);
   } catch (err: unknown) {
-    const error = err as Error;
-    res.status(500).json({ message: 'Ошибка', error: error.message });
+    res.status(500).json({ message: 'Error fetching notifications', error: toErrorMessage(err) });
   }
 };
 
-// Отметить все как прочитанные
+// Mark all as read
 export const markAsRead = async (
   req: RequestWithUser,
   res: Response,
 ): Promise<void> => {
   try {
     if (!req.user) {
-      res.status(401).json({ message: 'Неавторизованный доступ' });
+      res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
@@ -72,7 +77,7 @@ export const markAsRead = async (
       isRead: false,
     });
     if (unread === 0) {
-      res.status(200).json({ message: 'У вас нет непрочитанных уведомлений' });
+      res.status(200).json({ message: 'No unread notifications' });
       return;
     }
 
@@ -80,24 +85,20 @@ export const markAsRead = async (
       { user: req.user.id, isRead: false },
       { $set: { isRead: true } },
     );
-    res.json({ message: 'Все уведомления отмечены как прочитанные' });
+    res.json({ message: 'All notifications marked as read' });
   } catch (err: unknown) {
-    const error = err as Error;
-    console.error('Ошибка при обновлении уведомлений:', error);
-    res
-      .status(500)
-      .json({ message: 'Ошибка при обновлении уведомлений', error: error.message });
+    res.status(500).json({ message: 'Error updating notifications', error: toErrorMessage(err) });
   }
 };
 
-// Отметить одно уведомление как прочитанное
+// Mark one as read
 export const markOneAsRead = async (
   req: RequestWithUser,
   res: Response,
 ): Promise<void> => {
   try {
     if (!req.user) {
-      res.status(401).json({ message: 'Неавторизованный доступ' });
+      res.status(401).json({ message: 'Unauthorized' });
       return;
     }
     const { id } = req.params;
@@ -107,12 +108,11 @@ export const markOneAsRead = async (
       { new: true },
     );
     if (!notification) {
-      res.status(404).json({ message: 'Уведомление не найдено' });
+      res.status(404).json({ message: 'Notification not found' });
       return;
     }
     res.json(notification);
   } catch (err: unknown) {
-    const error = err as Error;
-    res.status(500).json({ message: 'Ошибка при обновлении уведомления', error: error.message });
+    res.status(500).json({ message: 'Error updating notification', error: toErrorMessage(err) });
   }
 };

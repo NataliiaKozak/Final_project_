@@ -18,30 +18,27 @@ const FollowsPanel: FC<IFollowPanel> = ({ userId, follow, setFollow }) => {
       ]);
       const followersCount = Array.isArray(followersRes.data) ? followersRes.data.length : 0;
       const followingCount = Array.isArray(followingRes.data) ? followingRes.data.length : 0;
-      setFollow({
-        followers: followersCount,
-        following: followingCount,
-      });
+      setFollow({ followers: followersCount, following: followingCount });
     } catch (err: unknown) {
       if (err instanceof Error) console.error('Follow counts error:', err.message);
     }
   }, [userId, setFollow]);
 
   useEffect(() => {
-    if (follow.followers === 'Loading...' || follow.following === 'Loading...') {
+    if (follow.followers === null || follow.following === null) {
       fetchCounts();
     }
   }, [userId, follow.followers, follow.following, fetchCounts]);
 
   return (
     <>
-      {follow.followers !== 'Loading...' && (
+      {follow.followers !== null && (
         <p>
           <span className={styles.text}>{follow.followers}</span>
           followers
         </p>
       )}
-      {follow.following !== 'Loading...' && (
+      {follow.following !== null && (
         <p>
           <span className={styles.text}>{follow.following}</span>
           following

@@ -1,7 +1,8 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
-import sharp from 'sharp';
 import { ENV } from './env.js';
+
+const S3_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
 const s3 = new S3Client({
   region: ENV.AWS_REGION,
@@ -11,24 +12,24 @@ const s3 = new S3Client({
   },
 });
 
+/**
+ * Upload a file buffer to S3.
+ * Image optimisation (sharp) is handled by the upload middleware
+ * BEFORE this function is called — s3 only stores the result.
+ */
 export const uploadToS3 = async (file: Express.Multer.File, folder: string): Promise<string> => {
   if (!file) {
-    throw new Error('Файл отсутствует');
+    throw new Error('File is missing');
   }
-
-  const processedImage = await sharp(file.buffer)
-    .resize({ width: 1080, withoutEnlargement: true })
-    .jpeg({ quality: 80 })
-    .toBuffer();
 
   const key = `${folder}/${uuidv4()}-${file.originalname.replace(/\s+/g, '_')}`;
 
   const command = new PutObjectCommand({
     Bucket: ENV.S3_BUCKET_NAME,
     Key: key,
-    Body: processedImage,
-    ContentType: 'image/jpeg',
-    CacheControl: 'public, max-age=31536000, immutable',
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    CacheControl: S3_CACHE_CONTROL,
   });
 
   await s3.send(command);

@@ -31,7 +31,7 @@ export const ResetForm = () => {
       if (data.token) setDevToken(data.token);
       setStage('reset');
     } catch (err: unknown) {
-      console.error('Ошибка при запросе сброса:', err);
+      console.error('Password reset request error:', err);
       if (isAxiosError<ApiErr>(err)) {
         setError(err.response?.data?.message ?? 'Error requesting reset');
       } else {
@@ -68,7 +68,7 @@ export const ResetForm = () => {
       setNewPassword('');
       setEmail('');
     } catch (err: unknown) {
-      console.error('Ошибка при обновлении пароля:', err);
+      console.error('Password update error:', err);
       if (isAxiosError<ApiErr>(err)) {
         setError(err.response?.data?.message ?? 'Error updating password');
       } else {

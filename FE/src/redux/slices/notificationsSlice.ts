@@ -31,10 +31,10 @@ export const fetchNotifications = createAsyncThunk<
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка при загрузке уведомлений'
+        err.response?.data?.message ?? 'Failed to load notifications'
       );
     }
-    return rejectWithValue('Ошибка при загрузке уведомлений');
+    return rejectWithValue('Failed to load notifications');
   }
 });
 
@@ -50,10 +50,10 @@ export const markAllNotificationsRead = createAsyncThunk<
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка при обновлении уведомлений'
+        err.response?.data?.message ?? 'Failed to update notifications'
       );
     }
-    return rejectWithValue('Ошибка при обновлении уведомлений');
+    return rejectWithValue('Failed to update notifications');
   }
 });
 
@@ -85,7 +85,7 @@ const notificationsSlice = createSlice({
       )
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? 'Ошибка при загрузке уведомлений';
+        state.error = action.payload ?? 'Failed to load notifications';
       })
 
       // markAllNotificationsRead — помечаем локально все как прочитанные
@@ -98,7 +98,7 @@ const notificationsSlice = createSlice({
         );
       })
       .addCase(markAllNotificationsRead.rejected, (state, action) => {
-        state.error = action.payload ?? 'Ошибка при обновлении уведомлений';
+        state.error = action.payload ?? 'Failed to update notifications';
       });
   },
 });

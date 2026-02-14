@@ -2,15 +2,10 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { sendMessage, addMessage, fetchMessages } from '../../../redux/slices/messagesSlice';
 import { connectSocket, getSocket, disconnectSocket } from '../../../api/socket';
+import { isPopulatedUser } from '../../../utils/populatedUser';
 import type { IMessage } from '../../../interfaces/message.interface';
 import type { IUser } from '../../../interfaces/user.interface';
 import styles from './messageRoom.module.css';
-
-function isPopulatedUser(
-  v: string | { _id: string; username: string; profileImage?: string }
-): v is { _id: string; username: string; profileImage?: string } {
-  return typeof v === 'object' && v !== null && '_id' in v;
-}
 
 interface MessagesRoomProps {
   selectedRecipient: IUser | null;

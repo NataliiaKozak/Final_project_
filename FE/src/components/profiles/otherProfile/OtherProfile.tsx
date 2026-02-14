@@ -26,8 +26,8 @@ function OtherProfile() {
 
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [follow, setFollow] = useState<ILocalFollow>({
-    followers: 'Loading...',
-    following: 'Loading...',
+    followers: null,
+    following: null,
   });
 
   // если открыли свой профиль — редирект на /profile
@@ -39,7 +39,7 @@ function OtherProfile() {
 
   // сбрасываем локальные счётчики при смене userId
   useEffect(() => {
-    setFollow({ followers: 'Loading...', following: 'Loading...' });
+    setFollow({ followers: null, following: null });
   }, [userId]);
 
   // подтянуть пользователя (публичный профиль)
@@ -77,7 +77,7 @@ function OtherProfile() {
       setIsFollowing(true);
       setFollow((prev) => ({
         ...prev,
-        followers: prev.followers !== 'Loading...' ? prev.followers + 1 : prev.followers,
+        followers: prev.followers !== null ? prev.followers + 1 : prev.followers,
       }));
     } catch (error) {
         console.error('Error follow:', error);
@@ -92,7 +92,7 @@ function OtherProfile() {
       setIsFollowing(false);
       setFollow((prev) => ({
         ...prev,
-        followers: prev.followers !== 'Loading...' ? prev.followers - 1 : prev.followers,
+        followers: prev.followers !== null ? prev.followers - 1 : prev.followers,
       }));
     } catch (e) {
       console.error('Error unfollow:', e);

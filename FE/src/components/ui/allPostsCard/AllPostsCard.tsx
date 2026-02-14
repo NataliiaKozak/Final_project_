@@ -1,5 +1,6 @@
 import React from 'react';
 import type { IPost } from '../../../interfaces/post.interface';
+import { getAuthorInfo } from '../../../utils/author';
 
 type AllPostsCardProps = Pick<
   IPost,
@@ -14,11 +15,7 @@ const AllPostsCard: React.FC<AllPostsCardProps> = ({
   author,
   createdAt,
 }) => {
-  const userName =
-    typeof author === 'string' ? '' : author?.username ?? '';
-
-  const profileImage =
-    typeof author === 'string' ? '' : author?.profileImage ?? '';
+  const { name: userName, image: profileImage } = getAuthorInfo(author);
 
   return (
     <div className="post-card">
@@ -47,4 +44,3 @@ const AllPostsCard: React.FC<AllPostsCardProps> = ({
 };
 
 export default AllPostsCard;
-

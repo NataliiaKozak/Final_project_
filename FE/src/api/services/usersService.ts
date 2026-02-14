@@ -7,7 +7,7 @@ export const getUserByIdApi = async (userId: string): Promise<IUser> => {
     return data;
   } catch (e) {
     console.error(e);
-    throw new Error('Ошибка при получении пользователя');
+    throw new Error('Failed to load user');
   }
 };
 

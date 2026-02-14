@@ -11,7 +11,7 @@ import { $api } from '../../api/api';
 export const Explore: FC = () => {
   const dispatch = useAppDispatch();
   const { explore } = useAppSelector((s) => s.posts);
-  // Используем твой тип превью
+  // Используем первоначальный тип превью
   const [selectedPost, setSelectedPost] = useState<PostPreview | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

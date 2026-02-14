@@ -3,19 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchComments, likeComment } from '../../../redux/slices/commentsSlice';
+import { isPopulatedUser } from '../../../utils/populatedUser';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import styles from './commentContent.module.css';
 import parseData from '../../../helpers/parseData';
-import type { IComment } from '../../../interfaces/comment.interface';
 
 interface CommentContentProps {
   postId: string;
 }
-
-const isPopulatedUser = (
-  u: IComment['user'],
-): u is { _id: string; username: string; profileImage?: string } =>
-  typeof u !== 'string';
 
 const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
   const dispatch = useAppDispatch();

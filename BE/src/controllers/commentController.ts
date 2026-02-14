@@ -3,11 +3,12 @@ import Comment from '../models/CommentModel.js';
 import Post from '../models/PostModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js';
 import { createNotification } from './notificationController.js';
+import { toErrorMessage } from '../utils/toErrorMessage.js';
 
-// ===============Добавить комментарий========================
+// Add comment
 export const addComment = async (
   req: RequestWithUser,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { postId } = req.params;
@@ -15,57 +16,40 @@ export const addComment = async (
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ message: 'Требуется авторизация' });
+      res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
     if (!text) {
-      res.status(400).json({ message: 'Комментарий не может быть пустым' });
+      res.status(400).json({ message: 'Comment text is required' });
       return;
     }
 
-    const post = await Post.findById(postId).populate(
-      'author',
-      '_id username profileImage'
-    );
-
+    const post = await Post.findById(postId).populate('author', '_id username profileImage');
     if (!post) {
-      res.status(404).json({ message: 'Пост не найден' });
+      res.status(404).json({ message: 'Post not found' });
       return;
     }
 
-    const comment = new Comment({
-      user: userId,
-      post: post._id,
-      text,
-    });
-
+    const comment = new Comment({ user: userId, post: post._id, text });
     await comment.save();
     await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
-    // =================Уведомление автору поста===============
     if (post.author && post.author._id.toString() !== userId) {
-      await createNotification(
-        post.author._id,
-        userId,
-        'commented_post',
-        post._id,
-        comment._id
-      );
+      await createNotification(post.author._id, userId, 'commented_post', post._id, comment._id);
     }
 
     await comment.populate('user', 'username profileImage');
-    res.json({ message: 'Комментарий добавлен', comment });
-  } catch (error) {
-    console.error('Ошибка при добавлении комментария:', error);
-    res.status(500).json({ message: 'Ошибка при добавлении комментария' });
+    res.json({ message: 'Comment added', comment });
+  } catch (err: unknown) {
+    res.status(500).json({ message: 'Error adding comment', error: toErrorMessage(err) });
   }
 };
 
-// ====================Удалить комментарий====================
+// Delete comment
 export const deleteComment = async (
   req: RequestWithUser,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { commentId } = req.params;
@@ -73,40 +57,34 @@ export const deleteComment = async (
 
     const comment = await Comment.findById(commentId);
     if (!comment) {
-      res.status(404).json({ message: 'Комментарий не найден' });
+      res.status(404).json({ message: 'Comment not found' });
       return;
     }
 
-    // проверяем только владельца комментария
-    if (
-      comment.user.toString() !== userId
-    ) {
-      res.status(403).json({ message: 'Нет прав для удаления' });
+    if (comment.user.toString() !== userId) {
+      res.status(403).json({ message: 'Forbidden' });
       return;
     }
 
     await comment.deleteOne();
     await Post.findByIdAndUpdate(comment.post, { $pull: { comments: commentId } });
-    res.json({ message: 'Комментарий удалён' });
-  } catch (error) {
-    console.error('Ошибка при удалении комментария:', error);
-    res.status(500).json({ message: 'Ошибка при удалении комментария' });
+    res.json({ message: 'Comment deleted' });
+  } catch (err: unknown) {
+    res.status(500).json({ message: 'Error deleting comment', error: toErrorMessage(err) });
   }
 };
 
-// ==================Получить комментарии к посту========================
+// Get post comments
 export const getPostComments = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { postId } = req.params;
     const comments = await Comment.find({ post: postId })
       .populate('user', 'username profileImage');
-
     res.json(comments);
-  } catch (error) {
-    console.error('Ошибка при получении комментариев:', error);
-    res.status(500).json({ message: 'Ошибка при получении комментариев' });
+  } catch (err: unknown) {
+    res.status(500).json({ message: 'Error fetching comments', error: toErrorMessage(err) });
   }
 };

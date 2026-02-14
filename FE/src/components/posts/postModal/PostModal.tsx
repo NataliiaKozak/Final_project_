@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import profilePlaceholder from '../../../assets/photo-placeholder.svg';
 import { FaEllipsisV, FaHeart } from 'react-icons/fa';
@@ -29,7 +29,15 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedDescription, setEditedDescription] = useState(post.description ?? '');
   const [editedImageFile, setEditedImageFile] = useState<File | null>(null);
+  const editPreviewUrl = useRef<string | null>(null);
   const [displayDescription, setDisplayDescription] = useState(post.description ?? '');
+
+  // Clean up ObjectURL on unmount or file change
+  useEffect(() => {
+    return () => {
+      if (editPreviewUrl.current) URL.revokeObjectURL(editPreviewUrl.current);
+    };
+  }, []);
 
   const { id: authorId, name: authorName, image: authorImage } = getAuthorInfo(post.author);
   const isMyPost = authorId === currentUser?._id;
@@ -167,12 +175,17 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
-                    if (e.target.files?.[0]) setEditedImageFile(e.target.files[0]);
+                    if (e.target.files?.[0]) {
+                      if (editPreviewUrl.current) URL.revokeObjectURL(editPreviewUrl.current);
+                      const url = URL.createObjectURL(e.target.files[0]);
+                      editPreviewUrl.current = url;
+                      setEditedImageFile(e.target.files[0]);
+                    }
                   }}
                 />
-                {editedImageFile && (
+                {editedImageFile && editPreviewUrl.current && (
                   <img
-                    src={URL.createObjectURL(editedImageFile)}
+                    src={editPreviewUrl.current}
                     alt="Preview"
                     className={styles.previewImage}
                   />

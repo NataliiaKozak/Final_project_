@@ -29,10 +29,10 @@ export const fetchAllConversations = createAsyncThunk<
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка загрузки диалогов',
+        err.response?.data?.message ?? 'Failed to load conversations',
       );
     }
-    return rejectWithValue('Ошибка загрузки диалогов');
+    return rejectWithValue('Failed to load conversations');
   }
 });
 
@@ -48,10 +48,10 @@ export const fetchMessages = createAsyncThunk<
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка загрузки сообщений',
+        err.response?.data?.message ?? 'Failed to load messages',
       );
     }
-    return rejectWithValue('Ошибка загрузки сообщений');
+    return rejectWithValue('Failed to load messages');
   }
 });
 
@@ -70,10 +70,10 @@ export const sendMessage = createAsyncThunk<
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка отправки сообщения',
+        err.response?.data?.message ?? 'Failed to send message',
       );
     }
-    return rejectWithValue('Ошибка отправки сообщения');
+    return rejectWithValue('Failed to send message');
   }
 });
 
@@ -107,7 +107,7 @@ const messagesSlice = createSlice({
       )
       .addCase(fetchAllConversations.rejected, (s, a) => {
         s.loading = false;
-        s.error = a.payload ?? 'Ошибка загрузки диалогов';
+        s.error = a.payload ?? 'Failed to load conversations';
       })
       .addCase(fetchMessages.pending, (s) => {
         s.loading = true;
@@ -119,7 +119,7 @@ const messagesSlice = createSlice({
       })
       .addCase(fetchMessages.rejected, (s, a) => {
         s.loading = false;
-        s.error = a.payload ?? 'Ошибка загрузки сообщений';
+        s.error = a.payload ?? 'Failed to load messages';
       })
       .addCase(sendMessage.fulfilled, (s, a: PayloadAction<IMessage>) => {
         const exists = s.items.some((m) => m._id === a.payload._id);
@@ -128,7 +128,7 @@ const messagesSlice = createSlice({
         }
       })
       .addCase(sendMessage.rejected, (s, a) => {
-        s.error = a.payload ?? 'Ошибка отправки сообщения';
+        s.error = a.payload ?? 'Failed to send message';
       });
   },
 });

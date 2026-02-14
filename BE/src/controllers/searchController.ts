@@ -1,39 +1,35 @@
 import { Request, Response } from 'express';
 import User from '../models/UserModel.js';
+import { toErrorMessage } from '../utils/toErrorMessage.js';
 
-function escapeRegExp(s: string) {
+const MAX_SEARCH_RESULTS = 20;
+
+function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export const searchUsers = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    // Забираем query строго как строку
     const q = String(req.query?.query ?? '').trim();
-    if (!q.trim()) {
-      res.status(400).json({ message: 'Запрос не может быть пустым' });
+    if (!q) {
+      res.status(400).json({ message: 'Query cannot be empty' });
       return;
     }
 
-    // Экраним спецсимволы, чтобы не ловить "Invalid regular expression"
-    const rx = new RegExp(escapeRegExp(q.trim()), 'i');
+    const rx = new RegExp(escapeRegExp(q), 'i');
 
     const users = await User.find({
       $or: [{ username: { $regex: rx } }, { fullName: { $regex: rx } }],
     })
       .select('_id username fullName profileImage')
-      .limit(20)
-      .lean(); // быстрее, без лишних Mongoose-объектов
+      .limit(MAX_SEARCH_RESULTS)
+      .lean();
 
     res.json(users);
   } catch (err: unknown) {
-    const error = err as Error;
-    console.error('[searchUsers] error:', error);
-    res.status(500).json({
-      message: 'Ошибка при поиске пользователей',
-      error: error.message,
-    });
+    res.status(500).json({ message: 'Error searching users', error: toErrorMessage(err) });
   }
 };

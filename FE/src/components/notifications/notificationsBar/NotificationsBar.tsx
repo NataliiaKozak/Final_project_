@@ -1,36 +1,21 @@
-import styles from './notificationsBar.module.css';
-import { useEffect, useState } from 'react';
-import { $api } from '../../../api/api';
-import { useAppSelector } from '../../../redux/hooks';
-import type { Notification } from '../../../interfaces/notification.interface';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { fetchNotifications } from '../../../redux/slices/notificationsSlice';
 import NotificationItem from '../item/item';
+import styles from './notificationsBar.module.css';
 
 const NotificationsBar = () => {
-  const [notifications, setNotifications] = useState<Notification[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const token = useAppSelector((s) => s.auth.token);
+  const dispatch = useAppDispatch();
+  const { actions: notifications, loading, error } = useAppSelector(
+    (s) => s.notifications,
+  );
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      if (!token) {
-        setError('User is not authenticated');
-        return;
-      }
-      try {
-        // БЭК: GET /notifications (по токену)
-        const { data } = await $api.get<Notification[]>('/notifications');
-        setNotifications(data);
-      } catch {
-        setError('An error occurred while fetching notifications');
-      }
-    };
-
-    fetchNotifications();
-  }, [token]);
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   if (error) return <div className="error">{error}</div>;
-  if (!notifications) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className={styles.notificationsBar}>

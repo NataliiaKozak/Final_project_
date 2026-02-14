@@ -31,10 +31,10 @@ export const getUserById = createAsyncThunk<
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка загрузки пользователя'
+        err.response?.data?.message ?? 'Failed to load user'
       );
     }
-    return rejectWithValue('Ошибка загрузки пользователя');
+    return rejectWithValue('Failed to load user');
   }
 });
 // PUT /users  (multipart) — обновление своего профиля
@@ -60,10 +60,10 @@ export const updateProfile = createAsyncThunk<
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка обновления профиля'
+        err.response?.data?.message ?? 'Failed to update profile'
       );
     }
-    return rejectWithValue('Ошибка обновления профиля');
+    return rejectWithValue('Failed to update profile');
   }
 });
 // GET /follows/:userId/followers — получаем массив пользователей → считаем followersCount
@@ -80,10 +80,10 @@ export const getFollowers = createAsyncThunk<
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка загрузки подписчиков'
+        err.response?.data?.message ?? 'Failed to load followers'
       );
     }
-    return rejectWithValue('Ошибка загрузки подписчиков');
+    return rejectWithValue('Failed to load followers');
   }
 });
 // GET /follows/:userId/following — получаем массив пользователей → считаем followingCount
@@ -100,10 +100,10 @@ export const getFollowing = createAsyncThunk<
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(
-        err.response?.data?.message ?? 'Ошибка загрузки подписок'
+        err.response?.data?.message ?? 'Failed to load following'
       );
     }
-    return rejectWithValue('Ошибка загрузки подписок');
+    return rejectWithValue('Failed to load following');
   }
 });
 /* ===================== SLICE ===================== */
@@ -147,7 +147,7 @@ const userSlice = createSlice({
       })
       .addCase(getUserById.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload ?? 'Ошибка загрузки пользователя';
+        state.error = payload ?? 'Failed to load user';
       })
       // updateProfile
       .addCase(updateProfile.pending, (state) => {
@@ -161,7 +161,7 @@ const userSlice = createSlice({
       })
       .addCase(updateProfile.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload ?? 'Ошибка обновления профиля';
+        state.error = payload ?? 'Failed to update profile';
       })
       // followers count
       .addCase(getFollowers.fulfilled, (state, { payload }) => {

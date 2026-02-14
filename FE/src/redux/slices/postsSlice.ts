@@ -30,9 +30,9 @@ export const getAllPosts = createAsyncThunk<IPost[], void, { rejectValue: string
       return data;
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки постов');
+        return rejectWithValue(err.response?.data?.message ?? 'Failed to load posts');
       }
-      return rejectWithValue('Ошибка загрузки постов');
+      return rejectWithValue('Failed to load posts');
     }
   }
 );
@@ -46,9 +46,9 @@ export const getAllPublicPosts = createAsyncThunk<PostPreview[], void, { rejectV
       return data;
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки Explore');
+        return rejectWithValue(err.response?.data?.message ?? 'Failed to load explore');
       }
-      return rejectWithValue('Ошибка загрузки Explore');
+      return rejectWithValue('Failed to load explore');
     }
   }
 );
@@ -63,9 +63,9 @@ export const getOtherUserPosts = createAsyncThunk<IPost[], string, { rejectValue
       return data;
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки постов пользователя');
+        return rejectWithValue(err.response?.data?.message ?? 'Failed to load user posts');
       }
-      return rejectWithValue('Ошибка загрузки постов пользователя');
+      return rejectWithValue('Failed to load user posts');
     }
   }
 );
@@ -85,9 +85,9 @@ export const likePost = createAsyncThunk<
     return { postId, likesCount: data.likes_count };
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка изменения лайка');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to toggle like');
     }
-    return rejectWithValue('Ошибка изменения лайка');
+    return rejectWithValue('Failed to toggle like');
   }
 });
 
@@ -109,9 +109,9 @@ export const updatePost = createAsyncThunk<
     return data;
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка обновления поста');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to update post');
     }
-    return rejectWithValue('Ошибка обновления поста');
+    return rejectWithValue('Failed to update post');
   }
 });
 

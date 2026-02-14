@@ -32,9 +32,9 @@ export const getFollowersMe = createAsyncThunk<
     return data;
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки подписчиков');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to load followers');
     }
-    return rejectWithValue('Ошибка загрузки подписчиков');
+    return rejectWithValue('Failed to load followers');
   }
 });
 
@@ -49,9 +49,9 @@ export const getFollowingMe = createAsyncThunk<
     return data;
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка загрузки подписок');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to load following');
     }
-    return rejectWithValue('Ошибка загрузки подписок');
+    return rejectWithValue('Failed to load following');
   }
 });
 
@@ -66,9 +66,9 @@ export const followUser = createAsyncThunk<
     return data;
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка при подписке');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to follow');
     }
-    return rejectWithValue('Ошибка при подписке');
+    return rejectWithValue('Failed to follow');
   }
 });
 
@@ -83,9 +83,9 @@ export const unfollowUser = createAsyncThunk<
     return data;
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
-      return rejectWithValue(err.response?.data?.message ?? 'Ошибка при отписке');
+      return rejectWithValue(err.response?.data?.message ?? 'Failed to unfollow');
     }
-    return rejectWithValue('Ошибка при отписке');
+    return rejectWithValue('Failed to unfollow');
   }
 });
 
@@ -113,7 +113,7 @@ const followSlice = createSlice({
         state.loading = false; state.followers = action.payload;
       })
       .addCase(getFollowersMe.rejected, (state, action) => {
-        state.loading = false; state.error = action.payload ?? 'Ошибка загрузки подписчиков';
+        state.loading = false; state.error = action.payload ?? 'Failed to load followers';
       })
 
       // following
@@ -124,18 +124,18 @@ const followSlice = createSlice({
         state.loading = false; state.following = action.payload;
       })
       .addCase(getFollowingMe.rejected, (state, action) => {
-        state.loading = false; state.error = action.payload ?? 'Ошибка загрузки подписок';
+        state.loading = false; state.error = action.payload ?? 'Failed to load following';
       })
 
       // follow / unfollow — данных списка в ответе нет → локально не трогаем;
       // в компонентах после успеха вызываем getFollowersMe/getFollowingMe заново.
       .addCase(followUser.pending, (state) => { state.error = null; })
       .addCase(followUser.rejected, (state, action) => {
-        state.error = action.payload ?? 'Ошибка при подписке';
+        state.error = action.payload ?? 'Failed to follow';
       })
       .addCase(unfollowUser.pending, (state) => { state.error = null; })
       .addCase(unfollowUser.rejected, (state, action) => {
-        state.error = action.payload ?? 'Ошибка при отписке';
+        state.error = action.payload ?? 'Failed to unfollow';
       });
   },
 });

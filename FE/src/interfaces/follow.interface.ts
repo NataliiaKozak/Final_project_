@@ -4,10 +4,10 @@ export interface IFollowItem {
   profileImage?: string;
 }
 
-// Локальные счётчики в UI
+// Local follow counts in UI (null = loading)
 export interface ILocalFollow {
-  followers: 'Loading...' | number;
-  following: 'Loading...' | number;
+  followers: number | null;
+  following: number | null;
 }
 
 // Контроллеры getFollowers/getFollowing возвращают популяцию пользователя.

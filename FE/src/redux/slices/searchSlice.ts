@@ -31,9 +31,9 @@ export const searchUsers = createAsyncThunk<SearchItem[], string, { rejectValue:
       return data;
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {
-        return rejectWithValue(err.response?.data?.message ?? 'Ошибка поиска');
+        return rejectWithValue(err.response?.data?.message ?? 'Search failed');
       }
-      return rejectWithValue('Ошибка поиска');
+      return rejectWithValue('Search failed');
     }
   }
 );
@@ -58,7 +58,7 @@ const searchSlice = createSlice({
         s.loading = false; s.results = a.payload;
       })
       .addCase(searchUsers.rejected, (s, a) => {
-        s.loading = false; s.error = a.payload ?? 'Ошибка поиска';
+        s.loading = false; s.error = a.payload ?? 'Search failed';
       });
   },
 });

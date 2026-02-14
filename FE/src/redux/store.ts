@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import { authStorageMiddleware } from './middleware/authStorage';
 import authReducer from '../redux/slices/authSlice';
 import userReducer from '../redux/slices/userSlice';
 import postsReducer from '../redux/slices/postsSlice';
@@ -11,6 +12,8 @@ import messagesReducer from '../redux/slices/messagesSlice';
 import searchReducer from '../redux/slices/searchSlice';
 
 const store = configureStore({
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authStorageMiddleware),
   reducer: {
     auth: authReducer,
     user: userReducer,

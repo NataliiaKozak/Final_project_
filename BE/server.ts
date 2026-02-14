@@ -6,9 +6,24 @@ import { verifySocketToken } from './src/config/jwt.js';
 import { ENV } from './src/config/env.js';
 import Message from './src/models/MessageModel.js';
 
+// ---- Socket.IO typed events ----
+interface ClientToServerEvents {
+  joinRoom: (data: { targetUserId: string }) => void;
+  sendMessage: (data: { targetUserId: string; text: string }) => void;
+}
+
+interface ServerToClientEvents {
+  receiveMessage: (message: unknown) => void;
+  error: (data: { message: string }) => void;
+}
+
+interface SocketData {
+  userId: string;
+}
+
 const server = http.createServer(app);
 
-const io = new Server(server, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>(server, {
   cors: {
     origin: ENV.CLIENT_URL,
     credentials: true,
@@ -34,15 +49,15 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.data.userId);
 
-  socket.on('joinRoom', ({ targetUserId }: { targetUserId: string }) => {
-    const userId: string = socket.data.userId;
+  socket.on('joinRoom', ({ targetUserId }) => {
+    const userId = socket.data.userId;
     const roomId = [userId, targetUserId].sort().join('_');
     socket.join(roomId);
   });
 
-  socket.on('sendMessage', async ({ targetUserId, text }: { targetUserId: string; text: string }) => {
+  socket.on('sendMessage', async ({ targetUserId, text }) => {
     try {
-      const senderId: string = socket.data.userId;
+      const senderId = socket.data.userId;
       const roomId = [senderId, targetUserId].sort().join('_');
 
       const message = new Message({

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchAllConversations } from '../../../redux/slices/messagesSlice';
+import { isPopulatedUser } from '../../../utils/populatedUser';
 import type { IMessage } from '../../../interfaces/message.interface';
 import type { IUser } from '../../../interfaces/user.interface';
 import styles from './recieversList.module.css';
@@ -9,12 +10,6 @@ import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 interface RecieversListProps {
   onSelectRecipient: (user: IUser | null) => void;
   selectedRecipient: IUser | null;
-}
-
-function isPopulatedUser(
-  v: string | { _id: string; username: string; profileImage?: string }
-): v is { _id: string; username: string; profileImage?: string } {
-  return typeof v === 'object' && v !== null && '_id' in v;
 }
 
 const RecieversList: React.FC<RecieversListProps> = ({ onSelectRecipient, selectedRecipient }) => {
