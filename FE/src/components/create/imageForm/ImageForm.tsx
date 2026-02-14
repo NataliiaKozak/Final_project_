@@ -1,10 +1,12 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
+import { useState, FormEvent, ChangeEvent, useEffect, useRef } from 'react';
+import { useAppSelector } from '../../../redux/hooks';
 import styles from './ImageForm.module.css';
 import { $api } from '../../../api/api';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import placeCreate from '../../../assets/place-create.svg';
+import EmojiPicker from '../../ui/emojiPicker/EmojiPicker';
+
+const CLOSE_DELAY_MS = 3000;
 
 interface ImageFormProps {
   closeModal: () => void;
@@ -14,25 +16,31 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState('');
   const [text, setText] = useState('');
-  const [showEmojis, setShowEmojis] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [statusVisible, setStatusVisible] = useState(false);
+  const objectUrlRef = useRef<string | null>(null);
 
-  const emojis = Array.from({ length: 50 }, (_, i) =>
-    String.fromCodePoint(0x1f600 + i)
-  );
+  const currentUser = useAppSelector((s) => s.auth.user);
 
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  // Clean up ObjectURL on unmount
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    };
+  }, []);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files?.[0]) {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+      const url = URL.createObjectURL(e.target.files[0]);
+      objectUrlRef.current = url;
       setFile(e.target.files[0]);
-      setFilePath(URL.createObjectURL(e.target.files[0]));
+      setFilePath(url);
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (!file) {
       setUploadStatus('Please upload image');
@@ -42,7 +50,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
 
     const formData = new FormData();
     formData.append('image', file);
-    if (text.trim()) formData.append('description', text); // бэкенд ждёт "description"
+    if (text.trim()) formData.append('description', text);
 
     setIsUploading(true);
     setUploadStatus('Loading...');
@@ -55,32 +63,17 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
 
       setUploadStatus('Posted successfully!');
       setStatusVisible(true);
-
       setText('');
       setFile(null);
       setFilePath('');
       setIsUploading(false);
-      setTimeout(() => {
-        closeModal();
-      }, 3000);
-    } catch (error) {
-      console.error('Error uploading file:', error);
+      setTimeout(() => closeModal(), CLOSE_DELAY_MS);
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Upload error:', err.message);
       setUploadStatus('Upload failed.');
       setStatusVisible(true);
       setIsUploading(false);
     }
-  };
-
-  const handleEmojiButtonClick = () => {
-    setShowEmojis(prev => {
-      const newState = !prev;
-      if (newState) {
-        setTimeout(() => {
-          setShowEmojis(false);
-        }, 9000);
-      }
-      return newState;
-    });
   };
 
   return (
@@ -120,7 +113,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
             <div className={styles.header}>
               <span className={styles.placeholderImage}>
                 <img
-                  src={currentUser.profileImage || profilePlaceholder} 
+                  src={currentUser.profileImage || profilePlaceholder}
                   alt={currentUser.username}
                   className={styles.avatarImage}
                 />
@@ -132,33 +125,16 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
           <textarea
             placeholder="Describe your post"
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={(e) => setText(e.target.value)}
             rows={4}
             className={styles.textArea}
           />
 
-          <div className={styles.emojiDropdown}>
-            <button
-              type="button"
-              className={styles.emojiButton}
-              onClick={handleEmojiButtonClick}
-            >
-              😊
-            </button>
-            {showEmojis && (
-              <div className={styles.emojiList}>
-                {emojis.map((emoji, index) => (
-                  <span
-                    key={index}
-                    className={styles.emojiItem}
-                    onClick={() => setText(prev => prev + emoji)}
-                  >
-                    {emoji}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+          <EmojiPicker
+            onSelectEmoji={(emoji) => setText((prev) => prev + emoji)}
+            count={50}
+            autoCloseMs={9000}
+          />
         </div>
       </div>
     </form>

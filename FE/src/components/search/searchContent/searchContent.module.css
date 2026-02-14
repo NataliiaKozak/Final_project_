@@ -46,6 +46,7 @@
   align-items: center;
   cursor: pointer;
   width: fit-content;
+  padding: 10px 16px;
 }
 
 .searchContent_listImage img {

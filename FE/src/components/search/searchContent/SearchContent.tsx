@@ -1,29 +1,32 @@
 import styles from './searchContent.module.css';
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../../redux/store';
+import { useState, useEffect, useCallback } from 'react';
 import { searchUsers } from '../../../redux/slices/searchSlice';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import CustomInput from '../../ui/customInput/CustomInput';
 import { useNavigate } from 'react-router-dom';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 
+const SEARCH_DEBOUNCE_MS = 300;
+
 function SearchContent() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const [query, setQuery] = useState('');
-  const results = useSelector((state: RootState) => state.search.results);
-  const authUser = useSelector((state: RootState) => state.auth.user);
+  const results = useAppSelector((s) => s.search.results);
+  const authUser = useAppSelector((s) => s.auth.user);
   const filtered = results?.filter((u) => u._id !== authUser?._id) ?? [];
   const navigate = useNavigate();
 
   useEffect(() => {
     const q = query.trim();
     if (!q) return;
-    dispatch(searchUsers(q));
+    const timer = setTimeout(() => dispatch(searchUsers(q)), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
   }, [dispatch, query]);
 
-  const handleUserClick = (userId: string) => {
-    navigate(`/profile/${userId}`);
-  };
+  const handleUserClick = useCallback(
+    (userId: string) => navigate(`/profile/${userId}`),
+    [navigate],
+  );
 
   return (
     <div className={styles.searchContent}>
@@ -59,5 +62,3 @@ function SearchContent() {
 }
 
 export default SearchContent;
-
-

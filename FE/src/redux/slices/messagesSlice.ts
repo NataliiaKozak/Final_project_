@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios';
 import { $api } from '../../api/api';
 import type { IMessage } from '../../interfaces/message.interface';
 
-type ApiError = { message?: string };
+import type { ApiError } from '../../interfaces/api.interface';
 
 interface MessagesState {
   items: IMessage[];

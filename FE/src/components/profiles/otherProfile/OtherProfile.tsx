@@ -1,6 +1,6 @@
 //блок с инфо чужого юзера
 import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { useParams, useNavigate } from 'react-router-dom';
 import CustomButton from '../../ui/customButton/CustomButton';
 import FollowsPanel from '../../profiles/follows/Follows';
@@ -12,18 +12,17 @@ import {
   IFollowItem,
   ILocalFollow,
 } from '../../../interfaces/follow.interface';
-import { AppDispatch, RootState } from '../../../redux/store';
 import styles from './otherProfile.module.css';
 
 function OtherProfile() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   const { userId } = useParams<{ userId: string }>();
-  const authUser = useSelector((state: RootState) => state.auth.user);
-  const currentUser = useSelector((state: RootState) => state.user.currentUser);
-  const loading = useSelector((state: RootState) => state.user.loading);
-  const error = useSelector((state: RootState) => state.user.error);
+  const authUser = useAppSelector((s) => s.auth.user);
+  const currentUser = useAppSelector((s) => s.user.currentUser);
+  const loading = useAppSelector((s) => s.user.loading);
+  const error = useAppSelector((s) => s.user.error);
 
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [follow, setFollow] = useState<ILocalFollow>({

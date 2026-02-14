@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios';
 import { $api } from '../../api/api';
 import type { IUser } from '../../interfaces/user.interface';
 
-type ApiError = { message?: string };
+import type { ApiError } from '../../interfaces/api.interface';
 type SearchItem = Pick<IUser, '_id' | 'username' | 'fullName' | 'profileImage'>;
 
 interface SearchState {

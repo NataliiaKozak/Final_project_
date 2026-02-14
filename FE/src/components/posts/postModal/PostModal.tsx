@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import type { AppDispatch, RootState } from '../../../redux/store';
-import { addComment } from '../../../redux/slices/commentsSlice';
 import profilePlaceholder from '../../../assets/photo-placeholder.svg';
-import { FaEllipsisV } from 'react-icons/fa';
+import { FaEllipsisV, FaHeart } from 'react-icons/fa';
 import styles from './postModal.module.css';
 import { $api } from '../../../api/api';
-import { FaHeart, FaRegComment } from 'react-icons/fa';
 import commbtn from '../../../assets/comment_btn.svg';
 import CommentContent from '../../comments/commentContent/CommentContent';
+import EmojiPicker from '../../ui/emojiPicker/EmojiPicker';
+import { useOptimisticLike } from '../../../hooks/useOptimisticLike';
+import { useAddComment } from '../../../hooks/useAddComment';
+import { useAppSelector } from '../../../redux/hooks';
+import { getAuthorInfo } from '../../../utils/author';
 import type { IPost } from '../../../interfaces/post.interface';
-
 
 interface ModalProps {
   post: IPost;
@@ -19,140 +19,55 @@ interface ModalProps {
   onUpdatePosts: () => void;
 }
 
-const EmojiPicker: React.FC<{ onSelectEmoji: (emoji: string) => void }> = ({
-  onSelectEmoji,
-}) => {
-  const [showEmojis, setShowEmojis] = useState(false);
-  const emojis = Array.from({ length: 80 }, (_, i) =>
-    String.fromCodePoint(0x1f600 + i)
-  );
-
-  const toggleEmojiPicker = () => {
-    setShowEmojis((prev) => {
-      const next = !prev;
-      if (next) setTimeout(() => setShowEmojis(false), 6000);
-      return next;
-    });
-  };
-
-  return (
-    <div className={styles.emojiDropdown}>
-      <button type="button" className={styles.emojiButton} onClick={toggleEmojiPicker}>
-        😊
-      </button>
-      {showEmojis && (
-        <div className={styles.emojiList}>
-          {emojis.map((emoji, index) => (
-            <span
-              key={index}
-              className={styles.emojiItem}
-              onClick={() => onSelectEmoji(emoji)}
-            >
-              {emoji}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
 const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
-
-  const [newComment, setNewComment] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const currentUser = useAppSelector((s) => s.auth.user);
 
   const [showActionMenu, setShowActionMenu] = useState(false);
-  const [isLiked, setIsLiked] = useState(post.isLikedByMe ?? false);
-  const [likesCount, setLikesCount] = useState<number>(post.likesCount ?? 0);
   const [commentsCount, setCommentsCount] = useState<number>(post.commentsCount ?? 0);
-
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedDescription, setEditedDescription] = useState(post.description ?? '');
   const [editedImageFile, setEditedImageFile] = useState<File | null>(null);
   const [displayDescription, setDisplayDescription] = useState(post.description ?? '');
 
-  const isMyPost =
-    (typeof post.author === 'string' ? post.author : post.author?._id) ===
-    currentUser?._id;
+  const { id: authorId, name: authorName, image: authorImage } = getAuthorInfo(post.author);
+  const isMyPost = authorId === currentUser?._id;
 
-  // безопасные поля автора (author: string | { ... })
-  const authorName =
-    typeof post.author === 'string' ? 'User' : post.author?.username ?? 'User';
-  const authorImage =
-    typeof post.author === 'string'
-      ? undefined
-      : post.author?.profileImage ?? undefined;
+  const { isLiked, likesCount, toggleLike } = useOptimisticLike(
+    post._id,
+    post.isLikedByMe ?? false,
+    post.likesCount ?? 0,
+  );
+
+  const { newComment, setNewComment, error, handleAddComment } = useAddComment(
+    post._id,
+    () => setCommentsCount((p) => p + 1),
+  );
 
   useEffect(() => {
-    setLikesCount(post.likesCount ?? 0);
     setCommentsCount(post.commentsCount ?? 0);
   }, [post]);
 
-  const handleAddComment = async () => {
-    if (!currentUser?._id) {
-      setError('User not found');
-      return;
-    }
-    const text = newComment.trim();
-    if (!text) return;
-
-    try {
-      await dispatch(addComment({ postId: post._id, text })).unwrap();
-      setNewComment('');
-      setCommentsCount((p) => p + 1); // локально увеличим
-      setError(null);
-    } catch {
-      setError('Error adding comment');
-    }
-  };
-
-  const handleLikePost = async () => {
-    if (!currentUser?._id) {
-      setError('User not found');
-      return;
-    }
-    const prevLiked = isLiked;
-    const prevCount = likesCount;
-    setIsLiked(!prevLiked);
-    setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
-    try {
-      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${post._id}`);
-      console.log('[PostModal] like response:', data);
-      setIsLiked(data.liked);
-      setLikesCount(data.likesCount);
-    } catch (err) {
-      console.error('Ошибка при лайке поста:', err);
-      setIsLiked(prevLiked);
-      setLikesCount(prevCount);
-    }
-  };
-
-  const toggleActionMenu = (e: React.MouseEvent) => {
+  const toggleActionMenu = (e: React.MouseEvent): void => {
     e.stopPropagation();
     setShowActionMenu((p) => !p);
   };
 
-  const handleDeletePost = async () => {
+  const handleDeletePost = async (): Promise<void> => {
     try {
       await $api.delete(`/posts/${post._id}`);
       onUpdatePosts();
       onClose();
       setShowDeleteConfirmation(false);
-    } catch (error) {
-      console.error('Ошибка при удалении поста:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Delete error:', err.message);
     }
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (): Promise<void> => {
     try {
-      // БЭК: PUT /posts/:id с multipart (image?, description?)
       const form = new FormData();
-      // если поле описания меняли, отправим (разрешено и пустое как очистка)
       form.append('description', editedDescription ?? '');
       if (editedImageFile) form.append('image', editedImageFile);
 
@@ -163,8 +78,8 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
       setDisplayDescription(editedDescription);
       setShowEditModal(false);
       onUpdatePosts();
-    } catch (error) {
-      console.error('Ошибка при сохранении изменений:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Save error:', err.message);
     }
   };
 
@@ -180,10 +95,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
             <div className={styles.topBlockTop}>
               <span className={styles.gradient_border}>
                 <span className={styles.gradient_border_inner}>
-                  <img
-                    src={authorImage || profilePlaceholder}
-                    alt="profile"
-                  />
+                  <img src={authorImage || profilePlaceholder} alt="profile" />
                 </span>
               </span>
               <div className={styles.nameCaption}>
@@ -194,10 +106,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
             <div className={styles.topBlock}>
               <span className={styles.gradient_border}>
                 <span className={styles.gradient_border_inner}>
-                  <img
-                    src={authorImage || profilePlaceholder}
-                    alt="profile"
-                  />
+                  <img src={authorImage || profilePlaceholder} alt="profile" />
                 </span>
               </span>
               <div className={styles.nameCaption}>
@@ -220,21 +129,15 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               >
                 Delete
               </button>
-
               <button
                 className={styles.actionButton}
-                onClick={() => {
-                  setShowEditModal(true);
-                  setShowActionMenu(false);
-                }}
+                onClick={() => { setShowEditModal(true); setShowActionMenu(false); }}
               >
                 Edit
               </button>
-
               <button className={styles.actionButton} onClick={() => { navigate(`/post/${post._id}`); setShowActionMenu(false); }}>
                 Go to post
               </button>
-
               <button
                 className={styles.actionButton}
                 onClick={() => {
@@ -244,7 +147,6 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               >
                 Copy link
               </button>
-
               <button className={styles.actionButton} onClick={() => setShowActionMenu(false)}>
                 Cancel
               </button>
@@ -255,21 +157,17 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
             <div className={styles.editModal}>
               <div className={styles.editModalContent}>
                 <h2>Edit Post</h2>
-
                 <textarea
                   className={styles.editInput}
                   value={editedDescription}
                   onChange={(e) => setEditedDescription(e.target.value)}
                   placeholder="Edit description"
                 />
-
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setEditedImageFile(e.target.files[0]);
-                    }
+                    if (e.target.files?.[0]) setEditedImageFile(e.target.files[0]);
                   }}
                 />
                 {editedImageFile && (
@@ -279,17 +177,9 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                     className={styles.previewImage}
                   />
                 )}
-
                 <div className={styles.editButtons}>
-                  <button className={styles.saveButton} onClick={handleSaveEdit}>
-                    Save
-                  </button>
-                  <button
-                    className={styles.cancelButton}
-                    onClick={() => setShowEditModal(false)}
-                  >
-                    Cancel
-                  </button>
+                  <button className={styles.saveButton} onClick={handleSaveEdit}>Save</button>
+                  <button className={styles.cancelButton} onClick={() => setShowEditModal(false)}>Cancel</button>
                 </div>
               </div>
             </div>
@@ -299,15 +189,8 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
             <div className={styles.deleteConfirmation}>
               <p>Are you sure you want to delete this post?</p>
               <div className={styles.delButtons}>
-                <button className={styles.confirmDeleteButton} onClick={handleDeletePost}>
-                  Yes
-                </button>
-                <button
-                  className={styles.cancelDeleteButton}
-                  onClick={() => setShowDeleteConfirmation(false)}
-                >
-                  No
-                </button>
+                <button className={styles.confirmDeleteButton} onClick={handleDeletePost}>Yes</button>
+                <button className={styles.cancelDeleteButton} onClick={() => setShowDeleteConfirmation(false)}>No</button>
               </div>
             </div>
           )}
@@ -323,7 +206,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               </span>
               <span>
                 <FaHeart
-                  onClick={handleLikePost}
+                  onClick={toggleLike}
                   style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
                   size={18}
                 />
@@ -347,7 +230,6 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
                 Submit
               </button>
             </div>
-
             {error && <p className={styles.errorText}>{error}</p>}
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import ErrorBoundary from './components/ErrorBoundary';
+import { useAppDispatch, useAppSelector } from './redux/hooks';
 
 import Sidebar from './components/navigation/sidebar/Sidebar';
 import { Footer } from './components/footer/Footer';
@@ -25,7 +26,6 @@ import PrivateUsers from './utils/privateUsers';
 // Redux
 import { setUser } from './redux/slices/authSlice';
 import { getFollowersMe, getFollowingMe } from './redux/slices/followSlice';
-import type { AppDispatch, RootState } from './redux/store';
 
 import './global.css';
 
@@ -46,8 +46,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((s: RootState) => s.auth.user);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((s) => s.auth.user);
 
   // 1) Инициализация auth из localStorage (без any)
   useEffect(() => {
@@ -75,6 +75,7 @@ const App: React.FC = () => {
   }, [dispatch, user?._id]);
 
   return (
+    <ErrorBoundary>
     <div className="globalContainer">
       <Router>
         <Routes>
@@ -171,6 +172,7 @@ const App: React.FC = () => {
         </Routes>
       </Router>
     </div>
+    </ErrorBoundary>
   );
 };
 

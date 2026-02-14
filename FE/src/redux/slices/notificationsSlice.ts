@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios';
 import { $api } from '../../api/api';
 import type { Notification } from '../../interfaces/notification.interface';
 
-type ApiError = { message?: string };
+import type { ApiError } from '../../interfaces/api.interface';
 
 interface NotificationsState {
   actions: Notification[]; // храним, как в чужом коде называлось

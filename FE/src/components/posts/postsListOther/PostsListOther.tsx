@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { getOtherUserPosts } from '../../../redux/slices/postsSlice'; 
-import type { AppDispatch, RootState } from '../../../redux/store';
+import { getOtherUserPosts } from '../../../redux/slices/postsSlice';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import PostModal from '../otherPostsModal/OtherPostsModal';
 import styles from './postsListOther.module.css';
-
-
-import type { IPost } from '../../../interfaces/post.interface'; 
-
-// превью из /posts/user/:userId
-export type PostPreview = { _id: string; image: string; createdAt: string };
+import type { IPost } from '../../../interfaces/post.interface';
 
 const PostsListOther: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const { userId } = useParams<{ userId: string }>();
-  const { otherUserPosts, loading, error } = useSelector((state: RootState) => state.posts);
+  const { otherUserPosts, loading, error } = useAppSelector((s) => s.posts);
 
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null); 
 
@@ -38,7 +32,7 @@ const PostsListOther: React.FC = () => {
             key={post._id}
             src={post.image}
             alt="post-thumbnail"
-            onClick={() => handleImageClick(post as IPost)} 
+            onClick={() => handleImageClick(post)}
             style={{ cursor: 'pointer' }}
           />
         ))}

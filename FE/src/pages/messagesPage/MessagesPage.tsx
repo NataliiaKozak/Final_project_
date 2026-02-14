@@ -12,11 +12,12 @@ const MessagesPage: React.FC = () => {
 
   // Если перешли с кнопки "Message" на чужом профиле
   useEffect(() => {
-    const targetUserId = (location.state as { targetUserId?: string })?.targetUserId;
+    const state = location.state as Record<string, unknown> | null;
+    const targetUserId = state && typeof state.targetUserId === 'string' ? state.targetUserId : undefined;
     if (targetUserId && !selectedRecipient) {
       (async () => {
         try {
-          const { data } = await $api.get(`/users/${targetUserId}`);
+          const { data } = await $api.get<IUser>(`/users/${targetUserId}`);
           setSelectedRecipient({
             _id: data._id,
             username: data.username,

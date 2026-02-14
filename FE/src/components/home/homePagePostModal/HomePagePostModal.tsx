@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addComment, fetchComments } from '../../../redux/slices/commentsSlice';
-import { RootState, AppDispatch } from '../../../redux/store';
-import { $api } from '../../../api/api';
+import { fetchComments } from '../../../redux/slices/commentsSlice';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import styles from './HomePagePostModal.module.css';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import { FaHeart } from 'react-icons/fa';
 import commbtn from '../../../assets/comment_btn.svg';
 import CommentContent from '../../comments/commentContent/CommentContent';
+import EmojiPicker from '../../ui/emojiPicker/EmojiPicker';
+import { useOptimisticLike } from '../../../hooks/useOptimisticLike';
+import { useAddComment } from '../../../hooks/useAddComment';
+import { getAuthorInfo } from '../../../utils/author';
 import type { IPost, PostPreview } from '../../../interfaces/post.interface';
 
 type ModalPost = IPost | PostPreview;
@@ -18,148 +20,57 @@ interface ModalProps {
   onClose: () => void;
 }
 
-const EmojiPicker: React.FC<{ onSelectEmoji: (emoji: string) => void }> = ({
-  onSelectEmoji,
-}) => {
-  const [showEmojis, setShowEmojis] = useState(false);
-  const emojis = ['😊', '😂', '😍', '😢', '👍', '🔥', '💯', '👏', '🤔', '😎'];
-
-  const toggleEmojiPicker = () => {
-    setShowEmojis((prev) => {
-      const next = !prev;
-      if (next) setTimeout(() => setShowEmojis(false), 6000);
-      return next;
-    });
-  };
-
-  return (
-    <div className={styles.emojiDropdown}>
-      <button
-        type="button"
-        className={styles.emojiButton}
-        onClick={toggleEmojiPicker}
-      >
-        😊
-      </button>
-      {showEmojis && (
-        <div className={styles.emojiList}>
-          {emojis.map((emoji, i) => (
-            <span
-              key={i}
-              className={styles.emojiItem}
-              onClick={() => onSelectEmoji(emoji)}
-            >
-              {emoji}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
 const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const currentUser = useSelector((s: RootState) => s.auth.user);
+  const currentUser = useAppSelector((s) => s.auth.user);
 
-  const [newComment, setNewComment] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLiked, setIsLiked] = useState(
-    'isLikedByMe' in post ? !!post.isLikedByMe : false
+  const initLiked = 'isLikedByMe' in post ? !!post.isLikedByMe : false;
+  const initLikesCount = 'likesCount' in post && typeof post.likesCount === 'number' ? post.likesCount : 0;
+  const initCommentsCount = 'commentsCount' in post && typeof post.commentsCount === 'number' ? post.commentsCount : 0;
+
+  const [commentsCount, setCommentsCount] = useState<number>(initCommentsCount);
+
+  const { isLiked, likesCount, toggleLike } = useOptimisticLike(
+    post._id,
+    initLiked,
+    initLikesCount,
   );
-  const [likesCount, setLikesCount] = useState<number>(
-    'likesCount' in post && typeof post.likesCount === 'number'
-      ? post.likesCount
-      : 0
-  );
-  const [commentsCount, setCommentsCount] = useState<number>(
-    'commentsCount' in post && typeof post.commentsCount === 'number'
-      ? post.commentsCount
-      : 0
+
+  const { newComment, setNewComment, error, handleAddComment } = useAddComment(
+    post._id,
+    () => setCommentsCount((p) => p + 1),
   );
 
   useEffect(() => {
     dispatch(fetchComments(post._id));
-    setLikesCount(
-      'likesCount' in post && typeof post.likesCount === 'number'
-        ? post.likesCount
-        : 0
-    );
-    setCommentsCount(
-      'commentsCount' in post && typeof post.commentsCount === 'number'
-        ? post.commentsCount
-        : 0
-    );
+    if ('likesCount' in post && typeof post.likesCount === 'number') {
+      // sync on post change handled by hook initial state
+    }
+    if ('commentsCount' in post && typeof post.commentsCount === 'number') {
+      setCommentsCount(post.commentsCount);
+    }
 
-    const onEsc = (e: KeyboardEvent) => {
+    const onEsc = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, [dispatch, post, onClose]);
 
-  const handleAddComment = useCallback(async () => {
-    if (!currentUser?._id) {
-      setError('User not found');
-      return;
-    }
-    try {
-      await dispatch(
-        addComment({ postId: post._id, text: newComment.trim() })
-      ).unwrap();
-      setNewComment('');
-      setError(null);
-      setCommentsCount((p) => p + 1);
-    } catch {
-      setError('Error adding comment');
-    }
-  }, [dispatch, currentUser, newComment, post._id]);
-
-  const handleLikePost = useCallback(async () => {
-    if (!currentUser?._id) {
-      setError('User not found');
-      return;
-    }
-    const prevLiked = isLiked;
-    const prevCount = likesCount;
-    setIsLiked(!prevLiked);
-    setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
-    try {
-      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${post._id}`);
-      console.log('[Modal] like response:', data);
-      setIsLiked(data.liked);
-      setLikesCount(data.likesCount);
-    } catch (err) {
-      console.error('Ошибка при лайке поста:', err);
-      setIsLiked(prevLiked);
-      setLikesCount(prevCount);
-    }
-  }, [currentUser, post._id, isLiked, likesCount]);
-
-  // Автор 
-  const authorUsername =
-    'author' in post
-      ? typeof post.author === 'string'
-        ? 'User'
-        : post.author?.username ?? 'User'
-      : 'User';
-  const authorId =
-    'author' in post
-      ? typeof post.author === 'string'
-        ? post.author
-        : post.author?._id ?? ''
-      : '';
-  const authorImage =
-    'author' in post
-      ? typeof post.author === 'string'
-        ? undefined
-        : post.author?.profileImage
-      : undefined;
-
+  // Author info
+  const authorUsername = 'author' in post
+    ? getAuthorInfo(post.author).name
+    : 'User';
+  const authorId = 'author' in post
+    ? getAuthorInfo(post.author).id
+    : '';
+  const authorImage = 'author' in post
+    ? getAuthorInfo(post.author).image
+    : undefined;
   const description = 'description' in post ? post.description : undefined;
 
-  const goToAuthorProfile = () => {
+  const goToAuthorProfile = (): void => {
     if (authorId) {
       onClose();
       navigate(`/profile/${authorId}`);
@@ -208,16 +119,12 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
             <div className={styles.notifBox}>
               <div className={styles.modalContent_rightside_notifications}>
                 <span>
-                  <img
-                    src={commbtn}
-                    className={styles.commentIcon}
-                    alt="comment-button"
-                  />
+                  <img src={commbtn} className={styles.commentIcon} alt="comment-button" />
                   {commentsCount}
                 </span>
                 <span>
                   <FaHeart
-                    onClick={handleLikePost}
+                    onClick={toggleLike}
                     style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
                     size={18}
                   />
@@ -227,9 +134,7 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
             </div>
 
             <div className={styles.addCommentSection}>
-              <EmojiPicker
-                onSelectEmoji={(emoji) => setNewComment((p) => p + emoji)}
-              />
+              <EmojiPicker onSelectEmoji={(emoji) => setNewComment((p) => p + emoji)} />
               <input
                 type="text"
                 value={newComment}
@@ -245,7 +150,6 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
                 Submit
               </button>
             </div>
-
             {error && <p className={styles.errorText}>{error}</p>}
           </div>
         </div>

@@ -9,7 +9,7 @@ import {
   explorePosts,
 } from '../controllers/postController.js';
 import { protect } from '../middlewares/authMiddleware.js';
-import { upload, processImage } from "../middlewares/uploadImage.js"; //с оптимизацией
+import { uploadPost, processPostImage } from "../middlewares/upload.js";
 
 const router = Router();
 
@@ -17,10 +17,10 @@ const router = Router();
 router.get('/user/:userId', protect, getUserPosts);
 
 // /api/posts → создать пост
-router.post('/', protect, upload.single('image'), processImage, createPost);
+router.post('/', protect, uploadPost.single('image'), processPostImage, createPost);
 
 // /api/posts/:id → обновить пост
-router.put('/:id', protect, upload.single('image'), processImage, updatePost);
+router.put('/:id', protect, uploadPost.single('image'), processPostImage, updatePost);
 
 // /api/posts/:id → удалить пост
 router.delete('/:id', protect, deletePost);

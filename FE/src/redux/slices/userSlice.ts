@@ -5,25 +5,20 @@ import type {
   IUser,
   UpdateProfilePayload,
 } from '../../interfaces/user.interface';
-
-type ApiError = { message?: string };
-
+import type { ApiError } from '../../interfaces/api.interface';
 interface UserState {
   user: IUser[]; // список пользователей 
   currentUser: IUser | null;
   loading: boolean;
   error: string | null;
 }
-
 const initialState: UserState = {
   user: [],
   currentUser: null,
   loading: false,
   error: null,
 };
-
 /* ===================== THUNKS (роуты бэка) ===================== */
-
 // GET /users/:id — профиль пользователя (публичный)
 export const getUserById = createAsyncThunk<
   IUser,
@@ -42,7 +37,6 @@ export const getUserById = createAsyncThunk<
     return rejectWithValue('Ошибка загрузки пользователя');
   }
 });
-
 // PUT /users  (multipart) — обновление своего профиля
 export const updateProfile = createAsyncThunk<
   IUser,
@@ -59,7 +53,6 @@ export const updateProfile = createAsyncThunk<
     if (payload.website !== undefined) form.append('website', payload.website);
     if (payload.profileImageFile)
       form.append('profileImage', payload.profileImageFile);
-
     const { data } = await $api.put<IUser>('/users', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -73,7 +66,6 @@ export const updateProfile = createAsyncThunk<
     return rejectWithValue('Ошибка обновления профиля');
   }
 });
-
 // GET /follows/:userId/followers — получаем массив пользователей → считаем followersCount
 export const getFollowers = createAsyncThunk<
   number,
@@ -94,7 +86,6 @@ export const getFollowers = createAsyncThunk<
     return rejectWithValue('Ошибка загрузки подписчиков');
   }
 });
-
 // GET /follows/:userId/following — получаем массив пользователей → считаем followingCount
 export const getFollowing = createAsyncThunk<
   number,
@@ -115,9 +106,7 @@ export const getFollowing = createAsyncThunk<
     return rejectWithValue('Ошибка загрузки подписок');
   }
 });
-
 /* ===================== SLICE ===================== */
-
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -160,7 +149,6 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = payload ?? 'Ошибка загрузки пользователя';
       })
-
       // updateProfile
       .addCase(updateProfile.pending, (state) => {
         state.loading = true;
@@ -175,7 +163,6 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = payload ?? 'Ошибка обновления профиля';
       })
-
       // followers count
       .addCase(getFollowers.fulfilled, (state, { payload }) => {
         if (state.currentUser) state.currentUser.followersCount = payload;
@@ -186,7 +173,5 @@ const userSlice = createSlice({
       });
   },
 });
-
 export const { changeTimeInLastMessage, clearUserState } = userSlice.actions;
 export default userSlice.reducer;
-

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../../redux/hooks';
 import { Link, useNavigate } from 'react-router-dom';
 import { HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 import CustomButton from '../../ui/customButton/CustomButton';
@@ -17,7 +17,7 @@ type LoginResponse = { token: string; user: AuthUser };
 
 export const LoginForm = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [userObject, setUserObject] = useState<LoginPayload>({ emailOrUsername: '', password: '' });
   const [showLoginError, setShowLoginError] = useState(false);

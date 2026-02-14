@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios';
 import { $api } from '../../api/api';
 import type { IPost, PostPreview } from '../../interfaces/post.interface';
 
-type ApiError = { message?: string };
+import type { ApiError } from '../../interfaces/api.interface';
 
 interface PostsState {
   posts: IPost[]; // лента: GET /posts

@@ -13,9 +13,8 @@
 
 .otherProfile {
   display: flex;
-  padding: 30px 0 0 20px;
+  padding: 30px 40px 0;
   gap: 95px;
-  justify-content: center;
   width: 100%;
 }
 
@@ -69,7 +68,7 @@
 .gradient_border_inner > img {
   width: 164px;
   height: 164px;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .otherProfile_rightside {
@@ -114,54 +113,66 @@
 
 @media (max-width: 1200px) {
   .otherProfile {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    padding: 30px 25px 0;
+    gap: 40px;
+  }
+
+  .otherProfile_rightside {
+    width: auto;
+    flex: 1;
+  }
+
+  .gradient_border_inner {
+    width: 120px;
+    height: 120px;
+  }
+
+  .gradient_border_inner > img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .gradient_border {
+    height: 128px;
   }
 }
 @media (max-width: 765px) {
   .otherProfile {
-    padding: 0;
-    gap: 0px;
-    justify-content: center;
-    align-items: center;
+    padding: 16px;
+    gap: 16px;
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .otherProfile_rightside {
+    width: auto;
+    flex: 1;
   }
   .otherProfile_rightside_btnBox {
     width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .webLink {
-    margin-left: 50px;
-    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .otherProfile_rightside_btnBox > button {
     padding: 5px 15px;
-    width: 80%;
   }
   .otherProfile_statistic {
-    max-width: 90vw;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
-    margin-left: 20px;
+    justify-content: flex-start;
+    gap: 16px;
+    font-size: 14px;
   }
   .otherProfile_statisticBio {
-    max-width: 85vw;
-    justify-content: center;
-    align-items: center;
-    padding-left: 15px;
+    width: 100%;
   }
   .gradient_border_inner {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
   }
-  .gradient_border::before {
-    max-width: 62%;
-    max-height: 62%;
-    border-radius: 50%;
-    justify-content: center;
-    align-items: center;
+  .gradient_border_inner > img {
+    width: 76px;
+    height: 76px;
+  }
+  .gradient_border {
+    height: 84px;
+    min-width: 80px;
   }
 }

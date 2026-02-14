@@ -1,174 +1,109 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { $api } from '../../../api/api';
 import { IFollowItem } from '../../../interfaces/follow.interface';
 import HomePostModal from '../homePagePostModal/HomePagePostModal';
 import styles from './HomePagePosts.module.css';
 import PostItem from '../postItem/PostItem';
+import { useAppSelector } from '../../../redux/hooks';
 import type { IPost } from '../../../interfaces/post.interface';
+import { getAuthorInfo } from '../../../utils/author';
 
-type State = {
-  posts: IPost[];
-  loading: boolean;
-  error: string | null;
-  likesCounts: Record<string, number>;
-  selectedPost: IPost | null;
-  followingList: string[] | null; // массив userId, на кого я подписан
-};
+const HomePagePosts: React.FC = () => {
+  const currentUser = useAppSelector((s) => s.auth.user);
+  const myId = currentUser?._id ?? '';
 
-class HomePagePosts extends React.Component<{}, State> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      posts: [],
-      loading: true,
-      error: null,
-      likesCounts: {},
-      followingList: null,
-      selectedPost: null,
-    };
-  }
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [likesCounts, setLikesCounts] = useState<Record<string, number>>({});
+  const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
+  const [followingList, setFollowingList] = useState<string[] | null>(null);
 
-  componentDidMount() {
-    this.getAllPosts();
-    this.handleCheckMyFollowing();
-  }
-
-  getAllPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
-      // бэк: GET /posts — лента
       const { data } = await $api.get<IPost[]>('/posts');
 
-      // если исключать свои — достанем userId из localStorage.user
-      const meId = (() => {
-        try {
-          const raw = localStorage.getItem('user');
-          if (!raw) return '';
-          const parsed = JSON.parse(raw) as { _id?: string };
-          return parsed?._id ?? '';
-        } catch {
-          return '';
-        }
-      })();
-
-      const filtered = data.filter(p => {
-        const authorId = typeof p.author === 'string' ? p.author : p.author?._id;
-        return authorId !== meId;
+      const filtered = data.filter((p) => {
+        const { id: authorId } = getAuthorInfo(p.author);
+        return authorId !== myId;
       });
-
-      // DEBUG: проверяем данные с бэка
-      if (filtered.length > 0) {
-        console.log('[HomePagePosts] first post data:', {
-          _id: filtered[0]._id,
-          likesCount: filtered[0].likesCount,
-          commentsCount: filtered[0].commentsCount,
-          isLikedByMe: filtered[0].isLikedByMe,
-          author: filtered[0].author,
-        });
-      }
 
       const initialLikesCounts = filtered.reduce<Record<string, number>>((acc, p) => {
         acc[p._id] = p.likesCount ?? 0;
         return acc;
       }, {});
 
-      this.setState({
-        posts: filtered,
-        likesCounts: initialLikesCounts,
-        loading: false,
-      });
-    } catch (error) {
-      this.setState({ error: 'Error loading feed', loading: false });
+      setPosts(filtered);
+      setLikesCounts(initialLikesCounts);
+      setLoading(false);
+    } catch {
+      setError('Error loading feed');
+      setLoading(false);
     }
-  };
+  }, [myId]);
 
-  handleLikesCountChange = (postId: string, newCount: number) => {
-    this.setState(prev => ({
-      likesCounts: { ...prev.likesCounts, [postId]: newCount },
-    }));
-  };
-
-  openModal = (post: IPost) => {
-    this.setState({ selectedPost: post });
-  };
-
-  closeModal = () => {
-    this.setState({ selectedPost: null });
-  };
-
-  handleCheckMyFollowing = async () => {
-    // токен несёт юзера; 
-    const meId = (() => {
-      try {
-        const raw = localStorage.getItem('user');
-        if (!raw) return '';
-        const parsed = JSON.parse(raw) as { _id?: string };
-        return parsed?._id ?? '';
-      } catch {
-        return '';
-      }
-    })();
-
-    if (!meId) return;
-
+  const fetchFollowing = useCallback(async () => {
+    if (!myId) return;
     try {
-      // бэк: GET /follows/:userId/following → IFollowItem[]
-      const { data } = await $api.get<IFollowItem[]>(`/follows/${meId}/following`);
-      const ids = data.map(u => u._id);
-      this.setState({ ...this.state, followingList: ids });
-    } catch (error) {
-      console.error('Ошибка при проверке подписки:', error);
+      const { data } = await $api.get<IFollowItem[]>(`/follows/${myId}/following`);
+      setFollowingList(data.map((u) => u._id));
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Following fetch error:', err.message);
     }
-  };
+  }, [myId]);
 
-  handleRemoveSomeFollow = (userId: string) => {
-    if (this.state.followingList) {
-      this.setState({
-        ...this.state,
-        followingList: this.state.followingList.filter(id => id !== userId),
-      });
-    }
-  };
+  useEffect(() => {
+    fetchPosts();
+    fetchFollowing();
+  }, [fetchPosts, fetchFollowing]);
 
-  handleAddSomeFollow = (userId: string) => {
-    if (this.state.followingList) {
-      this.setState({
-        ...this.state,
-        followingList: [...this.state.followingList, userId],
-      });
-    }
-  };
+  const handleLikesCountChange = useCallback((postId: string, newCount: number) => {
+    setLikesCounts((prev) => ({ ...prev, [postId]: newCount }));
+  }, []);
 
-  render() {
-    const { posts, loading, error, likesCounts, selectedPost } = this.state;
+  const openModal = useCallback((post: IPost) => {
+    setSelectedPost(post);
+  }, []);
 
-    if (loading) return <p>loading...</p>;
-    if (error) return <p>{error}</p>;
+  const closeModal = useCallback(() => {
+    setSelectedPost(null);
+  }, []);
 
-    return (
-      <div style={{ display: 'flex' }}>
-        <div>
-          <ul className={styles.postsContainer}>
-            {posts.map(post => (
-              <PostItem
-                key={post._id}
-                item={post}
-                likesCount={likesCounts[post._id] || 0}
-                setLikesCount={this.handleLikesCountChange}
-                onClick={() => this.openModal(post)}
-                listFollowing={this.state.followingList}
-                handleRemoveSomeFollow={this.handleRemoveSomeFollow}
-                handleAddSomeFollow={this.handleAddSomeFollow}
-              />
-            ))}
-          </ul>
+  const handleRemoveSomeFollow = useCallback((userId: string) => {
+    setFollowingList((prev) => prev ? prev.filter((id) => id !== userId) : prev);
+  }, []);
 
-          {selectedPost && (
-            <HomePostModal post={selectedPost} onClose={this.closeModal} />
-          )}
-        </div>
+  const handleAddSomeFollow = useCallback((userId: string) => {
+    setFollowingList((prev) => prev ? [...prev, userId] : [userId]);
+  }, []);
+
+  if (loading) return <p>loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  return (
+    <div style={{ display: 'flex' }}>
+      <div>
+        <ul className={styles.postsContainer}>
+          {posts.map((post) => (
+            <PostItem
+              key={post._id}
+              item={post}
+              likesCount={likesCounts[post._id] || 0}
+              setLikesCount={handleLikesCountChange}
+              onClick={() => openModal(post)}
+              listFollowing={followingList}
+              handleRemoveSomeFollow={handleRemoveSomeFollow}
+              handleAddSomeFollow={handleAddSomeFollow}
+            />
+          ))}
+        </ul>
+
+        {selectedPost && (
+          <HomePostModal post={selectedPost} onClose={closeModal} />
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default HomePagePosts;

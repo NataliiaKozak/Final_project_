@@ -15,21 +15,66 @@ import createIcon from '../../../assets/create.svg';
 import createIconActive from '../../../assets/create-active.svg';
 
 import CustomModal from '../../ui/customModal/CustomModal';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import SearchContent from '../../search/searchContent/SearchContent';
 import CreatePostPage from '../../../pages/createPostPage/CreatePostPage';
 import NotificationsBar from '../../notifications/notificationsBar/NotificationsBar';
+import { connectSocket, getSocket, disconnectSocket } from '../../../api/socket';
 
 const Menubar = () => {
   const location = useLocation();
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   // Закрываем модалку при любом переходе (включая Profile)
   useEffect(() => {
     setActivePanel(null);
     setModalContent(null);
   }, [location.pathname]);
+
+  // Сбрасываем счётчик при переходе на Messages
+  useEffect(() => {
+    if (location.pathname === '/messages') {
+      setUnreadMessages(0);
+    }
+  }, [location.pathname]);
+
+  // Глобальное подключение сокета для отслеживания новых сообщений
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const apiBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/api\/?$/, '');
+    connectSocket(apiBaseUrl, token);
+
+    const checkSocket = () => {
+      const socket = getSocket();
+      if (!socket) return;
+
+      const handler = () => {
+        // Увеличиваем счётчик только если НЕ на странице сообщений
+        if (window.location.pathname !== '/messages') {
+          setUnreadMessages((prev) => prev + 1);
+        }
+      };
+
+      socket.on('receiveMessage', handler);
+      return () => {
+        socket.off('receiveMessage', handler);
+      };
+    };
+
+    // Даём сокету время на подключение
+    const timer = setTimeout(checkSocket, 500);
+    const cleanup = checkSocket();
+
+    return () => {
+      clearTimeout(timer);
+      cleanup?.();
+    };
+  }, []);
+
   const [modalSize, setModalSize] = useState<'default' | 'left' | 'large' | 'small'>('default');
 
   const openModal = (type: string) => {
@@ -93,11 +138,18 @@ const Menubar = () => {
         )}
       </NavLink>
 
-      <NavLink to="/messages" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
+      <NavLink
+        to="/messages"
+        className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+        onClick={() => setUnreadMessages(0)}
+      >
         {({ isActive }) => (
           <>
             <img src={isActive ? messagesIconActive : messagesIcon} alt="Messages" />
             <span>Messages</span>
+            {unreadMessages > 0 && (
+              <span className={styles.badge}>{unreadMessages}</span>
+            )}
           </>
         )}
       </NavLink>

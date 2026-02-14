@@ -66,8 +66,6 @@ export const getProfile = async (
 //  Обновление профиля
 export const updateProfile = async (req: RequestWithUser, res: Response) => {
   try {
-    //TEMP
-    console.log('[PUT /api/users] has file?', !!req.file, req.file?.mimetype, req.file?.size);
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 

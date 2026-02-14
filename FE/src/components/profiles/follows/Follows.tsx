@@ -1,5 +1,4 @@
-//виджет «followers / following»
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useCallback } from 'react';
 import { $api } from '../../../api/api';
 import { ILocalFollow } from '../../../interfaces/follow.interface';
 import styles from './follows.module.css';
@@ -11,29 +10,28 @@ interface IFollowPanel {
 }
 
 const FollowsPanel: FC<IFollowPanel> = ({ userId, follow, setFollow }) => {
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const [followersRes, followingRes] = await Promise.all([
-          $api.get(`/follows/${userId}/followers`),
-          $api.get(`/follows/${userId}/following`),
-        ]);
-        const followersCount = Array.isArray(followersRes.data) ? followersRes.data.length : 0;
-        const followingCount = Array.isArray(followingRes.data) ? followingRes.data.length : 0;
-        setFollow({
-          followers: followersCount,
-          following: followingCount,
-        });
-      } catch (error) {
-        console.error('Error fetching follow counts:', error);
-      }
-    };
+  const fetchCounts = useCallback(async () => {
+    try {
+      const [followersRes, followingRes] = await Promise.all([
+        $api.get(`/follows/${userId}/followers`),
+        $api.get(`/follows/${userId}/following`),
+      ]);
+      const followersCount = Array.isArray(followersRes.data) ? followersRes.data.length : 0;
+      const followingCount = Array.isArray(followingRes.data) ? followingRes.data.length : 0;
+      setFollow({
+        followers: followersCount,
+        following: followingCount,
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Follow counts error:', err.message);
+    }
+  }, [userId, setFollow]);
 
+  useEffect(() => {
     if (follow.followers === 'Loading...' || follow.following === 'Loading...') {
       fetchCounts();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, follow.followers, follow.following, fetchCounts]);
 
   return (
     <>

@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
+import { ENV } from "./src/config/env.js";
 
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
@@ -13,21 +14,16 @@ import notificationRoutes from "./src/routes/notificationRoutes.js";
 
 const app: Application = express();
 
-// cors. Разрешить только фронту с 5173 порта
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173', 
+  origin: ENV.CLIENT_URL,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  credentials: true, 
+  credentials: true,
 }));
 
-app.use(express.json());// для JSON
-app.use(express.urlencoded({ extended: true }));// для форм
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-// роуты
-app.get('/api/data', (req: Request, res: Response) => {
-  res.json({ message: 'CORS работает!' });
-});
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
@@ -38,17 +34,15 @@ app.use("/api/follows", followRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-// обработчик "не найдено" (404)
+// 404 handler
 app.use((req: Request, res: Response) => {
-  res.status(404).json({ message: "Страница не найдена" });
+  res.status(404).json({ message: "Not found" });
 });
 
-// обработчик ошибок
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error("Ошибка сервера:", err.message);
-  res.status(500).json({ message: "Ошибка сервера", error: err.message });
+// Global error handler
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("Server error:", err.message);
+  res.status(500).json({ message: "Internal server error" });
 });
 
 export default app;
-
-

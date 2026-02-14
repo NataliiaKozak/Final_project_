@@ -1,18 +1,19 @@
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, useEffect, useCallback, MouseEvent } from 'react';
 import { FaHeart, FaRegComment } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '../../ui/customButton/CustomButton';
 import { $api } from '../../../api/api';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import parseData from '../../../helpers/parseData';
-import { RootState } from '../../../redux/store';
+import { useAppSelector } from '../../../redux/hooks';
+import { useOptimisticLike } from '../../../hooks/useOptimisticLike';
+import { getAuthorInfo } from '../../../utils/author';
 import styles from './PostItem.module.css';
 
 import type { IPost } from '../../../interfaces/post.interface';
 
-type PostItemProps = {
+interface PostItemProps {
   item: IPost;
   likesCount: number;
   setLikesCount: (postId: string, newCount: number) => void;
@@ -20,66 +21,49 @@ type PostItemProps = {
   listFollowing: string[] | null;
   handleRemoveSomeFollow: (userId: string) => void;
   handleAddSomeFollow: (userId: string) => void;
-};
+}
 
 const PostItem: React.FC<PostItemProps> = ({
   item,
-  likesCount,
+  likesCount: externalLikesCount,
   setLikesCount,
   onClick,
   listFollowing,
   handleAddSomeFollow,
   handleRemoveSomeFollow,
 }) => {
-  const [isLiked, setIsLiked] = useState(item.isLikedByMe ?? false);
   const navigate = useNavigate();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser = useAppSelector((s) => s.auth.user);
   const myId = currentUser?._id ?? '';
 
-  const authorId = typeof item.author === 'string' ? item.author : (item.author?._id ?? '');
-  const authorName = typeof item.author === 'string' ? 'User' : (item.author?.username ?? 'User');
-  const authorAvatar = typeof item.author === 'string' ? undefined : item.author?.profileImage;
+  const { id: authorId, name: authorName, image: authorAvatar } = getAuthorInfo(item.author);
+
+  const { isLiked, toggleLike } = useOptimisticLike(
+    item._id,
+    item.isLikedByMe ?? false,
+    externalLikesCount,
+    setLikesCount,
+  );
 
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
 
-  // инициализируем флаг подписки из списка (хук ДО условных return)
   useEffect(() => {
     if (listFollowing && authorId) {
       setIsFollowing(listFollowing.includes(authorId));
     }
   }, [authorId, listFollowing]);
 
-  const goToProfile = (e: MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/profile/${authorId}`);
-  };
+  const goToProfile = useCallback(
+    (e: MouseEvent) => {
+      e.stopPropagation();
+      navigate(`/profile/${authorId}`);
+    },
+    [navigate, authorId],
+  );
 
-  // если автор — я, не показываем карточку
   if (!currentUser) return null;
   if (authorId === myId) return null;
 
-  // лайк — toggle на бэке (оптимистичное обновление)
-  const handleLike = async () => {
-    const prevLiked = isLiked;
-    const prevCount = likesCount;
-    // мгновенно переключаем UI
-    setIsLiked(!prevLiked);
-    setLikesCount(item._id, prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
-    try {
-      const { data } = await $api.post<{ liked: boolean; likesCount: number }>(`/likes/post/${item._id}`);
-      console.log('[PostItem] like response:', data);
-      // синхронизируем с сервером
-      setIsLiked(data.liked);
-      setLikesCount(item._id, data.likesCount);
-    } catch (error) {
-      console.error('Ошибка при изменении лайка:', error);
-      // откатываем
-      setIsLiked(prevLiked);
-      setLikesCount(item._id, prevCount);
-    }
-  };
-
-  // follow / unfollow — бэк: /follows/:userId/(un)follow
   const handleFollow = async () => {
     if (!authorId) return;
     try {
@@ -88,8 +72,8 @@ const PostItem: React.FC<PostItemProps> = ({
         setIsFollowing(true);
         handleAddSomeFollow(authorId);
       }
-    } catch (error) {
-      console.error('Ошибка при подписке:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Follow error:', err.message);
     }
   };
 
@@ -101,8 +85,8 @@ const PostItem: React.FC<PostItemProps> = ({
         setIsFollowing(false);
         handleRemoveSomeFollow(authorId);
       }
-    } catch (error) {
-      console.error('Ошибка при отписке:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Unfollow error:', err.message);
     }
   };
 
@@ -156,11 +140,11 @@ const PostItem: React.FC<PostItemProps> = ({
             style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
             onClick={(e) => {
               e.stopPropagation();
-              handleLike();
+              toggleLike();
             }}
             size={20}
           />
-          <span className={styles.likesCount}>{likesCount} likes</span>
+          <span className={styles.likesCount}>{externalLikesCount} likes</span>
           <FaRegComment className="text-gray-500" size={20} />
         </div>
 
@@ -176,4 +160,4 @@ const PostItem: React.FC<PostItemProps> = ({
   );
 };
 
-export default PostItem;
+export default React.memo(PostItem);

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../../redux/store';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { getOtherUserPosts } from '../../../redux/slices/postsSlice';
 import PostModal from '../postModal/PostModal';
 import type { IPost } from '../../../interfaces/post.interface';
 import styles from './postList2.module.css';
 
 const PostsList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const authUser = useSelector((state: RootState) => state.auth.user);
-  const { otherUserPosts, loading, error } = useSelector((state: RootState) => state.posts);
+  const dispatch = useAppDispatch();
+  const authUser = useAppSelector((s) => s.auth.user);
+  const { otherUserPosts, loading, error } = useAppSelector((s) => s.posts);
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null);
 
   useEffect(() => {

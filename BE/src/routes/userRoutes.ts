@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { getProfile, updateProfile } from '../controllers/userController.js';
 import { protect } from '../middlewares/authMiddleware.js';
-import { upload } from '../middlewares/uploadMiddleware.js';
+import { uploadAvatar } from '../middlewares/upload.js';
 
 const router = Router();
 
-// /api/users/:id → получить профиль → получить профиль (открытый маршрут)
+// /api/users/:id → получить профиль
 router.get('/:id', protect, getProfile);
 
-// /api/users → обновить профиль (аватар и данные) → обновить профиль (защищённый маршрут), middleware проверяет JWT
-router.put('/', protect, upload.single('profileImage'), updateProfile);
+// /api/users → обновить профиль (аватар и данные)
+router.put('/', protect, uploadAvatar.single('profileImage'), updateProfile);
 
 export default router;

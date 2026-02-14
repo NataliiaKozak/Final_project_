@@ -1,27 +1,21 @@
 import http from 'http';
-import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import app from './app.js';
 import connectDB from './src/config/db.js';
 import { verifySocketToken } from './src/config/jwt.js';
+import { ENV } from './src/config/env.js';
 import Message from './src/models/MessageModel.js';
 
-dotenv.config();
-
-const PORT: number = Number(process.env.PORT) || 3000;
-
-// HTTP-сервер поверх Express
 const server = http.createServer(app);
 
-// Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: ENV.CLIENT_URL,
     credentials: true,
   },
 });
 
-// JWT-аутентификация сокетов
+// JWT authentication for sockets
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth.token as string | undefined;
@@ -37,22 +31,18 @@ io.use((socket, next) => {
   }
 });
 
-// Socket-события
 io.on('connection', (socket) => {
   console.log('User connected:', socket.data.userId);
 
-  // Подключение к комнате (1:1 чат)
   socket.on('joinRoom', ({ targetUserId }: { targetUserId: string }) => {
-    const userId = socket.data.userId;
+    const userId: string = socket.data.userId;
     const roomId = [userId, targetUserId].sort().join('_');
     socket.join(roomId);
-    console.log(`User ${userId} joined room ${roomId}`);
   });
 
-  // Отправка сообщения через сокет
   socket.on('sendMessage', async ({ targetUserId, text }: { targetUserId: string; text: string }) => {
     try {
-      const senderId = socket.data.userId;
+      const senderId: string = socket.data.userId;
       const roomId = [senderId, targetUserId].sort().join('_');
 
       const message = new Message({
@@ -67,11 +57,11 @@ io.on('connection', (socket) => {
         { path: 'recipient', select: 'username profileImage' },
       ]);
 
-      // Отправляем всем в комнате (включая отправителя)
       io.to(roomId).emit('receiveMessage', populated);
-    } catch (err) {
-      console.error('Ошибка при отправке сообщения:', err);
-      socket.emit('error', { message: 'Не удалось отправить сообщение' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Message send error:', msg);
+      socket.emit('error', { message: 'Failed to send message' });
     }
   });
 
@@ -80,14 +70,14 @@ io.on('connection', (socket) => {
   });
 });
 
-// Запуск
 connectDB()
   .then(() => {
-    server.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+    server.listen(ENV.PORT, () => {
+      console.log(`Server running on http://localhost:${ENV.PORT}`);
     });
   })
-  .catch((err) => {
-    console.error('DB connection failed:', err);
+  .catch((err: unknown) => {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('DB connection failed:', msg);
     process.exit(1);
   });

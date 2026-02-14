@@ -1,11 +1,10 @@
 import styles from './profileLink.module.css';
 import { NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../../redux/store';
+import { useAppSelector } from '../../../redux/hooks';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 
 const ProfileLink = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAppSelector((s) => s.auth.user);
 
   return (
     <nav className={styles.profileLink}>

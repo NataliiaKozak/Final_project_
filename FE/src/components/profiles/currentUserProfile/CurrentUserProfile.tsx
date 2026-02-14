@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { useNavigate } from 'react-router-dom';
 
 import CustomButton from '../../ui/customButton/CustomButton';
@@ -8,14 +8,13 @@ import { logout } from '../../../redux/slices/authSlice';
 import { getUserById } from '../../../redux/slices/userSlice';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import { ILocalFollow } from '../../../interfaces/follow.interface';
-import type { AppDispatch, RootState } from '../../../redux/store';
 import styles from './currentUserProfile.module.css';
 import web from '../../../assets/web.svg';
 
 const CurrentUserProfile: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const currentUser = useSelector((state: RootState) => state.user.currentUser);
-  const dispatch = useDispatch<AppDispatch>();
+  const user = useAppSelector((s) => s.auth.user);
+  const currentUser = useAppSelector((s) => s.user.currentUser);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {

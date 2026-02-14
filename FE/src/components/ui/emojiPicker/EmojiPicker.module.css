@@ -1,0 +1,59 @@
+.emojiDropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.emojiButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding-left: 16px;
+}
+
+.emojiButton:hover {
+  transform: scale(1.2);
+}
+
+.emojiList {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  width: 300px;
+  height: 150px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.emojiItem {
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.emojiItem:hover {
+  transform: scale(1.3);
+}
+
+.emojiList::-webkit-scrollbar {
+  height: 5px;
+}
+
+.emojiList::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.emojiList::-webkit-scrollbar-track {
+  background: transparent;
+}

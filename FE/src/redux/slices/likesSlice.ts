@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { isAxiosError } from 'axios';
 import { $api } from '../../api/api';
 
-type ApiError = { message?: string };
+import type { ApiError } from '../../interfaces/api.interface';
 
 interface LikesState {
   byPostId: Record<string, boolean>;    // локальный флаг "я лайкнул этот пост"

@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaHeart } from 'react-icons/fa';
-import { AppDispatch, RootState } from '../../../redux/store';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchComments, likeComment } from '../../../redux/slices/commentsSlice';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import styles from './commentContent.module.css';
@@ -14,34 +13,37 @@ interface CommentContentProps {
 }
 
 const isPopulatedUser = (
-  u: IComment['user']
+  u: IComment['user'],
 ): u is { _id: string; username: string; profileImage?: string } =>
   typeof u !== 'string';
 
 const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const comments = useSelector((s: RootState) => s.comments.comments);
-  const loading = useSelector((s: RootState) => s.comments.loading);
-  const currentUser = useSelector((s: RootState) => s.auth.user);
-  const myId = currentUser?._id ?? '';
+  const comments = useAppSelector((s) => s.comments.comments);
+  const loading = useAppSelector((s) => s.comments.loading);
+  const myId = useAppSelector((s) => s.auth.user?._id) ?? '';
 
-  const goToProfile = (userId: string) => {
-    navigate(`/profile/${userId}`);
-  };
+  const goToProfile = useCallback(
+    (userId: string) => navigate(`/profile/${userId}`),
+    [navigate],
+  );
 
   useEffect(() => {
     dispatch(fetchComments(postId));
   }, [dispatch, postId]);
 
-  const handleLikeComment = async (commentId: string) => {
-    try {
-      await dispatch(likeComment({ commentId })).unwrap();
-      dispatch(fetchComments(postId));
-    } catch (err) {
-      console.error('Ошибка при лайке комментария:', err);
-    }
-  };
+  const handleLikeComment = useCallback(
+    async (commentId: string) => {
+      try {
+        await dispatch(likeComment({ commentId })).unwrap();
+        dispatch(fetchComments(postId));
+      } catch (err: unknown) {
+        if (err instanceof Error) console.error('Comment like error:', err.message);
+      }
+    },
+    [dispatch, postId],
+  );
 
   if (loading) return <p>Loading comments...</p>;
 
@@ -65,7 +67,9 @@ const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
                 <strong
                   onClick={() => u && goToProfile(u._id)}
                   style={{ cursor: u ? 'pointer' : undefined }}
-                >{u?.username || 'Anonymous'}</strong>
+                >
+                  {u?.username || 'Anonymous'}
+                </strong>
                 {' · '}
                 {parseData(comment.createdAt)}
               </p>
@@ -88,4 +92,4 @@ const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
   );
 };
 
-export default CommentContent;
+export default React.memo(CommentContent);

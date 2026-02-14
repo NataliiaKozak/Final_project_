@@ -1,5 +1,4 @@
-import styles from '../notificationsBar/notificationsBar.module.css';
-import { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserByIdApi } from '../../../api/services/usersService';
 import { $api } from '../../../api/api';
@@ -7,6 +6,14 @@ import parseData from '../../../helpers/parseData';
 import type { Notification } from '../../../interfaces/notification.interface';
 import type { IUser } from '../../../interfaces/user.interface';
 import profilePlaceholder from '../../../assets/profile-placeholder.svg';
+import styles from '../notificationsBar/notificationsBar.module.css';
+
+const TYPE_TEXT: Record<Notification['type'], string> = {
+  liked_post: 'liked your post',
+  liked_comment: 'liked your comment',
+  commented_post: 'commented on your post',
+  followed_user: 'started following you',
+};
 
 const NotificationItem: FC<Notification> = ({
   _id,
@@ -17,63 +24,55 @@ const NotificationItem: FC<Notification> = ({
 }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<IUser | null>(null);
-  const [read, setRead] = useState<boolean>(isRead);
+  const [read, setRead] = useState(isRead);
 
-  // sender по интерфейсу: string | { _id; username; profileImage? }
   useEffect(() => {
-    const loadSender = async () => {
-      if (typeof sender === 'string') {
-        const data = await getUserByIdApi(sender);
-        setUser(data);
-      } else {
-        // контроллер может прислать популяцию
-        setUser({
-          _id: sender._id,
-          username: sender.username,
-          profileImage: sender.profileImage,
-          email: '',       // обязательные поля IUser, которых нет в уведомлении
-          fullName: '',    // безопасные заглушки — не отображаются
-        });
-      }
-    };
-    loadSender();
+    if (typeof sender === 'string') {
+      getUserByIdApi(sender).then(setUser);
+    } else {
+      setUser({
+        _id: sender._id,
+        username: sender.username,
+        profileImage: sender.profileImage,
+        email: '',
+        fullName: '',
+      });
+    }
   }, [sender]);
 
-  const handleReadNotification = async () => {
+  const handleRead = useCallback(async () => {
     try {
-      // Пометить одно уведомление прочитанным.
-      // Поле в интерфейсе: isRead
       await $api.patch(`/notifications/${_id}`, { isRead: true });
       setRead(true);
-    } catch (error) {
-      console.error('Ошибка при чтении уведомления:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) console.error('Notification read error:', err.message);
     }
-  };
+  }, [_id]);
 
-  const username = user?.username ?? 'User';
-  const avatar = user?.profileImage || profilePlaceholder;
-
-  // текст на основе типа 
-  const typeTextMap: Record<Notification['type'], string> = {
-    liked_post: 'liked your post',
-    liked_comment: 'liked your comment',
-    commented_post: 'commented on your post',
-    followed_user: 'started following you',
-  };
-  const contentText = typeTextMap[type];
+  const goToProfile = useCallback(() => {
+    if (user) navigate(`/profile/${user._id}`);
+  }, [navigate, user]);
 
   if (!user) return <li className={styles.notificationItem}>Loading...</li>;
 
   return (
     <li
       className={styles.notificationItem}
-      style={{ background: !read ? '#f3f3f3' : '#FFF' }}
+      style={{ background: read ? '#FFF' : '#f3f3f3' }}
     >
-      <div className={styles.userAvatar_box} onClick={() => user && navigate(`/profile/${user._id}`)} style={{ cursor: 'pointer' }}>
-        <img src={avatar} alt={username} className={styles.avatar} />
+      <div
+        className={styles.userAvatar_box}
+        onClick={goToProfile}
+        style={{ cursor: 'pointer' }}
+      >
+        <img
+          src={user.profileImage || profilePlaceholder}
+          alt={user.username}
+          className={styles.avatar}
+        />
         <div>
           <p>
-            <span className={styles.userName}>{username}</span> {contentText}
+            <span className={styles.userName}>{user.username}</span> {TYPE_TEXT[type]}
           </p>
           <p className={styles.parsedData}>{parseData(createdAt)}</p>
         </div>
@@ -81,7 +80,7 @@ const NotificationItem: FC<Notification> = ({
 
       <div>
         {!read && (
-          <button className={styles.notBtn} onClick={handleReadNotification}>
+          <button className={styles.notBtn} onClick={handleRead}>
             Read
           </button>
         )}
@@ -90,4 +89,4 @@ const NotificationItem: FC<Notification> = ({
   );
 };
 
-export default NotificationItem;
+export default React.memo(NotificationItem);

@@ -21,7 +21,8 @@
   background-color: var(--color-bg-light-grey);
 }
 
-.recieversList_userBox.active {
+.recieversList_userBox.active,
+.active {
   background-color: var(--color-bg-dark-grey);
 }
 

@@ -1,16 +1,15 @@
 import styles from './notificationsBar.module.css';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { $api } from '../../../api/api';
+import { useAppSelector } from '../../../redux/hooks';
 import type { Notification } from '../../../interfaces/notification.interface';
-import type { RootState } from '../../../redux/store';
 import NotificationItem from '../item/item';
 
 const NotificationsBar = () => {
   const [notifications, setNotifications] = useState<Notification[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useAppSelector((s) => s.auth.token);
 
   useEffect(() => {
     const fetchNotifications = async () => {

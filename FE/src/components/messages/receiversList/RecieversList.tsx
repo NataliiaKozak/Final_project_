@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../../redux/store';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchAllConversations } from '../../../redux/slices/messagesSlice';
 import type { IMessage } from '../../../interfaces/message.interface';
 import type { IUser } from '../../../interfaces/user.interface';
@@ -19,9 +18,9 @@ function isPopulatedUser(
 }
 
 const RecieversList: React.FC<RecieversListProps> = ({ onSelectRecipient, selectedRecipient }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const authUser = useSelector((s: RootState) => s.auth.user);
-  const { items, loading, error } = useSelector((s: RootState) => s.messages);
+  const dispatch = useAppDispatch();
+  const authUser = useAppSelector((s) => s.auth.user);
+  const { items, loading, error } = useAppSelector((s) => s.messages);
 
   useEffect(() => {
     if (authUser?._id) {
@@ -61,28 +60,28 @@ const RecieversList: React.FC<RecieversListProps> = ({ onSelectRecipient, select
   }, [items, authUser?._id]);
 
   return (
-    <aside className={styles.list}>
-      <div className={styles.header}>Dialogs</div>
+    <aside className={styles.recieversList}>
+      <h4>Dialogs</h4>
 
-      {loading && <div className={styles.status}>Loading...</div>}
-      {error && <div className={styles.error}>{error}</div>}
+      {loading && <p style={{ padding: '8px 20px', fontSize: 14 }}>Loading...</p>}
+      {error && <p style={{ padding: '8px 20px', fontSize: 14, color: 'red' }}>{error}</p>}
 
-      <ul className={styles.items}>
+      <ul>
         {recipients.map((u) => {
           const active = selectedRecipient?._id === u._id;
           return (
             <li
               key={u._id}
-              className={`${styles.item} ${active ? styles.active : ''}`}
+              className={`${styles.recieversList_userBox} ${active ? styles.active : ''}`}
               onClick={() => onSelectRecipient(u)}
             >
               <img
                 src={u.profileImage || profilePlaceholder}
                 alt={u.username}
-                className={styles.avatar}
+                className={styles.userBox_img}
               />
-              <div className={styles.meta}>
-                <div className={styles.username}>{u.username}</div>
+              <div className={styles.userBox_data}>
+                <p className={styles.userBox_dataP1}>{u.username}</p>
               </div>
             </li>
           );

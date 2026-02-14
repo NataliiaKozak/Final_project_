@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '../../redux/store';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { getAllPublicPosts } from '../../redux/slices/postsSlice';
 // import PostModal from '../../components/posts/postModal/PostModal'; //вместо pages/explorePage/ExplorePostModal.tsx
 import styles from './ExplorePage.module.css';
@@ -10,10 +9,8 @@ import ExplorePostModal from '../../components/search/ExplorePostModal';
 import { $api } from '../../api/api';
 
 export const Explore: FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { explore, loading, error } = useSelector(
-    (state: RootState) => state.posts,
-  );
+  const dispatch = useAppDispatch();
+  const { explore } = useAppSelector((s) => s.posts);
   // Используем твой тип превью
   const [selectedPost, setSelectedPost] = useState<PostPreview | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

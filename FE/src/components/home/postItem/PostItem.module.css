@@ -10,15 +10,18 @@
   padding-bottom: 40px;
 }
 
+.imgPost {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
 .postImage {
   width: 100%;
   max-width: 404px;
   height: 503px;
-  object-fit: contain;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid gray;
-  border-top: 1px solid gray;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
 }
 
 .header {
@@ -107,7 +110,7 @@
   }
 
   .postImage {
-    max-height: 250px;
+    height: 250px;
   }
 
   .avatarContainer {
@@ -142,7 +145,7 @@
   }
   .postImage {
     width: 100%;
-    max-height: 350px;
+    height: 350px;
   }
 }
 
@@ -153,6 +156,6 @@
   }
   .postImage {
     width: 100%;
-    max-height: 280px;
+    height: 280px;
   }
 }

@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import type { AppDispatch, RootState } from '../../../redux/store';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { sendMessage, addMessage, fetchMessages } from '../../../redux/slices/messagesSlice';
 import { connectSocket, getSocket, disconnectSocket } from '../../../api/socket';
 import type { IMessage } from '../../../interfaces/message.interface';
@@ -18,9 +17,9 @@ interface MessagesRoomProps {
 }
 
 const MessagesRoom: React.FC<MessagesRoomProps> = ({ selectedRecipient }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const authUser = useSelector((s: RootState) => s.auth.user);
-  const { items, loading, error } = useSelector((s: RootState) => s.messages);
+  const dispatch = useAppDispatch();
+  const authUser = useAppSelector((s) => s.auth.user);
+  const { items, loading, error } = useAppSelector((s) => s.messages);
   const [text, setText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

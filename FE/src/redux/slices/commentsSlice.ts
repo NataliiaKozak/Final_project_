@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios';
 import { $api } from '../../api/api';
 import type { IComment } from '../../interfaces/comment.interface';
 
-type ApiError = { message?: string };
+import type { ApiError } from '../../interfaces/api.interface';
 
 interface CommentsState {
   comments: IComment[];

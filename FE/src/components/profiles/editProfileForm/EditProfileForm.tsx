@@ -1,16 +1,15 @@
 //форма редактирования профиля
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import CustomButton from '../../ui/customButton/CustomButton';
 import { setUser } from '../../../redux/slices/authSlice';
 import { $api } from '../../../api/api';
 import photoPlaceholder from '../../../assets/photo-placeholder.svg';
-import { RootState } from '../../../redux/store';
 import styles from './editProfileForm.module.css';
 
 const EditProfileForm: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
+  const user = useAppSelector((s) => s.auth.user);
+  const dispatch = useAppDispatch();
 
   const [username, setUsername] = useState(user?.username || '');
   const [website, setWebsite] = useState(user?.website || '');
