@@ -101,7 +101,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
             <img
               src={filePath || placeCreate}
               alt="Uploaded file"
-              className={styles.uploadIcon}
+              className={filePath ? styles.uploadIcon : styles.uploadIconPlaceholder}
             />
           </label>
           <input

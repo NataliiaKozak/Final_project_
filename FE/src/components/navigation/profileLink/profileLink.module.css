@@ -55,22 +55,8 @@
   }
 }
 
-@media (max-width: 568px) {
-  .profileLink_photoBox {
-    width: 33px;
-    height: 33px;
-    border: var(--border);
-    border-radius: 50%;
-    margin-right: 0;
-    overflow: hidden;
-    position: fixed;
-    right: 15px;
-    top: 10px;
-  }
-
-  .profileLink_photoBox > img {
-    object-fit: cover;
-    width: 33px;
-    height: 33px;
+@media (max-width: 567px) {
+  .profileLink {
+    display: none;
   }
 }

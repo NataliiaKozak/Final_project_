@@ -715,33 +715,9 @@ setSuccessMessage('Profile updated successfully');
 
 ### Далее остальные баги
 
-### Хронология нахождения багов и их перечень. 12.02.26
+<!-- ### Хронология нахождения багов и их перечень. 12.02.26
 
-### Баги после внесения изменений и проверки. 12.02.26 около 23.00
-
-<!-- Часть багов пофиксено. Но:
-
-1. Вкладка Home:
-   1.1. при клике на лайк к любому посту независимо от очередности, не происходит изменение сердечка на красный цвет, и нет изменения количества лайков. Но данные в БД сохранились и у пользователя, чей пост я лайкнула, а также пришло оповещение в Notification. (Скрин 70, 71)
-   1.2. Как и прежде, не отражается количество комментариев, хоть они на самом деле есть.
-2. Когда я открыла чужой пост, то есть несколько багов:
-   2.1. после того, как я лайкнула пост или комментарий – нет изменений цвета лайка и нет изменения в количестве лайков.
-   1.3. относительно комментариев: нет общего количества комментариев к посту, хоть они на самом деле есть. Только при добавлении нового комментария появляется 1, но после закрытия поста и открытия его снова, количество постов = 0. (Скрин 72, 73)
-   2.2. ниже количества постов указана дата. Вероятно, это дата оставления последнего поста. Любой даты там быть не должно.
-   2.3. Кликнув на имя в самом верху поста, нет перехода на профиль. Ниже - есть возможность перейти в профиль пользователя, оставившего комментарий (Скрин 74)
-3. Когда я захожу в Profile и выбираю любой из своих постов, то есть несколько багов (скрин 75):
-   3.1. нет моей аватарки и того, под каким именем я залогинилась,
-   3.2. нет текста к посту и всего, что отражалось раньше, комментариев с лайками;
-   3.3. иконка комментариев огромного размера,
-   3.4. дата комментария, чего не должно быть;
-   3.5. нет перехода к окну, в котором есть CRUD-операции с постом (трех точек в правом верхнем углу, нажимая на которые я могу вызвать окно с перечнем про удалить, изменить свой пост, получить линк, отменить и т.д.)
-4. поведение с вкладками Notifications, Create, Profile. Все раннее открытые вкладки закрываются, при переходе с Home на Search, Explore, Messages, но:
-   4.1. после Create нажимаю на вкладку Profile, то окно Create не закрывается, а поверх окна Profile находится окно Create. Пару раз также было после Search (Search -> Profile), после Notifications (Notifications -> Profile). Разово притормаживание открывания вкладок.
-   т.е. при нажимании слева в списке на Profile, открытые раннее на один шаг вкладки (Create, Search или Notifications) становятся поверх него.(скрин 76)
-   4.2. когда клацаю на Search, Notification, Create, то окно появляется, но сами слова «Search», «Notification», «Create» не выделяется жирным (скрин 77)
-5. не работает Messages: со своего профиля выбираю другой профиль, нажимаю на кнопку “Message”, но появляется надпись Dialоg, Select a dialogе станица не найдена (дважды текст) и выбрать диалог нельзя (скрин 78)
-6. Если пройти путь Home –> перейти в чужой пост –> в моем комментарии клацнуть на мой ник -> перейти в мой профиль, то вернуться назад в пост, где я была, клацнув на кнопку влева в браузере, я не могу
-7. В Notifications нет возможности перейти к посту, который был лайкнут или с комментарием или на профиль человека (скрин 79) -->
+### Баги после внесения изменений и проверки. 12.02.26 около 23.00 -->
 
 <!-- ### Баги после перезапуска серверов. 13.02.26 около 3.00
 
@@ -831,7 +807,7 @@ setSuccessMessage('Profile updated successfully');
    2.7. После опубликования своего поста, нужно чтобы окно закрывалось и мы переходили к перечню своих постов
 
 3. Profile:
-   3.1. На экранах больше 997, в т.ч. больше 1200, кнопку Log out поставь в одном ряду с кнопкой Edit profile. (скрин 115)  
+   3.1. На экранах больше 997, в т.ч. больше 1200, кнопку Log out поставь в одном ряду с кнопкой Edit profile. (скрин 115)
    3.2. для экранов меньше 997 - обе кнопки перенести на ряд ниже, под ник и полное имя(Скрин 117). Пусть количество фото в ряду будет не 3, а 2. С адекватным размером каждой фото, без растягиваний. Относительно фото см также пункт 9
    3.3. узнать, почему для экранов меньше 700 – контейнер с постами и контейнер с аватаром, данными о пользователе, счетчиками и кнопками начинает наезжать на боковую панель. Недопустимо.
    3.2. для экранов меньше 768 – нужно прятать слово Dark (Light), как сделано с другими вкладками (скрин 115).
@@ -850,6 +826,100 @@ setSuccessMessage('Profile updated successfully');
 
 - предусмотреть уменьшение иконки в виде галочки в Home, при уменьшении экрана
 - дать верхний отсуп от края контейнера до верхнего края первой карточки (скрин 131) -->
+
+<!-- ### шаг 2 Предложи решение ситуации:
+
+отчет в терминале:
+[baseline-browser-mapping] The data in this module is over two months old. To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+User1@DESKTOP-J0QE5FH MINGW64 /f/ИТ/ШКОЛА/FINAL*PROJECT/Final_project*/FE (main)
+$ npm i baseline-browser-mapping@latest -D
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-helmet-async@2.0.5
+npm error Found: react@19.1.1
+npm error node_modules/react
+npm error peer react@">=16.8.0" from @emotion/react@11.14.0
+npm error node_modules/@emotion/react
+npm error peer @emotion/react@"^11.0.0-rc.0" from @emotion/styled@11.14.1
+npm error node_modules/@emotion/styled
+npm error peerOptional @emotion/styled@"^11.3.0" from @mui/material@7.3.4
+npm error node_modules/@mui/material
+npm error peer @mui/material@"^7.3.4" from @mui/icons-material@7.3.4
+npm error node_modules/@mui/icons-material
+npm error 1 more (the root project)
+npm error 3 more (@mui/styled-engine, @mui/system, the root project)
+npm error peerOptional @emotion/react@"^11.5.0" from @mui/material@7.3.4
+npm error node_modules/@mui/material
+npm error peer @mui/material@"^7.3.4" from @mui/icons-material@7.3.4
+npm error node_modules/@mui/icons-material
+npm error @mui/icons-material@"^7.3.4" from the root project
+npm error 1 more (the root project)
+npm error 3 more (@mui/styled-engine, @mui/system, the root project)
+npm error peer react@">=16.8.0" from @emotion/styled@11.14.1
+npm error node_modules/@emotion/styled
+npm error peerOptional @emotion/styled@"^11.3.0" from @mui/material@7.3.4
+npm error node_modules/@mui/material
+npm error peer @mui/material@"^7.3.4" from @mui/icons-material@7.3.4
+npm error node_modules/@mui/icons-material
+npm error @mui/icons-material@"^7.3.4" from the root project
+npm error 1 more (the root project)
+npm error peerOptional @emotion/styled@"^11.3.0" from @mui/styled-engine@7.3.3
+npm error node_modules/@mui/styled-engine
+npm error @mui/styled-engine@"^7.3.3" from @mui/system@7.3.3
+npm error node_modules/@mui/system
+npm error @mui/system@"^7.3.3" from @mui/material@7.3.4
+npm error node_modules/@mui/material
+npm error 2 more (@mui/system, the root project)
+npm error 16 more (@emotion/use-insertion-effect-with-fallbacks, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^16.6.0 || ^17.0.0 || ^18.0.0" from react-helmet-async@2.0.5
+npm error node_modules/react-helmet-async
+npm error react-helmet-async@"^2.0.5" from the root project
+npm error
+npm error Conflicting peer dependency: react@18.3.1
+npm error node_modules/react
+npm error peer react@"^16.6.0 || ^17.0.0 || ^18.0.0" from react-helmet-async@2.0.5
+npm error node_modules/react-helmet-async
+npm error react-helmet-async@"^2.0.5" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\User1\AppData\Local\npm-cache_logs\2026-02-15T14_19_34_024Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\User1\AppData\Local\npm-cache_logs\2026-02-15T14_19_34_024Z-debug-0.log
+
+User1@DESKTOP-J0QE5FH MINGW64 /f/ИТ/ШКОЛА/FINAL*PROJECT/Final_project*/FE (main)
+$ -->
+
+
+
+### Баги 15.02 15.40 шаг 1
+<!-- 1. Create (скрин 132):
+   1.1. Пусть блок, который закрашен серым цветом, занимает весь размер по высоте того дива, в котором он находится - сейчас этот наполовину серый цвет выглядит негармонично (я показала стрелкой красного цвета)
+   1.2. Увеличь высоту дива с двумя колонками до низа (показала стрелкой зеленого цвета, но оставь аккуратный отступ)
+
+2. При включении темной темы – не появляется фон темного цвета, а текст, в т.ч. в кнопках, где нужно – белого цвета, и подходящий цвет кнопок. Размести слово Dark (Light) – на таком же растоянии от начал асвоег дива, как и другие надписи вкладок
+3. Profile
+   3.1. для экранов меньше 997 – ник и полное имя поставь в один ряд
+   3.2. дай отступы, где я показала красными разделителями – то.е. дай отступы без красных линий, до сих пор это не исправлено
+4. для экранов меньше 567 для всех страниц – спрячь все вкладки, которые сейчас находятся внизу, и иконку Profile, на скрине 134 отмечена красным цветом – в бургер-меню и размести ее слева от карточек (я показала тремя линиями салатового цвета). Но смотри, чтобы меню не наезжало на сетку с фото/карточкамии при уменьшении экранов.
+5. Home: предусмотреть уменьшение иконки в виде галочки в Home, при уменьшении экрана
+6. Сделай одинаковый геп между карточками/фото – во всех трех вкладках: Home, Explore, Profile
+7. Сделай размер фото в Profile для экранов больше 997, меньше 997 и еще меньше (поведение с фото) - такое же как в Explore
+8. Сделай отступ от линии слева (края дива) в Profile такое же как в Explore
+9. Сделай бордер-радиус у карточек и фото внутри карточек в Home и фото постов в Profile такие же как в Explore
+10. Уменьши отступ от нижнего края карточки до нижнего параграфа – на разных экранах – я показала стрелками, где жеоательно уменьшить так, чтобы это выглядело гармонично (скрины 135-138)
+11. Если нажать на Notifications в футере, то появивийся результат с ззаголовками ( Див с результатами оповещений) лучше разместить слева, а не по центру, предусмотрв небольшой отступ. По примеру, как это сделано с Search (скрин 139)
+12. В Create Предусмотри чтобы после загрузки фото:
+    12.1 увеличь высоту блока для ввода описания для поста, уменьшив сущесвтенно поле с смайлами и счетчиком символов) (скрин 141)
+    12.2. проверь, нет ли скрола на разных экранах и скачков фото (то больше, то меньше). В Инструментах разработчика это выглядит неркаисво, фото не на всеь размер, без отступа (скрины 142 - 145). Если без ИР на десктопе весь экран целиком без скрола (скрин 146), выглядит хорошо. И почему такая разница в представлении: с ИР и без Ир есть и нет скрола? Если есть скрол, то его убрать, дать фото целиком
+13. где должно быть видно badge - оповещение о новом сообщении в чате в реальнгом времени? Его не видно
 
 ### шаг 2
 
@@ -973,4 +1043,24 @@ Mongo text index (просто, но ограничено),
    DevOps/Deploy
    .env.example, secrets management.
    CI: lint + typecheck + tests.
-   docker-compose без реальных кредов.
+   docker-compose без реальных кредов. -->
+
+   
+   ### Баги 15.02 20.40
+   ### шаг 1
+1)	Create: Увеличь высоту дива с двумя колонками до низа (показала краснім цветом, какого нижнего края касается и стрелкой- до какого уровня), но оставь аккуратный отступ - скрин 147
+2)	Profile: от 1024 и ниже, аж до 466: поставь кнопки в один ряд, сначала Edit profile и потом  Log out. Так как ты это сделал на 773. Но от 997 и ниже сделай ширину кнопок меньше, не надо их растягивать в ширину ряда, пусть центрируются сначала ряда. Скрин 148
+3)	Profile: ты забыл про оступы между счетчиком и названием счетчика. Как у постов. 
+4)	Explore: для экрана больше 996 есть отдельные фото, которые занимают 2 ячейки. убери такие случаи, пусть будет равный размер для всех фото – скрин 149
+5)	Где должно быть оповещение о поступлении нового сообщения в чате? Этого нет.  скрин 150. 
+6)	Нет фикса бага с темной темой. Когда выбираю темную тему, фон поля не меняется на черный. баг до сих пор не решен – скрин 151
+
+### шаг 2 используй ultrathink
+1) закоментируй код, который не используется: про User.followers/User.following, а также массивы likes[] с комментариями, почему не используется
+2) про "enrichPosts делает 3 запроса на каждый пост (Like.countDocuments, Comment.countDocuments, Like.exists)" и "для продакшна нужен $lookup или денормализация" - напиши коммент в коде
+ 3) ты написал: "JWT_RESET_SECRET имеет фолбэк 'dev_reset_secret' — заменить на requireEnv()
+  - ObjectId валидация отсутствует в like, comment, message контроллерах
+  - Zod только на auth-роутах".
+   Выполни
+   4) покажи пример тестирования
+   5) обьясни важность изменений, связанных с безопасностью, архитектурой и пр.

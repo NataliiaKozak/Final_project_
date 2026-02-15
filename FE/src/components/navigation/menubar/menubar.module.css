@@ -31,7 +31,7 @@
 }
 
 .badge {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
   min-width: 18px;
@@ -43,6 +43,8 @@
   font-weight: 600;
   margin-left: 6px;
   padding: 0 4px;
+  position: relative;
+  z-index: 5;
 }
 
 .menubar a:hover {
@@ -80,7 +82,7 @@
 .themeToggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0;
   background: none;
   border: none;
   color: var(--color-text-dark);
@@ -94,7 +96,7 @@
   font-size: 20px;
   width: 20px;
   text-align: center;
-  margin-right: 16px;
+  margin-right: 12px;
 }
 
 .themeToggle:hover {
@@ -103,20 +105,105 @@
   padding: 2px;
 }
 
-@media (max-width: 568px) {
+/* Burger button — hidden by default, shown on <567px */
+.burgerBtn {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.burgerLine {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background-color: var(--text-color);
+  border-radius: 2px;
+}
+
+.burgerOverlay {
+  display: none;
+}
+
+.burgerMenu {
+  display: none;
+}
+
+@media (max-width: 567px) {
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .burgerBtn {
+    display: flex;
+  }
+
+  .burgerOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 100;
+  }
+
+  .burgerMenu {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    background-color: var(--background-color);
+    padding: 20px 16px;
+    z-index: 101;
+    border-right: 1px solid var(--color-line);
+    animation: slideIn 0.2s ease;
+  }
+
+  .burgerMenu .link,
+  .burgerMenu .activeLink {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .burgerMenu .link span,
+  .burgerMenu .activeLink span {
+    display: inline !important;
+  }
+
+  .burgerMenu .link img,
+  .burgerMenu .activeLink img {
+    margin: 0;
+  }
+
+  .burgerMenu .themeToggle {
+    margin-top: auto;
+  }
+
+  .burgerMenu .themeToggle span:last-child {
+    display: inline !important;
+  }
+
   .menubar {
     flex-direction: row;
-    position: fixed; /* Закрепляем меню внизу */
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     padding: 10px;
     background-color: var(--background-color);
     z-index: 10;
-    justify-content: center;
-    gap: 38px;
+    justify-content: space-around;
+    gap: 0;
     align-items: center;
     text-align: center;
+    border-top: 1px solid var(--color-line);
   }
 
   .link {
@@ -129,7 +216,12 @@
   .link img,
   .activeLink img {
     margin-right: 0;
-    margin-bottom: 10px;
-    margin-top: 10px;
+    margin-bottom: 4px;
+    margin-top: 4px;
   }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
 }

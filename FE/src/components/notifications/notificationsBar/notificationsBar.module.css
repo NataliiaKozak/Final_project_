@@ -1,10 +1,15 @@
+.notificationsBar {
+  padding: 20px;
+  max-width: 600px;
+}
+
 .notificationItem {
   display: flex;
   /* flex-direction: column; */
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  background: rgb(203, 201, 201);
+  background: var(--color-bg-dark-grey, #efefef);
   padding: 10px;
   border-radius: 12px;
 }

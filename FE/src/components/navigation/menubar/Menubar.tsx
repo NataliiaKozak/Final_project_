@@ -30,6 +30,7 @@ const Menubar = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [burgerOpen, setBurgerOpen] = useState(false);
 
   // Закрываем модалку при любом переходе (включая Profile)
   useEffect(() => {
@@ -112,6 +113,68 @@ const Menubar = () => {
 
   return (
     <nav className={styles.menubar}>
+      {/* Burger button — visible only on <567px */}
+      <button
+        className={styles.burgerBtn}
+        onClick={() => setBurgerOpen((p) => !p)}
+        aria-label="Menu"
+      >
+        <span className={styles.burgerLine} />
+        <span className={styles.burgerLine} />
+        <span className={styles.burgerLine} />
+      </button>
+
+      {/* Burger side menu — slides from left on <567px */}
+      {burgerOpen && (
+        <div className={styles.burgerOverlay} onClick={() => setBurgerOpen(false)}>
+          <div className={styles.burgerMenu} onClick={(e) => e.stopPropagation()}>
+            <NavLink
+              to="/notifications"
+              className={activePanel === 'notifications' ? styles.activeLink : styles.link}
+              onClick={(e) => {
+                e.preventDefault();
+                setBurgerOpen(false);
+                openModal('notifications');
+              }}
+            >
+              <img src={activePanel === 'notifications' ? notificationsIconActive : notificationsIcon} alt="Notifications" />
+              <span>Notifications</span>
+            </NavLink>
+
+            <NavLink
+              to="/create"
+              className={activePanel === 'create' ? styles.activeLink : styles.link}
+              onClick={(e) => {
+                e.preventDefault();
+                setBurgerOpen(false);
+                openModal('create');
+              }}
+            >
+              <img src={activePanel === 'create' ? createIconActive : createIcon} alt="Create" />
+              <span>Create</span>
+            </NavLink>
+
+            <NavLink
+              to="/profile"
+              className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}
+              onClick={() => setBurgerOpen(false)}
+            >
+              <span style={{ fontSize: '20px', width: '20px', textAlign: 'center' }}>&#128100;</span>
+              <span>Profile</span>
+            </NavLink>
+
+            <button
+              className={styles.themeToggle}
+              onClick={() => { dispatch(toggleTheme()); setBurgerOpen(false); }}
+              aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              <span>{themeMode === 'dark' ? '\u2600' : '\u263E'}</span>
+              <span>{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       <NavLink to="/home" className={({ isActive }) => (isActive ? styles.activeLink : styles.link)}>
         {({ isActive }) => (
           <>
@@ -158,9 +221,10 @@ const Menubar = () => {
         )}
       </NavLink>
 
+      {/* These are shown on >=567px, hidden on <567px (moved to burger) */}
       <NavLink
         to="/notifications"
-        className={activePanel === 'notifications' ? styles.activeLink : styles.link}
+        className={`${activePanel === 'notifications' ? styles.activeLink : styles.link} ${styles.desktopOnly}`}
         onClick={(e) => {
           e.preventDefault();
           openModal('notifications');
@@ -172,7 +236,7 @@ const Menubar = () => {
 
       <NavLink
         to="/create"
-        className={activePanel === 'create' ? styles.activeLink : styles.link}
+        className={`${activePanel === 'create' ? styles.activeLink : styles.link} ${styles.desktopOnly}`}
         onClick={(e) => {
           e.preventDefault();
           openModal('create');
@@ -183,7 +247,7 @@ const Menubar = () => {
       </NavLink>
 
       <button
-        className={styles.themeToggle}
+        className={`${styles.themeToggle} ${styles.desktopOnly}`}
         onClick={() => dispatch(toggleTheme())}
         aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
       >

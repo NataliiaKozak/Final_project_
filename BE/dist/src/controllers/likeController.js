@@ -69,6 +69,14 @@ export const toggleLikeComment = async (req, res) => {
             res.status(404).json({ message: 'Comment not found' });
             return;
         }
+        const commentAuthorRaw = comment.user;
+        const commentOwnerId = typeof commentAuthorRaw === 'object' && commentAuthorRaw !== null && '_id' in commentAuthorRaw
+            ? String(commentAuthorRaw._id)
+            : String(commentAuthorRaw);
+        if (commentOwnerId === userId) {
+            res.status(400).json({ message: 'You cannot like your own comment' });
+            return;
+        }
         const deleted = await Like.findOneAndDelete({ user: userId, comment: commentId });
         if (deleted) {
             await Comment.findByIdAndUpdate(commentId, { $pull: { likes: userId } });

@@ -1,7 +1,7 @@
 .postsContainer {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 4px;
   justify-items: center;
   width: 100%;
   max-width: 1200px;
@@ -12,13 +12,11 @@
 @media (max-width: 997px) {
   .postsContainer {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
   }
 }
 
 @media (max-width: 568px) {
   .postsContainer {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
 }
