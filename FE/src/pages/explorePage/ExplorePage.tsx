@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { getAllPublicPosts } from '../../redux/slices/postsSlice';
+import Seo from '../../components/ui/seo/Seo';
 // import PostModal from '../../components/posts/postModal/PostModal'; //вместо pages/explorePage/ExplorePostModal.tsx
 import styles from './ExplorePage.module.css';
 
@@ -34,6 +35,7 @@ export const Explore: FC = () => {
 
   return (
     <div className={styles.pageContainer}>
+      <Seo title="Explore" description="Discover new photos and people on ICHGRAMM." />
       <main className={styles.content}>
         <div className={styles.gallery}>
           {explore.map((item, index) => (

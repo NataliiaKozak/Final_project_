@@ -5,5 +5,7 @@ const MessageSchema = new Schema({
     text: { type: String, required: true },
 }, { timestamps: true } //  автоматически
 );
+// Compound index for fetching conversation between two users
+MessageSchema.index({ sender: 1, recipient: 1, createdAt: -1 });
 export default mongoose.model('Message', MessageSchema);
 //# sourceMappingURL=MessageModel.js.map

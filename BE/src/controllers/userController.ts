@@ -6,7 +6,7 @@ import Like from '../models/LikeModel.js';
 import Notification from '../models/NotificationModel.js';
 import Follow from '../models/FollowModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js';
-import { uploadToS3 } from '../config/s3.js';
+import { uploadImage } from '../config/storage.js';
 import { toErrorMessage } from '../utils/toErrorMessage.js';
 
 // Get user profile
@@ -84,7 +84,7 @@ export const updateProfile = async (
     if (website !== undefined) user.website = website;
 
     if (req.file) {
-      const imageUrl = await uploadToS3(req.file, 'profileImages');
+      const imageUrl = await uploadImage(req.file, 'profileImages');
       user.profileImage = imageUrl;
     }
 

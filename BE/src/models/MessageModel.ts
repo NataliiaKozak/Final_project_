@@ -16,6 +16,9 @@ const MessageSchema = new Schema<IMessage>(
   { timestamps: true } //  автоматически
 );
 
+// Compound index for fetching conversation between two users
+MessageSchema.index({ sender: 1, recipient: 1, createdAt: -1 });
+
 export default mongoose.model<IMessage>('Message', MessageSchema);
 
 

@@ -151,12 +151,14 @@ export const ResetForm = () => {
                   marginTop: '6px',
                 }}
               />
-              <span
+              <button
+                type="button"
                 className={styles.eyeIcon}
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <HiOutlineEyeOff /> : <HiOutlineEye />}
-              </span>
+              </button>
             </div>
 
             {error && <p className={styles.errorMessage}>{error}</p>}

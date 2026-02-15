@@ -73,6 +73,9 @@ const CommentContent: React.FC<CommentContentProps> = ({ postId }) => {
             <div className={styles.commentActions}>
               <span>
                 <FaHeart
+                  role="button"
+                  aria-label={isLiked ? 'Unlike comment' : 'Like comment'}
+                  tabIndex={0}
                   className={isLiked ? styles.liked : styles.unliked}
                   onClick={() => handleLikeComment(comment._id)}
                   size={14}

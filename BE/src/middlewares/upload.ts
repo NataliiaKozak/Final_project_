@@ -1,14 +1,37 @@
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
 import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
 
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+];
+
 const storage = multer.memoryStorage();
 
+const imageFileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
+  if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Invalid file type: ${file.mimetype}. Only JPEG, PNG, GIF and WebP are allowed.`));
+  }
+};
+
 /** For profile avatars — 5 MB limit */
-export const uploadAvatar = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+export const uploadAvatar = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFileFilter,
+});
 
 /** For post images — 10 MB limit */
-export const uploadPost = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+export const uploadPost = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imageFileFilter,
+});
 
 /** Optimise post image before S3 upload (resize + jpeg 80%) */
 export const processPostImage = async (

@@ -34,4 +34,7 @@ const NotificationSchema = new Schema<INotification>(
   { timestamps: true }
 );
 
+// Index for fetching user notifications sorted by date
+NotificationSchema.index({ user: 1, isRead: 1, createdAt: -1 });
+
 export default mongoose.model<INotification>("Notification", NotificationSchema);

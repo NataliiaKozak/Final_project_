@@ -11,5 +11,7 @@ const NotificationSchema = new Schema({
     comment: { type: Schema.Types.ObjectId, ref: "Comment" },
     isRead: { type: Boolean, default: false },
 }, { timestamps: true });
+// Index for fetching user notifications sorted by date
+NotificationSchema.index({ user: 1, isRead: 1, createdAt: -1 });
 export default mongoose.model("Notification", NotificationSchema);
 //# sourceMappingURL=NotificationModel.js.map

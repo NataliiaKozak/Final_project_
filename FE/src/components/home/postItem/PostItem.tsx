@@ -137,6 +137,9 @@ const PostItem: React.FC<PostItemProps> = ({
       <div className={styles.bottomBlock}>
         <div className={styles.actions}>
           <FaHeart
+            role="button"
+            aria-label={isLiked ? 'Unlike post' : 'Like post'}
+            tabIndex={0}
             style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
             onClick={(e) => {
               e.stopPropagation();
@@ -145,7 +148,7 @@ const PostItem: React.FC<PostItemProps> = ({
             size={20}
           />
           <span className={styles.likesCount}>{externalLikesCount} likes</span>
-          <FaRegComment className="text-gray-500" size={20} />
+          <FaRegComment className="text-gray-500" size={20} aria-label="Comments" />
         </div>
 
         <span>

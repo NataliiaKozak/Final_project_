@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-dotenv.config();
+import { ENV } from './env.js';
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI, {});
+        await mongoose.connect(ENV.MONGO_URI);
         console.log('MongoDB Atlas connected');
     }
     catch (error) {
-        console.error('MongoDB connection error:', error);
-        process.exit(1); // Остановка приложения при ошибке подключения
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('MongoDB connection error:', message);
+        process.exit(1);
     }
 };
 export default connectDB;

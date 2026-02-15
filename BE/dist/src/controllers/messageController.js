@@ -1,20 +1,21 @@
 import { Types } from "mongoose";
 import Message from "../models/MessageModel.js";
-// Отправить сообщение
+import { toErrorMessage } from "../utils/toErrorMessage.js";
+// Send message
 export const sendMessage = async (req, res) => {
     try {
         const currentUserId = req.user?.id;
         if (!currentUserId) {
-            res.status(401).json({ message: "Неавторизованный пользователь" });
+            res.status(401).json({ message: "Unauthorized" });
             return;
         }
         const { recipientId, text } = req.body;
         if (!recipientId || !text?.trim()) {
-            res.status(400).json({ message: "recipientId и text обязательны" });
+            res.status(400).json({ message: "recipientId and text are required" });
             return;
         }
         if (recipientId === currentUserId) {
-            res.status(400).json({ message: "Нельзя отправить сообщение самому себе" });
+            res.status(400).json({ message: "Cannot send message to yourself" });
             return;
         }
         const message = new Message({
@@ -30,17 +31,15 @@ export const sendMessage = async (req, res) => {
         res.status(201).json(populated);
     }
     catch (err) {
-        const error = err;
-        console.error("Ошибка при отправке сообщения:", error);
-        res.status(500).json({ message: "Ошибка при отправке сообщения", error: error.message });
+        res.status(500).json({ message: "Error sending message", error: toErrorMessage(err) });
     }
 };
-// Получить все диалоги текущего пользователя (список собеседников)
+// Get all conversations
 export const getAllConversations = async (req, res) => {
     try {
         const currentUserId = req.user?.id;
         if (!currentUserId) {
-            res.status(401).json({ message: "Неавторизованный пользователь" });
+            res.status(401).json({ message: "Unauthorized" });
             return;
         }
         const messages = await Message.find({
@@ -55,34 +54,40 @@ export const getAllConversations = async (req, res) => {
         res.json(messages);
     }
     catch (err) {
-        const error = err;
-        res.status(500).json({ message: "Ошибка при загрузке диалогов", error: error.message });
+        res.status(500).json({ message: "Error fetching conversations", error: toErrorMessage(err) });
     }
 };
-// Получить историю сообщений между двумя пользователями
+// Get message history between two users
 export const getMessages = async (req, res) => {
     try {
-        const { userId } = req.params; // второй участник
-        const currentUserId = req.user?.id; // текущий (из токена)
+        const { userId } = req.params;
+        const currentUserId = req.user?.id;
         if (!currentUserId) {
-            res.status(401).json({ message: "Неавторизованный пользователь" });
+            res.status(401).json({ message: "Unauthorized" });
             return;
         }
-        const messages = await Message.find({
+        const page = Math.max(1, Number(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
+        const skip = (page - 1) * limit;
+        const filter = {
             $or: [
                 { sender: currentUserId, recipient: userId },
                 { sender: userId, recipient: currentUserId },
             ],
-        })
-            .sort({ createdAt: 1 })
-            .populate("sender", "username profileImage")
-            .populate("recipient", "username profileImage");
-        res.json(messages);
+        };
+        const [messages, total] = await Promise.all([
+            Message.find(filter)
+                .sort({ createdAt: 1 })
+                .skip(skip)
+                .limit(limit)
+                .populate("sender", "username profileImage")
+                .populate("recipient", "username profileImage"),
+            Message.countDocuments(filter),
+        ]);
+        res.json({ messages, total, page, pages: Math.ceil(total / limit) });
     }
     catch (err) {
-        const error = err;
-        console.error("Ошибка при загрузке сообщений:", error);
-        res.status(500).json({ message: "Ошибка при загрузке сообщений", error: error.message });
+        res.status(500).json({ message: "Error fetching messages", error: toErrorMessage(err) });
     }
 };
 //# sourceMappingURL=messageController.js.map

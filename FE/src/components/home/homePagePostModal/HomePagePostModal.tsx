@@ -80,7 +80,7 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button className={styles.closeButton} onClick={onClose} aria-label="Close modal">
           &times;
         </button>
 
@@ -124,6 +124,9 @@ const HomePagePostModal: React.FC<ModalProps> = ({ post, onClose }) => {
                 </span>
                 <span>
                   <FaHeart
+                    role="button"
+                    aria-label={isLiked ? 'Unlike post' : 'Like post'}
+                    tabIndex={0}
                     onClick={toggleLike}
                     style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
                     size={18}

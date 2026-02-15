@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import { apiLimiter } from "./src/middlewares/rateLimiter.js";
+import { ENV } from "./src/config/env.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import postRoutes from "./src/routes/postRoutes.js";
@@ -10,18 +13,17 @@ import followRoutes from "./src/routes/followRoutes.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
 const app = express();
-// cors. Разрешить только фронту с 5173 порта
+// Security headers
+app.use(helmet());
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: ENV.CLIENT_URL,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
-app.use(express.json()); // для JSON
-app.use(express.urlencoded({ extended: true })); // для форм
-// роуты
-app.get('/api/data', (req, res) => {
-    res.json({ message: 'CORS работает!' });
-});
+app.use(apiLimiter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
@@ -31,14 +33,14 @@ app.use("/api/search", searchRoutes);
 app.use("/api/follows", followRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
-// обработчик "не найдено" (404)
+// 404 handler
 app.use((req, res) => {
-    res.status(404).json({ message: "Страница не найдена" });
+    res.status(404).json({ message: "Not found" });
 });
-// обработчик ошибок
-app.use((err, req, res, next) => {
-    console.error("Ошибка сервера:", err.message);
-    res.status(500).json({ message: "Ошибка сервера", error: err.message });
+// Global error handler
+app.use((err, _req, res, _next) => {
+    console.error("Server error:", err.message);
+    res.status(500).json({ message: "Internal server error" });
 });
 export default app;
 //# sourceMappingURL=app.js.map

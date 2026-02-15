@@ -4,7 +4,7 @@ import Post, { IPost } from '../models/PostModel.js';
 import Like from '../models/LikeModel.js';
 import Comment from '../models/CommentModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js';
-import { uploadToS3 } from '../config/s3.js';
+import { uploadImage } from '../config/storage.js';
 import { toErrorMessage } from '../utils/toErrorMessage.js';
 
 const MAX_DESCRIPTION_LENGTH = 200;
@@ -34,16 +34,26 @@ export const getAllPosts = async (
 ): Promise<void> => {
   try {
     const currentUserId = req.user?.id;
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
     const filter: Record<string, unknown> = {};
     if (req.query.excludeAuthor) {
       filter.author = { $ne: req.query.excludeAuthor };
     }
-    const posts = await Post.find(filter)
-      .populate('author', 'username profileImage fullName')
-      .sort({ createdAt: -1 })
-      .lean();
+    const [posts, total] = await Promise.all([
+      Post.find(filter)
+        .populate('author', 'username profileImage fullName')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Post.countDocuments(filter),
+    ]);
 
-    res.json(await enrichPosts(posts, currentUserId));
+    const enriched = await enrichPosts(posts, currentUserId);
+    res.json({ posts: enriched, total, page, pages: Math.ceil(total / limit) });
   } catch (err: unknown) {
     res.status(500).json({ message: 'Error fetching posts', error: toErrorMessage(err) });
   }
@@ -131,7 +141,7 @@ export const createPost = async (
       return;
     }
 
-    const imageUrl = await uploadToS3(req.file, 'posts');
+    const imageUrl = await uploadImage(req.file, 'posts');
 
     const newPost: IPost = new Post({
       author: new Types.ObjectId(req.user.id),
@@ -182,7 +192,7 @@ export const updatePost = async (
     }
 
     if (req.file) {
-      post.image = await uploadToS3(req.file, 'posts');
+      post.image = await uploadImage(req.file, 'posts');
     }
 
     await post.save();

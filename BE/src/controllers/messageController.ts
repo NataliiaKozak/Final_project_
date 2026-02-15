@@ -80,17 +80,28 @@ export const getMessages = async (req: RequestWithUser, res: Response): Promise<
       return;
     }
 
-    const messages = await Message.find({
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
+    const skip = (page - 1) * limit;
+
+    const filter = {
       $or: [
         { sender: currentUserId, recipient: userId },
         { sender: userId, recipient: currentUserId },
       ],
-    })
-      .sort({ createdAt: 1 })
-      .populate("sender", "username profileImage")
-      .populate("recipient", "username profileImage");
+    };
 
-    res.json(messages);
+    const [messages, total] = await Promise.all([
+      Message.find(filter)
+        .sort({ createdAt: 1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("sender", "username profileImage")
+        .populate("recipient", "username profileImage"),
+      Message.countDocuments(filter),
+    ]);
+
+    res.json({ messages, total, page, pages: Math.ceil(total / limit) });
   } catch (err: unknown) {
     res.status(500).json({ message: "Error fetching messages", error: toErrorMessage(err) });
   }

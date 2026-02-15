@@ -36,15 +36,20 @@ export const fetchAllConversations = createAsyncThunk<
   }
 });
 
-// GET /messages/:userId
+// GET /messages/:userId (paginated)
 export const fetchMessages = createAsyncThunk<
   IMessage[],
-  string,
+  string | { userId: string; page?: number; limit?: number },
   { rejectValue: string }
->('messages/fetch', async (userId, { rejectWithValue }) => {
+>('messages/fetch', async (arg, { rejectWithValue }) => {
   try {
-    const { data } = await $api.get<IMessage[]>(`/messages/${userId}`);
-    return data;
+    const userId = typeof arg === 'string' ? arg : arg.userId;
+    const page = typeof arg === 'object' ? (arg.page ?? 1) : 1;
+    const limit = typeof arg === 'object' ? (arg.limit ?? 50) : 50;
+    const { data } = await $api.get<{ messages: IMessage[]; total: number }>(
+      `/messages/${userId}?page=${page}&limit=${limit}`
+    );
+    return data.messages;
   } catch (err) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(

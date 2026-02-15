@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User, { IUser } from '../models/UserModel.js';
 import bcrypt from 'bcrypt';
 import { sendResetPasswordEmail } from '../utils/mailer.js';
+import logger from '../config/logger.js';
 import {
   generateToken,
   generateResetToken,
@@ -121,7 +122,7 @@ export const requestPasswordReset = async (
     const token = generateResetToken(user._id.toString());
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[DEV] reset token:', token);
+      logger.debug('[DEV] reset token:', { token });
     }
 
     await sendResetPasswordEmail(email, token);

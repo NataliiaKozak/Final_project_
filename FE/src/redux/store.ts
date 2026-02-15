@@ -10,6 +10,7 @@ import followReducer from '../redux/slices/followSlice';
 import notificationsReducer from '../redux/slices/notificationsSlice';
 import messagesReducer from '../redux/slices/messagesSlice';
 import searchReducer from '../redux/slices/searchSlice';
+import themeReducer from '../redux/slices/themeSlice';
 
 const store = configureStore({
   middleware: (getDefaultMiddleware) =>
@@ -24,6 +25,7 @@ const store = configureStore({
     notifications: notificationsReducer,
     messages: messagesReducer,
     search: searchReducer,
+    theme: themeReducer,
   },
    devTools: import.meta.env.MODE !== 'production',
 });

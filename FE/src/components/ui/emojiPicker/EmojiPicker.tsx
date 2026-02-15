@@ -41,7 +41,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
   return (
     <div className={styles.emojiDropdown}>
-      <button type="button" className={styles.emojiButton} onClick={toggleEmojiPicker}>
+      <button type="button" className={styles.emojiButton} onClick={toggleEmojiPicker} aria-label="Open emoji picker">
         😊
       </button>
       {showEmojis && (
@@ -49,6 +49,8 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
           {emojis.map((emoji, i) => (
             <span
               key={i}
+              role="button"
+              tabIndex={0}
               className={styles.emojiItem}
               onClick={() => onSelectEmoji(emoji)}
             >

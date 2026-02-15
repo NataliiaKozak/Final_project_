@@ -57,8 +57,8 @@ const OtherPostsModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts })
         </div>
 
         <div className={styles.modalContent_rightside}>
-          <button className={styles.closeButton} onClick={onClose}>
-            ✖
+          <button className={styles.closeButton} onClick={onClose} aria-label="Close modal">
+            &#10006;
           </button>
 
           <div className={styles.modalContent_rightside_caption}>
@@ -86,6 +86,9 @@ const OtherPostsModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts })
               </span>
               <span>
                 <FaHeart
+                  role="button"
+                  aria-label={isLiked ? 'Unlike post' : 'Like post'}
+                  tabIndex={0}
                   onClick={toggleLike}
                   style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
                   size={18}

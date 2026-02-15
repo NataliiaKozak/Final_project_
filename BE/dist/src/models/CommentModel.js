@@ -5,6 +5,8 @@ const CommentSchema = new Schema({
     text: { type: String, required: true },
     likes: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
 }, { timestamps: true });
+// Index for fetching comments by post
+CommentSchema.index({ post: 1, createdAt: -1 });
 CommentSchema.virtual('likesCount').get(function () {
     return (this.likes ?? []).length; //для устойчивости к undefined
 });

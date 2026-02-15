@@ -1,33 +1,43 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useAppDispatch, useAppSelector } from './redux/hooks';
 
 import Sidebar from './components/navigation/sidebar/Sidebar';
 import { Footer } from './components/footer/Footer';
 
-// Страницы
-import HomePage from './pages/homePage/HomePage';
-import Explore from './pages/explorePage/ExplorePage';
-import MessagesPage from './pages/messagesPage/MessagesPage'; 
-import CreatePostPage from './pages/createPostPage/CreatePostPage';
-import ProfilePage from './pages/profilePage/ProfilePage';
-import EditProfilePage from './pages/editProfilePage/EditProfilePage';
-import OtherProfilePage from './pages/otherProfilePage/OtherProfilePage';
-import { LoginPage } from './pages/loginPage/LoginPage';
-import { RegisterPage } from './pages/registerPage/RegisterPage';
-import { ResetPage } from './pages/resetPage/ResetPage';
-import NotFoundPage from './pages/notFoundPage/NotFoundPage';
-import SearchPage from './pages/searchPage/SearchPage';
-import NotificationsPage from './pages/notificationsPage/NotificationsPage';
+// Lazy-loaded pages (code splitting)
+const HomePage = React.lazy(() => import('./pages/homePage/HomePage'));
+const Explore = React.lazy(() => import('./pages/explorePage/ExplorePage'));
+const MessagesPage = React.lazy(() => import('./pages/messagesPage/MessagesPage'));
+const CreatePostPage = React.lazy(() => import('./pages/createPostPage/CreatePostPage'));
+const ProfilePage = React.lazy(() => import('./pages/profilePage/ProfilePage'));
+const EditProfilePage = React.lazy(() => import('./pages/editProfilePage/EditProfilePage'));
+const OtherProfilePage = React.lazy(() => import('./pages/otherProfilePage/OtherProfilePage'));
+const SearchPage = React.lazy(() => import('./pages/searchPage/SearchPage'));
+const NotificationsPage = React.lazy(() => import('./pages/notificationsPage/NotificationsPage'));
+const NotFoundPage = React.lazy(() => import('./pages/notFoundPage/NotFoundPage'));
+
+// Auth pages (small, can be eager or lazy — lazy for consistency)
+const LoginPage = React.lazy(() => import('./pages/loginPage/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = React.lazy(() => import('./pages/registerPage/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const ResetPage = React.lazy(() => import('./pages/resetPage/ResetPage').then(m => ({ default: m.ResetPage })));
 
 import PrivateUsers from './utils/privateUsers';
 
 // Redux
 import { setUser } from './redux/slices/authSlice';
 import { getFollowersMe, getFollowingMe } from './redux/slices/followSlice';
+import { setTheme } from './redux/slices/themeSlice';
 
 import './global.css';
+
+const PageLoader: React.FC = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+    <p>Loading...</p>
+  </div>
+);
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -48,8 +58,33 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
+  const themeMode = useAppSelector((s) => s.theme.mode);
 
-  // 1) Инициализация auth из localStorage (без any)
+  // 0) Apply theme class to root element
+  useEffect(() => {
+    const root = document.documentElement;
+    let resolved: 'light' | 'dark' = 'light';
+    if (themeMode === 'system') {
+      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } else {
+      resolved = themeMode;
+    }
+    root.classList.remove('light', 'dark');
+    root.classList.add(resolved);
+
+    // Listen for system theme changes when mode is 'system'
+    if (themeMode === 'system') {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (e: MediaQueryListEvent) => {
+        root.classList.remove('light', 'dark');
+        root.classList.add(e.matches ? 'dark' : 'light');
+      };
+      mql.addEventListener('change', handler);
+      return () => mql.removeEventListener('change', handler);
+    }
+  }, [themeMode]);
+
+  // 1) Инициализация auth из localStorage
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userRaw = localStorage.getItem('user');
@@ -59,7 +94,6 @@ const App: React.FC = () => {
         const parsed = JSON.parse(userRaw);
         dispatch(setUser({ token, user: parsed }));
       } catch {
-        // если в LS лежит битый JSON — очищаем
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
@@ -75,9 +109,11 @@ const App: React.FC = () => {
   }, [dispatch, user?._id]);
 
   return (
+    <HelmetProvider>
     <ErrorBoundary>
     <div className="globalContainer">
       <Router>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Публичные маршруты */}
           <Route path="/" element={<LoginPage />} />
@@ -114,7 +150,6 @@ const App: React.FC = () => {
               path="/create"
               element={
                 <Layout>
-                  {/* На странице модалки нет — ImageForm внутри страницы самоуправляется */}
                   <CreatePostPage />
                 </Layout>
               }
@@ -170,11 +205,12 @@ const App: React.FC = () => {
             />
           </Route>
         </Routes>
+        </Suspense>
       </Router>
     </div>
     </ErrorBoundary>
+    </HelmetProvider>
   );
 };
 
 export default App;
-

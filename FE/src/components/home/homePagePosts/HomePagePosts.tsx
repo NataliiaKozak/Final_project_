@@ -21,9 +21,9 @@ const HomePagePosts: React.FC = () => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      const { data } = await $api.get<IPost[]>('/posts');
+      const { data } = await $api.get<{ posts: IPost[] }>('/posts');
 
-      const filtered = data.filter((p) => {
+      const filtered = data.posts.filter((p) => {
         const { id: authorId } = getAuthorInfo(p.author);
         return authorId !== myId;
       });

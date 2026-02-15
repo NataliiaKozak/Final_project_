@@ -19,15 +19,19 @@ const initialState: NotificationsState = {
 
 /* ===================== THUNKS (роуты бэка) ===================== */
 
-// GET /notifications
+// GET /notifications (paginated)
 export const fetchNotifications = createAsyncThunk<
   Notification[],
-  void,
+  { page?: number; limit?: number } | void,
   { rejectValue: string }
->('notifications/fetchNotifications', async (_: void, { rejectWithValue }) => {
+>('notifications/fetchNotifications', async (params, { rejectWithValue }) => {
   try {
-    const { data } = await $api.get<Notification[]>('/notifications');
-    return data;
+    const page = (params && 'page' in params) ? params.page : 1;
+    const limit = (params && 'limit' in params) ? params.limit : 20;
+    const { data } = await $api.get<{ notifications: Notification[]; total: number }>(
+      `/notifications?page=${page}&limit=${limit}`
+    );
+    return data.notifications;
   } catch (err: unknown) {
     if (isAxiosError<ApiError>(err)) {
       return rejectWithValue(

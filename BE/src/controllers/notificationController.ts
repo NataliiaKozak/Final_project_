@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import Notification from '../models/NotificationModel.js';
 import { RequestWithUser } from '../middlewares/authMiddleware.js';
 import { toErrorMessage } from '../utils/toErrorMessage.js';
+import logger from '../config/logger.js';
 
 type NotificationType = 'liked_post' | 'liked_comment' | 'commented_post' | 'followed_user';
 
@@ -33,7 +34,7 @@ export const createNotification = async (
 
     await notificationDoc.save();
   } catch (err: unknown) {
-    console.error('Error creating notification:', toErrorMessage(err));
+    logger.error('Error creating notification:', { error: toErrorMessage(err) });
   }
 };
 
@@ -49,13 +50,22 @@ export const getNotifications = async (
       return;
     }
 
-    const notifications = await Notification.find({ user: userId })
-      .populate('sender', 'username profileImage')
-      .populate('post', 'image description')
-      .populate('comment', 'text')
-      .sort({ createdAt: -1 });
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
 
-    res.json(notifications);
+    const [notifications, total] = await Promise.all([
+      Notification.find({ user: userId })
+        .populate('sender', 'username profileImage')
+        .populate('post', 'image description')
+        .populate('comment', 'text')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Notification.countDocuments({ user: userId }),
+    ]);
+
+    res.json({ notifications, total, page, pages: Math.ceil(total / limit) });
   } catch (err: unknown) {
     res.status(500).json({ message: 'Error fetching notifications', error: toErrorMessage(err) });
   }

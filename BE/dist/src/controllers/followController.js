@@ -1,83 +1,75 @@
 import Follow from '../models/FollowModel.js';
 import { createNotification } from './notificationController.js';
 import { Types } from 'mongoose';
-/* GET followers of userId */
+import { toErrorMessage } from '../utils/toErrorMessage.js';
+// Get followers of userId
 export const getFollowers = async (req, res) => {
     try {
         const { userId } = req.params;
         if (!Types.ObjectId.isValid(userId)) {
-            res.status(400).json({ message: 'Некорректный userId' });
+            res.status(400).json({ message: 'Invalid userId' });
             return;
         }
         const followers = await Follow.find({ following: userId }).populate('follower', 'username profileImage');
-        const result = followers.map((s) => s.follower);
-        res.json(result);
+        res.json(followers.map((s) => s.follower));
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ошибка при получении подписчиков' });
+    catch (err) {
+        res.status(500).json({ message: 'Error fetching followers', error: toErrorMessage(err) });
     }
 };
-/* GET following of userId */
+// Get following of userId
 export const getFollowing = async (req, res) => {
     try {
         const { userId } = req.params;
         if (!Types.ObjectId.isValid(userId)) {
-            res.status(400).json({ message: 'Некорректный userId' });
+            res.status(400).json({ message: 'Invalid userId' });
             return;
         }
         const following = await Follow.find({ follower: userId }).populate('following', 'username profileImage');
-        const result = following.map((s) => s.following);
-        res.json(result);
+        res.json(following.map((s) => s.following));
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ошибка при получении подписок' });
+    catch (err) {
+        res.status(500).json({ message: 'Error fetching following', error: toErrorMessage(err) });
     }
 };
-/* followUser: follower (from token) -> follow userId (from params) */
+// Follow user
 export const followUser = async (req, res) => {
     try {
         const { userId } = req.params;
         const followerId = req.user?.id;
         if (!followerId) {
-            res.status(401).json({ message: 'Требуется авторизация' });
+            res.status(401).json({ message: 'Unauthorized' });
             return;
         }
         if (!Types.ObjectId.isValid(userId)) {
-            res.status(400).json({ message: 'Некорректный userId' });
+            res.status(400).json({ message: 'Invalid userId' });
             return;
         }
         if (followerId === userId) {
-            res.status(400).json({ message: 'Нельзя подписаться на самого себя' });
+            res.status(400).json({ message: 'Cannot follow yourself' });
             return;
         }
-        const existing = await Follow.findOne({
-            follower: followerId,
-            following: userId,
-        });
+        const existing = await Follow.findOne({ follower: followerId, following: userId });
         if (existing) {
-            res.status(400).json({ message: 'Вы уже подписаны' });
+            res.status(400).json({ message: 'Already following' });
             return;
         }
         const follow = new Follow({ follower: followerId, following: userId });
         await follow.save();
-        // уведомление — теперь просто передаём строки, внутри оно корректно создаст ObjectId
         await createNotification(String(userId), String(followerId), 'followed_user');
-        res.json({ message: 'Подписка успешна', follow });
+        res.json({ message: 'Followed successfully', follow });
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ошибка при подписке' });
+    catch (err) {
+        res.status(500).json({ message: 'Error following user', error: toErrorMessage(err) });
     }
 };
-/* unfollowUser */
+// Unfollow user
 export const unfollowUser = async (req, res) => {
     try {
         const { userId } = req.params;
         const followerId = req.user?.id;
         if (!followerId) {
-            res.status(401).json({ message: 'Требуется авторизация' });
+            res.status(401).json({ message: 'Unauthorized' });
             return;
         }
         const follow = await Follow.findOneAndDelete({
@@ -85,16 +77,13 @@ export const unfollowUser = async (req, res) => {
             following: userId,
         });
         if (!follow) {
-            res
-                .status(400)
-                .json({ message: 'Вы не подписаны на этого пользователя' });
+            res.status(400).json({ message: 'Not following this user' });
             return;
         }
-        res.json({ message: 'Вы успешно отписались' });
+        res.json({ message: 'Unfollowed successfully' });
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ошибка при отписке' });
+    catch (err) {
+        res.status(500).json({ message: 'Error unfollowing user', error: toErrorMessage(err) });
     }
 };
 //# sourceMappingURL=followController.js.map

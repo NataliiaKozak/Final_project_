@@ -20,9 +20,13 @@ import SearchContent from '../../search/searchContent/SearchContent';
 import CreatePostPage from '../../../pages/createPostPage/CreatePostPage';
 import NotificationsBar from '../../notifications/notificationsBar/NotificationsBar';
 import { connectSocket, getSocket, disconnectSocket } from '../../../api/socket';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { toggleTheme } from '../../../redux/slices/themeSlice';
 
 const Menubar = () => {
   const location = useLocation();
+  const dispatch = useAppDispatch();
+  const themeMode = useAppSelector((s) => s.theme.mode);
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -177,6 +181,15 @@ const Menubar = () => {
         <img src={activePanel === 'create' ? createIconActive : createIcon} alt="Create" />
         <span>Create</span>
       </NavLink>
+
+      <button
+        className={styles.themeToggle}
+        onClick={() => dispatch(toggleTheme())}
+        aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
+      >
+        <span>{themeMode === 'dark' ? '\u2600' : '\u263E'}</span>
+        <span>{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
+      </button>
 
       <CustomModal isOpen={activePanel !== null} onClose={closeModal} content={modalContent} modalSize={modalSize} />
     </nav>

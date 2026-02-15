@@ -1,11 +1,13 @@
 import React from 'react';
 import HomePagePosts from '../../components/home/homePagePosts/HomePagePosts';
+import Seo from '../../components/ui/seo/Seo';
 import styles from './HomePage.module.css';
 import allUpdates from '../../assets/allUdate.png';
 
 const HomePage: React.FC = () => {
   return (
     <div className={styles.homepagepost}>
+      <Seo title="Feed" description="See the latest posts from people you follow on ICHGRAMM." />
       <div className={styles.homepagepostWrapper}>
         <HomePagePosts />
       </div>

@@ -1,17 +1,28 @@
-# Используем Node.js 20
-FROM node:20
+# ── Development (default) ──
+FROM node:20-alpine AS dev
 
-# Рабочая директория
 WORKDIR /app
-
-# Копируем package.json и устанавливаем зависимости
 COPY package*.json ./
 RUN npm install
-
-# Код проекта монтируется через volume, COPY . . не нужен
-
-# Открываем порт Vite
-# EXPOSE 3001
 EXPOSE 5173
-# Команда запуска переопределена в docker-compose (npm run devdocker)
 CMD ["npm", "run", "devdocker"]
+
+# ── Build stage ──
+FROM node:20-alpine AS build
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# ── Production (nginx serves static files) ──
+FROM nginx:alpine AS production
+
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -qO- http://localhost/ || exit 1

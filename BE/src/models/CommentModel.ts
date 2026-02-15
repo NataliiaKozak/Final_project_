@@ -21,6 +21,9 @@ const CommentSchema = new Schema<IComment>(
   { timestamps: true }
 );
 
+// Index for fetching comments by post
+CommentSchema.index({ post: 1, createdAt: -1 });
+
 CommentSchema.virtual('likesCount').get(function (this: IComment) {
   return (this.likes ?? []).length; //для устойчивости к undefined
 });

@@ -1,0 +1,38 @@
+version: '3.9'
+
+name: ichgramm-prod
+
+services:
+  backend:
+    build:
+      context: ./BE
+      dockerfile: Dockerfile
+      target: production
+    container_name: ichgramm-BE-prod
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./BE/.env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./FE
+      dockerfile: Dockerfile
+      target: production
+    container_name: ichgramm-FE-prod
+    ports:
+      - '80:80'
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge

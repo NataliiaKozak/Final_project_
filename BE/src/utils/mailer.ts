@@ -1,5 +1,6 @@
 import * as nodemailer from "nodemailer";
 import { ENV } from "../config/env.js";
+import logger from "../config/logger.js";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -21,9 +22,9 @@ export const sendResetPasswordEmail = async (to: string, token: string): Promise
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.response);
+    logger.info("Email sent:", { response: info.response });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error("Email send error:", msg);
+    logger.error("Email send error:", { error: msg });
   }
 };

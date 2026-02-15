@@ -7,15 +7,14 @@ services: # Раздел, где описываются все контейне�
     build: # Указываем, как собрать образ для backend.
       context: ./BE # Путь к папке, где находится код backend и Dockerfile.
       dockerfile: Dockerfile # Имя Dockerfile, который будет использоваться для сборки.
+      target: dev # Используем dev-стадию для разработки.
     container_name: ichgramm-BE # Явное имя контейнера (будет отображаться в docker ps).
     ports:
       - '3000:3000' # Пробрасываем порт 5000 наружу: <хост>:<контейнер>.
     # depends_on:
     #   - mongo                               # Гарантируем, что контейнер Mongo запустится до backend.
-    environment: # Передаём переменные окружения внутрь контейнера.
-      - MONGO_URI=mongodb+srv://kozaksvet_db_user:6tpo9AxHTi0NymEI@cluster0.u76opgz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-      # Адрес для подключения к MongoDB по имени сервиса "mongo".
-      - PORT=3000 # Порт, на котором Express-сервер будет слушать запросы.
+    env_file:
+      - ./BE/.env # Load all environment variables from .env file (never hardcode secrets)
     volumes: # Монтируем папки для разработки без пересборки.
       - ./BE:/app # Локальная папка ./server → внутренняя /app (код проекта).
       - /app/node_modules # Исключаем node_modules из синхронизации (чтобы не затирать).
@@ -28,6 +27,7 @@ services: # Раздел, где описываются все контейне�
     build: # Аналогично, собираем образ для фронтенда.
       context: ./FE # Путь к исходникам фронта.
       dockerfile: Dockerfile # Dockerfile, по которому будет собираться образ фронта.
+      target: dev # Используем dev-стадию для разработки.
     container_name: ichgramm-FE # Имя контейнера (для удобства в CLI).
     ports:
       - '5173:5173' # Пробрасываем порт 5173 наружу для доступа с браузера.

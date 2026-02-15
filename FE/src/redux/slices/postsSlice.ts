@@ -21,12 +21,20 @@ const initialState: PostsState = {
   error: null,
 };
 
-// GET /posts → лента
-export const getAllPosts = createAsyncThunk<IPost[], void, { rejectValue: string }>(
+// GET /posts → лента (paginated)
+export const getAllPosts = createAsyncThunk<
+  { posts: IPost[]; total: number; page: number; pages: number },
+  { page?: number; limit?: number } | void,
+  { rejectValue: string }
+>(
   'allPosts',
-  async (_: void, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      const { data } = await $api.get<IPost[]>('/posts');
+      const page = (params && 'page' in params) ? params.page : 1;
+      const limit = (params && 'limit' in params) ? params.limit : 20;
+      const { data } = await $api.get<{ posts: IPost[]; total: number; page: number; pages: number }>(
+        `/posts?page=${page}&limit=${limit}`
+      );
       return data;
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {
@@ -126,7 +134,7 @@ const postsSlice = createSlice({
         state.loading = true; state.error = null;
       })
       .addCase(getAllPosts.fulfilled, (state, action) => {
-        state.loading = false; state.posts = action.payload;
+        state.loading = false; state.posts = action.payload.posts;
       })
       .addCase(getAllPosts.rejected, (state, action) => {
         state.loading = false; state.error = action.payload ?? 'Error loading posts';

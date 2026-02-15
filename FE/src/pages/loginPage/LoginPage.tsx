@@ -1,5 +1,6 @@
 import styles from './loginPage.module.css';
 import { LoginForm } from '../../components/auth/loginForm/LoginForm';
+import Seo from '../../components/ui/seo/Seo';
 
 import phoneFrame from '../../assets/loginScreen/phone.png';
 import screen1 from '../../assets/loginScreen/screenshot1.png';
@@ -7,6 +8,7 @@ import screen1 from '../../assets/loginScreen/screenshot1.png';
 export const LoginPage = () => {
   return (
     <div className={styles.loginPage}>
+      <Seo title="Log in" description="Log in to ICHGRAMM to share photos and connect with friends." />
       <div className={styles.phoneContainer}>
         <img src={phoneFrame} alt="phone frame" className={styles.phoneFrame} />
         <div className={styles.screen}>

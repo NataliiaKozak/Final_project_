@@ -69,14 +69,57 @@ html {
 }
 
 body,
-.app.light {
+html.light {
   --background-color: #ffffff;
   --text-color: #000000;
+  --color-main: #ffffff;
+  --color-bg-dark-grey: #efefef;
+  --color-bg-light-grey: #fafafa;
+  --color-text-dark: #000000;
+  --color-text-grey: #737373;
+  --color-line: #dbdbdb;
+  --color-button-grey: #efefef;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --input-bg: #fafafa;
+  --input-border: #dbdbdb;
 }
 
-.app.dark {
+html.dark {
   --background-color: #000000;
   --text-color: #ffffff;
+  --color-main: #000000;
+  --color-bg-dark-grey: #1a1a1a;
+  --color-bg-light-grey: #121212;
+  --color-text-dark: #f5f5f5;
+  --color-text-grey: #a8a8a8;
+  --color-line: #363636;
+  --color-button-grey: #363636;
+  --sidebar-bg: #000000;
+  --card-bg: #1a1a1a;
+  --modal-bg: #262626;
+  --input-bg: #121212;
+  --input-border: #363636;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light):not(.dark) {
+    --background-color: #000000;
+    --text-color: #ffffff;
+    --color-main: #000000;
+    --color-bg-dark-grey: #1a1a1a;
+    --color-bg-light-grey: #121212;
+    --color-text-dark: #f5f5f5;
+    --color-text-grey: #a8a8a8;
+    --color-line: #363636;
+    --color-button-grey: #363636;
+    --sidebar-bg: #000000;
+    --card-bg: #1a1a1a;
+    --modal-bg: #262626;
+    --input-bg: #121212;
+    --input-border: #363636;
+  }
 }
 
 h1,
@@ -230,15 +273,10 @@ html,
 }
 
 body {
-  /**
-      Пригодится в большинстве ситуаций
-      (когда, например, нужно будет "прижать" футер к низу сайта)
-     */
   min-height: 100%;
-  /**
-      Унифицированный интерлиньяж
-     */
   line-height: 1.5;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 /**
@@ -263,4 +301,15 @@ svg * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Accessible focus indicator for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-text-blue);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
 }

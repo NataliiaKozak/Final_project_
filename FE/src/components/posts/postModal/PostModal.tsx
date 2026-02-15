@@ -123,7 +123,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
             </div>
 
             {isMyPost && (
-              <button className={styles.moreOptionsButton} onClick={toggleActionMenu}>
+              <button className={styles.moreOptionsButton} onClick={toggleActionMenu} aria-label="Post options">
                 <FaEllipsisV />
               </button>
             )}
@@ -219,6 +219,9 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               </span>
               <span>
                 <FaHeart
+                  role="button"
+                  aria-label={isLiked ? 'Unlike post' : 'Like post'}
+                  tabIndex={0}
                   onClick={toggleLike}
                   style={{ cursor: 'pointer', color: isLiked ? 'red' : '#ccc', transition: 'color 0.2s' }}
                   size={18}

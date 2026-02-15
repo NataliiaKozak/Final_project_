@@ -98,9 +98,9 @@ export const LoginForm = () => {
             showError={showPasswordError}
             errorMessage={passwordErrorMessage}
           />
-          <span className={styles.eyeIcon} onClick={() => setShowPassword(!showPassword)}>
+          <button type="button" className={styles.eyeIcon} onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
             {showPassword ? <HiOutlineEyeOff /> : <HiOutlineEye />}
-          </span>
+          </button>
         </div>
         <CustomButton text="Log in" type="submit" style={{ width: '268px', height: '32px' }} disabled={isSubmitting} />
         {authError && <div className={styles.errorMessage}>{authError}</div>}

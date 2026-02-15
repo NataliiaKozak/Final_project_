@@ -4,6 +4,7 @@ import app from './app.js';
 import connectDB from './src/config/db.js';
 import { verifySocketToken } from './src/config/jwt.js';
 import { ENV } from './src/config/env.js';
+import logger from './src/config/logger.js';
 import Message from './src/models/MessageModel.js';
 
 // ---- Socket.IO typed events ----
@@ -47,7 +48,7 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.data.userId);
+  logger.info(`User connected: ${socket.data.userId}`);
 
   socket.on('joinRoom', ({ targetUserId }) => {
     const userId = socket.data.userId;
@@ -75,24 +76,24 @@ io.on('connection', (socket) => {
       io.to(roomId).emit('receiveMessage', populated);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      console.error('Message send error:', msg);
+      logger.error('Message send error:', { error: msg });
       socket.emit('error', { message: 'Failed to send message' });
     }
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.data.userId);
+    logger.info(`User disconnected: ${socket.data.userId}`);
   });
 });
 
 connectDB()
   .then(() => {
     server.listen(ENV.PORT, () => {
-      console.log(`Server running on http://localhost:${ENV.PORT}`);
+      logger.info(`Server running on http://localhost:${ENV.PORT}`);
     });
   })
   .catch((err: unknown) => {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error('DB connection failed:', msg);
+    logger.error('DB connection failed:', { error: msg });
     process.exit(1);
   });

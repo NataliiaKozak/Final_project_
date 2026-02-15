@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /messages
+Disallow: /profile/edit
+Sitemap: https://ichgramm.com/sitemap.xml
