@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import { apiLimiter } from "./src/middlewares/rateLimiter.js";
 import { ENV } from "./src/config/env.js";
+import logger from "./src/config/logger.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import postRoutes from "./src/routes/postRoutes.js";
@@ -20,9 +22,16 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
+// HTTP request logging
+const morganStream = { write: (msg) => logger.info(msg.trim()) };
+app.use(morgan('short', { stream: morganStream }));
 app.use(apiLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Health check
+app.get("/health", (_req, res) => {
+    res.json({ status: "ok", uptime: process.uptime() });
+});
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -39,7 +48,7 @@ app.use((req, res) => {
 });
 // Global error handler
 app.use((err, _req, res, _next) => {
-    console.error("Server error:", err.message);
+    logger.error("Server error:", { message: err.message, stack: err.stack });
     res.status(500).json({ message: "Internal server error" });
 });
 export default app;

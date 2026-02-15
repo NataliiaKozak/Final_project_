@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
-  padding: 40px;
+  padding: 20px 0;
   width: 100%;
   margin: 0 auto;
 }
@@ -13,23 +13,21 @@
   object-fit: cover;
   object-position: center;
   cursor: pointer;
+  border-radius: 4px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 997px) {
   .postList {
-    padding: 25px 16px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 568px) {
+  .postList {
+    grid-template-columns: 1fr;
   }
   .postList > img {
-    height: 200px;
+    aspect-ratio: auto;
+    max-height: 400px;
   }
-}
-
-@media (max-width: 765px) {
-  .postList {
-    padding: 10px;
-  }
-}
-
-.postList > img {
-  border-radius: 8px;
 }

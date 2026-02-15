@@ -1,6 +1,24 @@
 .postsContainer {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
+  justify-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 20px;
+}
+
+@media (max-width: 997px) {
+  .postsContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 568px) {
+  .postsContainer {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }

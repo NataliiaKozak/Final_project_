@@ -22,7 +22,7 @@
   left: 0;
   width: 300px;
   height: 150px;
-  background-color: #fff;
+  background-color: var(--modal-bg, #fff);
   border: 1px solid #ddd;
   border-radius: 8px;
   display: flex;

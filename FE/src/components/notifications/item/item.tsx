@@ -59,7 +59,7 @@ const NotificationItem: FC<Notification> = ({
   return (
     <li
       className={styles.notificationItem}
-      style={{ background: read ? '#FFF' : '#f3f3f3' }}
+      style={{ background: read ? 'var(--card-bg)' : 'var(--color-bg-dark-grey)' }}
     >
       <div
         className={styles.userAvatar_box}

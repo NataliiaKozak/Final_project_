@@ -143,7 +143,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               >
                 Edit
               </button>
-              <button className={styles.actionButton} onClick={() => { navigate(`/post/${post._id}`); setShowActionMenu(false); }}>
+              <button className={styles.actionButton} onClick={() => { onClose(); navigate(`/profile/${authorId}`); }}>
                 Go to post
               </button>
               <button
@@ -155,7 +155,7 @@ const PostModal: React.FC<ModalProps> = ({ post, onClose, onUpdatePosts }) => {
               >
                 Copy link
               </button>
-              <button className={styles.actionButton} onClick={() => setShowActionMenu(false)}>
+              <button className={styles.actionButton} onClick={() => { setShowActionMenu(false); onClose(); }}>
                 Cancel
               </button>
             </div>

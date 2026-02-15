@@ -1,8 +1,10 @@
 .currentUserProfile {
   display: flex;
   padding: 30px 40px 0;
-  gap: 95px;
+  gap: 40px;
+  align-items: flex-start;
 }
+
 .btn {
   font-size: 14px;
   border: none;
@@ -15,11 +17,13 @@
   line-height: 18px;
   transition: background-color 0.3s ease;
 }
+
 .gradient_border {
   position: relative;
   min-width: 120px;
   height: 120px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .gradient_border::before {
@@ -39,7 +43,7 @@
   width: 100%;
   height: 100%;
   padding: 4px;
-  background-color: #f0f0f0;
+  background-color: var(--color-bg-dark-grey, #f0f0f0);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -56,7 +60,8 @@
 .currentUserProfile_rightside {
   display: flex;
   flex-direction: column;
-  width: 435px;
+  flex: 1;
+  min-width: 0;
 }
 
 .currentUserProfile_rightside_btnBox {
@@ -75,7 +80,7 @@
 
 .currentUserProfile_statistic {
   display: flex;
-  justify-content: space-between;
+  gap: 24px;
   padding: 20px 0;
   font-size: 16px;
   line-height: 18px;
@@ -98,102 +103,85 @@
   cursor: pointer;
 }
 
+/* >=998: buttons in one row with username */
 @media (max-width: 1200px) {
   .currentUserProfile {
     padding: 30px 25px 0;
-    gap: 40px;
+    gap: 30px;
   }
-
-  .currentUserProfile_rightside {
-    width: 400px;
+  .gradient_border {
+    min-width: 100px;
+    height: 100px;
   }
-
-  .currentUserProfile_rightside_btnBox {
-    gap: 15px;
+  .gradient_border_inner > img {
+    width: 100px;
+    height: 100px;
   }
-
   .currentUserProfile_statistic {
     font-size: 15px;
-  }
-
-  .gradient_border {
-    min-width: 140px;
-    height: 140px;
-  }
-
-  .gradient_border_inner > img {
-    width: 130px;
-    height: 130px;
-  }
-
-  .currentUserProfile_statisticBio {
-    width: 100%;
-  }
-
-  .currentUserProfile_statisticCount {
-    font-size: 15px;
-  }
-
-  .webLink {
-    font-size: 13px;
   }
 }
 
-@media (max-width: 992px) {
+/* <997: buttons below username, 2 photo columns */
+@media (max-width: 997px) {
   .currentUserProfile {
     flex-direction: row;
-    align-items: flex-start;
-    gap: 24px;
+    gap: 20px;
     padding: 20px 16px 0;
   }
-
-  .currentUserProfile_rightside {
-    width: auto;
-    flex: 1;
-    text-align: left;
-  }
-
-  .currentUserProfile_rightside_btnBox {
-    gap: 10px;
-    flex-wrap: nowrap;
-  }
-
-  .currentUserProfile_statistic {
-    font-size: 14px;
-    justify-content: flex-start;
-    gap: 16px;
-  }
-
   .gradient_border {
     min-width: 80px;
     height: 80px;
   }
-
   .gradient_border_inner > img {
     width: 76px;
     height: 76px;
   }
-
-  .webLink {
-    font-size: 13px;
+  .currentUserProfile_rightside_btnBox {
+    flex-wrap: wrap;
+    gap: 10px;
   }
-
-  .currentUserProfile_statisticBio {
-    font-size: 14px;
+  .currentUserProfile_rightside_btnBox p {
     width: 100%;
   }
-
-  .currentUserProfile_statisticCount {
+  .currentUserProfile_statistic {
     font-size: 14px;
+    gap: 16px;
+  }
+}
+
+/* <700: prevent sidebar overlap */
+@media (max-width: 700px) {
+  .currentUserProfile {
+    padding: 16px 12px 0;
+    gap: 16px;
+  }
+  .gradient_border {
+    min-width: 64px;
+    height: 64px;
+  }
+  .gradient_border_inner > img {
+    width: 60px;
+    height: 60px;
+  }
+  .currentUserProfile_statistic {
+    font-size: 13px;
+    gap: 12px;
+  }
+  .currentUserProfile_statisticBio {
+    font-size: 13px;
+  }
+  .btn {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 567px) {
   .btn {
-    max-width: 90px;
+    max-width: none;
     font-size: 12px;
   }
   .currentUserProfile_rightside_btnBox {
-    gap: 10px;
+    gap: 8px;
   }
 }

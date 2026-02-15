@@ -14,7 +14,7 @@
 
 .modalContent {
   display: flex;
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -200,7 +200,7 @@ span > .commentIcon,
 
 .commentButton {
   background: transparent;
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   color: #0095f6;
   border: none;
   padding: 10px 15px;
@@ -262,7 +262,7 @@ span > .commentIcon,
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   border-radius: 8px;
   overflow-x: auto;
   padding: 5px;

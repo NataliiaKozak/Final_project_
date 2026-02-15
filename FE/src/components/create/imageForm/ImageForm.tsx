@@ -1,4 +1,5 @@
 import { useState, FormEvent, ChangeEvent, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../../redux/hooks';
 import styles from './ImageForm.module.css';
 import { $api } from '../../../api/api';
@@ -6,13 +7,14 @@ import profilePlaceholder from '../../../assets/profile-placeholder.svg';
 import placeCreate from '../../../assets/place-create.svg';
 import EmojiPicker from '../../ui/emojiPicker/EmojiPicker';
 
-const CLOSE_DELAY_MS = 3000;
+const MAX_CHARS = 150;
 
 interface ImageFormProps {
   closeModal: () => void;
 }
 
 export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState('');
   const [text, setText] = useState('');
@@ -67,7 +69,10 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
       setFile(null);
       setFilePath('');
       setIsUploading(false);
-      setTimeout(() => closeModal(), CLOSE_DELAY_MS);
+      setTimeout(() => {
+        closeModal();
+        navigate('/profile');
+      }, 1500);
     } catch (err: unknown) {
       if (err instanceof Error) console.error('Upload error:', err.message);
       setUploadStatus('Upload failed.');
@@ -125,16 +130,24 @@ export const ImageForm: React.FC<ImageFormProps> = ({ closeModal }) => {
           <textarea
             placeholder="Describe your post"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= MAX_CHARS) setText(e.target.value);
+            }}
+            maxLength={MAX_CHARS}
             rows={4}
             className={styles.textArea}
           />
 
-          <EmojiPicker
-            onSelectEmoji={(emoji) => setText((prev) => prev + emoji)}
-            count={50}
-            autoCloseMs={9000}
-          />
+          <div className={styles.divider} />
+
+          <div className={styles.emojiRow}>
+              <EmojiPicker
+              onSelectEmoji={(emoji) => setText((prev) => (prev + emoji).slice(0, MAX_CHARS))}
+              count={50}
+              autoCloseMs={9000}
+            />
+            <span className={styles.charCounter}>{text.length}/{MAX_CHARS}</span>
+          </div>
         </div>
       </div>
     </form>

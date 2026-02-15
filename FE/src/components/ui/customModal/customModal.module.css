@@ -12,7 +12,8 @@
 }
 
 .Modal {
-  background: white;
+  background: var(--modal-bg, #fff);
+  color: var(--text-color, #000);
   border-radius: 8px;
   padding: 20px;
   position: relative;
@@ -26,7 +27,8 @@
   height: 100vh;
   top: 0;
   left: 265px;
-  background: white;
+  background: var(--modal-bg, #fff);
+  color: var(--text-color, #000);
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   overflow-y: auto;

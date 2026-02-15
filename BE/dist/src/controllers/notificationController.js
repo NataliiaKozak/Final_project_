@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import Notification from '../models/NotificationModel.js';
 import { toErrorMessage } from '../utils/toErrorMessage.js';
+import logger from '../config/logger.js';
 // Create notification
 export const createNotification = async (userId, senderId, type, postId, commentId) => {
     try {
@@ -19,7 +20,7 @@ export const createNotification = async (userId, senderId, type, postId, comment
         await notificationDoc.save();
     }
     catch (err) {
-        console.error('Error creating notification:', toErrorMessage(err));
+        logger.error('Error creating notification:', { error: toErrorMessage(err) });
     }
 };
 // Get user notifications

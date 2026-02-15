@@ -1,5 +1,6 @@
 import User from '../models/UserModel.js';
 import { sendResetPasswordEmail } from '../utils/mailer.js';
+import logger from '../config/logger.js';
 import { generateToken, generateResetToken, verifyResetToken, } from '../config/jwt.js';
 import { toErrorMessage } from '../utils/toErrorMessage.js';
 const MIN_PASSWORD_LENGTH = 6;
@@ -87,7 +88,7 @@ export const requestPasswordReset = async (req, res) => {
         }
         const token = generateResetToken(user._id.toString());
         if (process.env.NODE_ENV !== 'production') {
-            console.log('[DEV] reset token:', token);
+            logger.debug('[DEV] reset token:', { token });
         }
         await sendResetPasswordEmail(email, token);
         if (process.env.NODE_ENV !== 'production') {

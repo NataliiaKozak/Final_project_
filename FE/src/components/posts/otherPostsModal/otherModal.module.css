@@ -13,7 +13,7 @@
 
 .modalContent {
   display: flex;
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -219,7 +219,7 @@
 
 .commentButton {
   background: transparent;
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   color: #0095f6;
   border: none;
   padding: 10px 15px;
@@ -282,7 +282,7 @@
   flex-wrap: wrap; /* разбиваем элементы на строки */
   justify-content: space-between;
   align-items: center;
-  background-color: white; /* фон под контейнером */
+  background-color: var(--modal-bg, #fff); /* фон под контейнером */
   border-radius: 8px; /* слегка скруглённые края */
   overflow-x: auto; /* добавляем прокрутку, если смайликов слишком много */
   padding: 5px;
@@ -312,7 +312,7 @@
   background: transparent;
 }
 .moreOptionsButton {
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   border: none;
   font-size: 12px;
   align-items: flex-end;
@@ -327,7 +327,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   z-index: 1500;
@@ -374,7 +374,7 @@
 }
 
 .editModalContent {
-  background: #fff;
+  background: var(--modal-bg, #fff);
   padding: 20px;
   border-radius: 10px;
   width: 90%;
@@ -436,14 +436,14 @@
   top: 3%;
   left: 30%;
   color: red;
-  background-color: #ffffff;
+  background-color: var(--modal-bg, #fff);
   padding: 20px;
   border: 1px solid #737373;
   border-radius: 12px;
 }
 .cancelDeleteButton,
 .confirmDeleteButton {
-  background-color: white;
+  background-color: var(--modal-bg, #fff);
   border: none;
   display: flex;
   gap: 10px;

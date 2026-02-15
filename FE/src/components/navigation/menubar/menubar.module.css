@@ -52,10 +52,13 @@
 }
 
 @media (max-width: 768px) {
-  .menubar .link span {
+  .menubar .link span:not(.badge) {
     display: none;
   }
-  .menubar .activeLink span {
+  .menubar .activeLink span:not(.badge) {
+    display: none;
+  }
+  .themeToggle span:last-child {
     display: none;
   }
   .menubar a:hover {

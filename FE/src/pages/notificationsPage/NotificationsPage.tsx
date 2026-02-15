@@ -1,12 +1,8 @@
 import React from 'react';
+import NotificationsBar from '../../components/notifications/notificationsBar/NotificationsBar';
 
 const NotificationsPage: React.FC = () => {
-  return (
-    <div>
-      <h1>Notifications</h1>
-      <p>Check your latest notifications here.</p>
-    </div>
-  );
+  return <NotificationsBar />;
 };
 
 export default NotificationsPage;

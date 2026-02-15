@@ -92,6 +92,15 @@ export const toggleLikeComment = async (
       return;
     }
 
+    const commentAuthorRaw = comment.user;
+    const commentOwnerId = typeof commentAuthorRaw === 'object' && commentAuthorRaw !== null && '_id' in commentAuthorRaw
+      ? String(commentAuthorRaw._id)
+      : String(commentAuthorRaw);
+    if (commentOwnerId === userId) {
+      res.status(400).json({ message: 'You cannot like your own comment' });
+      return;
+    }
+
     const deleted = await Like.findOneAndDelete({ user: userId, comment: commentId });
 
     if (deleted) {
