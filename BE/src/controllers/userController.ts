@@ -17,10 +17,10 @@ export const getProfile = async (
   try {
     const id = req.params.id;
 
+    // followers/following arrays removed from User model — Follow model is the
+    // single source of truth. Counts come from Follow.countDocuments() below.
     const user = await User.findById(id)
-      .select('-password')
-      .populate('followers', 'username profileImage')
-      .populate('following', 'username profileImage');
+      .select('-password');
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });

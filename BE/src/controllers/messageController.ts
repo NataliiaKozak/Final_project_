@@ -20,6 +20,11 @@ export const sendMessage = async (req: RequestWithUser, res: Response): Promise<
       return;
     }
 
+    if (!Types.ObjectId.isValid(recipientId)) {
+      res.status(400).json({ message: "Invalid recipient ID" });
+      return;
+    }
+
     if (recipientId === currentUserId) {
       res.status(400).json({ message: "Cannot send message to yourself" });
       return;
@@ -77,6 +82,11 @@ export const getMessages = async (req: RequestWithUser, res: Response): Promise<
 
     if (!currentUserId) {
       res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    if (!Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ message: "Invalid user ID" });
       return;
     }
 

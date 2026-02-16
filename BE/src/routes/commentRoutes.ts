@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { addComment, deleteComment, getPostComments } from "../controllers/commentController.js";
 import { protect } from "../middlewares/authMiddleware.js";
+import { validate } from "../middlewares/validate.js";
+import { addCommentSchema } from "../validation/commonSchemas.js";
 
 const router = Router();
 
@@ -8,7 +10,7 @@ const router = Router();
 router.get("/post/:postId", getPostComments);
 
 // /api/comments/:postId → добавить комментарий
-router.post("/:postId", protect, addComment);
+router.post("/:postId", protect, validate(addCommentSchema), addComment);
 
 // /api/comments/:commentId → удалить комментарий
 router.delete("/:commentId", protect, deleteComment);

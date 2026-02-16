@@ -140,10 +140,15 @@
   }
   .currentUserProfile_rightside_btnBox {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
   .currentUserProfile_rightside_btnBox p {
     width: auto;
+  }
+  .btn {
+    width: auto !important;
+    min-width: 0;
+    padding: 6px 16px;
   }
   .currentUserProfile_statistic {
     font-size: 14px;

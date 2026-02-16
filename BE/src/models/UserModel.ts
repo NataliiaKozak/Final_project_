@@ -12,8 +12,11 @@ export interface IUser extends Document {
   profileImage?: string; 
   website?: string;
   posts?: IPost[];
-  followers: Types.ObjectId[];
-  following: Types.ObjectId[];
+  // followers/following arrays are NOT used — the Follow model (FollowModel.ts)
+  // is the single source of truth. Counts come from Follow.countDocuments().
+  // Kept commented out to avoid dual-source confusion.
+  // followers: Types.ObjectId[];
+  // following: Types.ObjectId[];
   comparePassword(candidatePassword: string): Promise<boolean>;
   followersCount?: number;
   followingCount?: number;
@@ -28,8 +31,11 @@ const UserSchema = new Schema<IUser>(
     bio: { type: String, default: '', maxlength: 150 },
     profileImage: { type: String, default: '' },
     website: { type: String, default: '' },
-    followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
-    following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+    // followers/following arrays are NOT used — the Follow model is the single
+    // source of truth for subscription relationships. These arrays were never
+    // pushed to/pulled from; counts come from Follow.countDocuments() in userController.
+    // followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+    // following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   },
   { timestamps: true }
 );
@@ -62,13 +68,14 @@ UserSchema.virtual('posts', {
   foreignField: 'author', // поле в Post
 });
 
-UserSchema.virtual('followersCount').get(function (this: IUser) {
-  return (this.followers ?? []).length;
-});
-
-UserSchema.virtual('followingCount').get(function (this: IUser) {
-  return (this.following ?? []).length;
-});
+// Virtual followersCount/followingCount removed — counts come from
+// Follow.countDocuments() in userController, not from User arrays.
+// UserSchema.virtual('followersCount').get(function (this: IUser) {
+//   return (this.followers ?? []).length;
+// });
+// UserSchema.virtual('followingCount').get(function (this: IUser) {
+//   return (this.following ?? []).length;
+// });
 
 // чтобы virtual попадали в JSON
 UserSchema.set('toJSON', {

@@ -5,6 +5,8 @@ export interface IComment extends Document {
   user: Types.ObjectId; // Автор комментария
   post: Types.ObjectId; // К какому посту
   text: string;
+  // likes[] — dual source with Like collection. Counts use Like.countDocuments().
+  // This array is maintained via $addToSet/$pull but never read for counting.
   likes: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +18,8 @@ const CommentSchema = new Schema<IComment>(
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
     text: { type: String, required: true },
+    // likes[] — dual source with Like collection (see likeController.toggleLikeComment).
+    // Maintained via $addToSet/$pull but counts come from Like.countDocuments().
     likes: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   },
   { timestamps: true }

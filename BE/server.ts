@@ -50,6 +50,9 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
   logger.info(`User connected: ${socket.data.userId}`);
 
+  // Auto-join personal notification room so badge notifications can reach the user
+  socket.join(`user_${socket.data.userId}`);
+
   socket.on('joinRoom', ({ targetUserId }) => {
     const userId = socket.data.userId;
     const roomId = [userId, targetUserId].sort().join('_');
@@ -74,6 +77,8 @@ io.on('connection', (socket) => {
       ]);
 
       io.to(roomId).emit('receiveMessage', populated);
+      // Also notify the recipient via their personal room (for badge counter)
+      io.to(`user_${targetUserId}`).emit('receiveMessage', populated);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
       logger.error('Message send error:', { error: msg });

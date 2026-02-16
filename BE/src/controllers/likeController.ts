@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import Like from '../models/LikeModel.js';
 import Post from '../models/PostModel.js';
 import Comment from '../models/CommentModel.js';
@@ -24,6 +25,11 @@ export const toggleLike = async (
 
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    if (!Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ message: 'Invalid post ID' });
       return;
     }
 
@@ -65,6 +71,10 @@ export const getPostLikes = async (
 ): Promise<void> => {
   try {
     const { postId } = req.params;
+    if (!Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ message: 'Invalid post ID' });
+      return;
+    }
     const likes = await Like.find({ post: postId }).populate('user', 'username profileImage');
     res.json(likes);
   } catch (err: unknown) {
@@ -83,6 +93,11 @@ export const toggleLikeComment = async (
 
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    if (!Types.ObjectId.isValid(commentId)) {
+      res.status(400).json({ message: 'Invalid comment ID' });
       return;
     }
 
@@ -134,6 +149,10 @@ export const getCommentLikes = async (
 ): Promise<void> => {
   try {
     const { commentId } = req.params;
+    if (!Types.ObjectId.isValid(commentId)) {
+      res.status(400).json({ message: 'Invalid comment ID' });
+      return;
+    }
     const likes = await Like.find({ comment: commentId }).populate('user', 'username profileImage');
     res.json(likes);
   } catch (err: unknown) {

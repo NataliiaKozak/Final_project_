@@ -10,7 +10,19 @@ import { toErrorMessage } from '../utils/toErrorMessage.js';
 const MAX_DESCRIPTION_LENGTH = 200;
 const EXPLORE_SAMPLE_SIZE = 10;
 
-/** Attach likesCount, commentsCount, isLikedByMe to each post */
+/**
+ * Attach likesCount, commentsCount, isLikedByMe to each post.
+ *
+ * PERF NOTE: This makes 3 DB queries per post (Like.countDocuments,
+ * Comment.countDocuments, Like.exists). For N posts this results in 3N queries
+ * (N+1 problem). Current approach is acceptable for small datasets.
+ *
+ * For production at scale, replace with one of:
+ *  1. MongoDB $lookup aggregation — single pipeline instead of N queries.
+ *  2. Denormalization — store likesCount/commentsCount directly on the Post
+ *     document and update them atomically on like/comment toggle ($inc).
+ *  3. Caching — Redis cache for hot counters with TTL-based invalidation.
+ */
 async function enrichPosts<T extends { _id: Types.ObjectId }>(
   posts: T[],
   currentUserId?: string,

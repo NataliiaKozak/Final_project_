@@ -790,7 +790,7 @@ setSuccessMessage('Profile updated successfully');
 7. Скажи, что в моей постановке вопроса было сформулировано неудачно
    • Переформулируй мои пункты так, как их формулируют в реальных code review. -->
 
-### Баги 15.02 3.15
+<!-- ### Баги 15.02 3.15 -->
 
 <!-- ### шаг 1
 
@@ -828,78 +828,11 @@ setSuccessMessage('Profile updated successfully');
 - дать верхний отсуп от края контейнера до верхнего края первой карточки (скрин 131) -->
 
 <!-- ### шаг 2 Предложи решение ситуации:
-
 отчет в терминале:
-[baseline-browser-mapping] The data in this module is over two months old. To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
-
-User1@DESKTOP-J0QE5FH MINGW64 /f/ИТ/ШКОЛА/FINAL*PROJECT/Final_project*/FE (main)
-$ npm i baseline-browser-mapping@latest -D
-npm error code ERESOLVE
-npm error ERESOLVE could not resolve
-npm error
-npm error While resolving: react-helmet-async@2.0.5
-npm error Found: react@19.1.1
-npm error node_modules/react
-npm error peer react@">=16.8.0" from @emotion/react@11.14.0
-npm error node_modules/@emotion/react
-npm error peer @emotion/react@"^11.0.0-rc.0" from @emotion/styled@11.14.1
-npm error node_modules/@emotion/styled
-npm error peerOptional @emotion/styled@"^11.3.0" from @mui/material@7.3.4
-npm error node_modules/@mui/material
-npm error peer @mui/material@"^7.3.4" from @mui/icons-material@7.3.4
-npm error node_modules/@mui/icons-material
-npm error 1 more (the root project)
-npm error 3 more (@mui/styled-engine, @mui/system, the root project)
-npm error peerOptional @emotion/react@"^11.5.0" from @mui/material@7.3.4
-npm error node_modules/@mui/material
-npm error peer @mui/material@"^7.3.4" from @mui/icons-material@7.3.4
-npm error node_modules/@mui/icons-material
-npm error @mui/icons-material@"^7.3.4" from the root project
-npm error 1 more (the root project)
-npm error 3 more (@mui/styled-engine, @mui/system, the root project)
-npm error peer react@">=16.8.0" from @emotion/styled@11.14.1
-npm error node_modules/@emotion/styled
-npm error peerOptional @emotion/styled@"^11.3.0" from @mui/material@7.3.4
-npm error node_modules/@mui/material
-npm error peer @mui/material@"^7.3.4" from @mui/icons-material@7.3.4
-npm error node_modules/@mui/icons-material
-npm error @mui/icons-material@"^7.3.4" from the root project
-npm error 1 more (the root project)
-npm error peerOptional @emotion/styled@"^11.3.0" from @mui/styled-engine@7.3.3
-npm error node_modules/@mui/styled-engine
-npm error @mui/styled-engine@"^7.3.3" from @mui/system@7.3.3
-npm error node_modules/@mui/system
-npm error @mui/system@"^7.3.3" from @mui/material@7.3.4
-npm error node_modules/@mui/material
-npm error 2 more (@mui/system, the root project)
-npm error 16 more (@emotion/use-insertion-effect-with-fallbacks, ...)
-npm error
-npm error Could not resolve dependency:
-npm error peer react@"^16.6.0 || ^17.0.0 || ^18.0.0" from react-helmet-async@2.0.5
-npm error node_modules/react-helmet-async
-npm error react-helmet-async@"^2.0.5" from the root project
-npm error
-npm error Conflicting peer dependency: react@18.3.1
-npm error node_modules/react
-npm error peer react@"^16.6.0 || ^17.0.0 || ^18.0.0" from react-helmet-async@2.0.5
-npm error node_modules/react-helmet-async
-npm error react-helmet-async@"^2.0.5" from the root project
-npm error
-npm error Fix the upstream dependency conflict, or retry
-npm error this command with --force or --legacy-peer-deps
-npm error to accept an incorrect (and potentially broken) dependency resolution.
-npm error
-npm error
-npm error For a full report see:
-npm error C:\Users\User1\AppData\Local\npm-cache_logs\2026-02-15T14_19_34_024Z-eresolve-report.txt
-npm error A complete log of this run can be found in: C:\Users\User1\AppData\Local\npm-cache_logs\2026-02-15T14_19_34_024Z-debug-0.log
-
-User1@DESKTOP-J0QE5FH MINGW64 /f/ИТ/ШКОЛА/FINAL*PROJECT/Final_project*/FE (main)
-$ -->
-
 
 
 ### Баги 15.02 15.40 шаг 1
+
 <!-- 1. Create (скрин 132):
    1.1. Пусть блок, который закрашен серым цветом, занимает весь размер по высоте того дива, в котором он находится - сейчас этот наполовину серый цвет выглядит негармонично (я показала стрелкой красного цвета)
    1.2. Увеличь высоту дива с двумя колонками до низа (показала стрелкой зеленого цвета, но оставь аккуратный отступ)
@@ -1045,22 +978,32 @@ Mongo text index (просто, но ограничено),
    CI: lint + typecheck + tests.
    docker-compose без реальных кредов. -->
 
-   
-   ### Баги 15.02 20.40
-   ### шаг 1
-1)	Create: Увеличь высоту дива с двумя колонками до низа (показала краснім цветом, какого нижнего края касается и стрелкой- до какого уровня), но оставь аккуратный отступ - скрин 147
-2)	Profile: от 1024 и ниже, аж до 466: поставь кнопки в один ряд, сначала Edit profile и потом  Log out. Так как ты это сделал на 773. Но от 997 и ниже сделай ширину кнопок меньше, не надо их растягивать в ширину ряда, пусть центрируются сначала ряда. Скрин 148
-3)	Profile: ты забыл про оступы между счетчиком и названием счетчика. Как у постов. 
-4)	Explore: для экрана больше 996 есть отдельные фото, которые занимают 2 ячейки. убери такие случаи, пусть будет равный размер для всех фото – скрин 149
-5)	Где должно быть оповещение о поступлении нового сообщения в чате? Этого нет.  скрин 150. 
-6)	Нет фикса бага с темной темой. Когда выбираю темную тему, фон поля не меняется на черный. баг до сих пор не решен – скрин 151
+### Баги 15.02 20.40
 
-### шаг 2 используй ultrathink
-1) закоментируй код, который не используется: про User.followers/User.following, а также массивы likes[] с комментариями, почему не используется
-2) про "enrichPosts делает 3 запроса на каждый пост (Like.countDocuments, Comment.countDocuments, Like.exists)" и "для продакшна нужен $lookup или денормализация" - напиши коммент в коде
- 3) ты написал: "JWT_RESET_SECRET имеет фолбэк 'dev_reset_secret' — заменить на requireEnv()
-  - ObjectId валидация отсутствует в like, comment, message контроллерах
-  - Zod только на auth-роутах".
-   Выполни
-   4) покажи пример тестирования
-   5) обьясни важность изменений, связанных с безопасностью, архитектурой и пр.
+### шаг 1
+
+1. Create: Увеличь высоту дива с двумя колонками до низа (показала краснім цветом, какого нижнего края касается и стрелкой- до какого уровня), но оставь аккуратный отступ - скрин 147
+2. Profile: от 1024 и ниже, аж до 466: поставь кнопки в один ряд, сначала Edit profile и потом Log out. Так как ты это сделал на 773. Но от 997 и ниже сделай ширину кнопок меньше, не надо их растягивать в ширину ряда, пусть центрируются сначала ряда. Скрин 148
+3. Profile: ты забыл про оступы между счетчиком и названием счетчика. Как у постов.Скрин 148
+4. Explore: для экрана больше 996 есть отдельные фото, которые занимают 2 ячейки. убери такие случаи, пусть будет равный размер для всех фото – скрин 149
+5. Где должно быть оповещение о поступлении нового сообщения в чате? Этого нет. скрин 150.
+6. Нет фикса бага с темной темой. Когда выбираю темную тему, фон поля не меняется на черный. баг до сих пор не решен – скрин 151. Если можешь - внимательно подумай и пофикси
+7. не адаптирована иконка для меньших экранов, от 997 и меньше. скрин 152
+
+### шаг 2 
+
+1. закоментируй код, который не используется: про User.followers/User.following, а также массивы likes[] с комментариями, почему не используется
+2. про "enrichPosts делает 3 запроса на каждый пост (Like.countDocuments, Comment.countDocuments, Like.exists)" и "для продакшна нужен $lookup или денормализация" - напиши коммент в коде
+3. ты написал: "JWT_RESET_SECRET имеет фолбэк 'dev_reset_secret' — заменить на requireEnv()
+
+- ObjectId валидация отсутствует в like, comment, message контроллерах
+- Zod только на auth-роутах".
+  Выполни
+
+4.  обьясни важность изменений, связанных с безопасностью, архитектурой и пр.
+
+### шаг 3
+
+1.  покажи минимально необходимое тестирование
+2.  внеси изменения в README.md в связи со всеми существенными изменениями
+3.  пропиши инструкцию деплоя. На GitHub у меня монорепо с FE и BE

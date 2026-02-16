@@ -29,7 +29,7 @@
 }
 
 .searchContent_listImage:hover {
-  background-color: rgb(231, 231, 231);
+  background-color: var(--color-bg-dark-grey, #efefef);
 }
 
 .searchContent h5 {
@@ -100,7 +100,7 @@
   }
   .searchContent_list {
     visibility: visible;
-    background-color: #f4f4f4;
+    background-color: var(--color-bg-light-grey, #fafafa);
     position: fixed;
     top: 40px;
     width: 70%;

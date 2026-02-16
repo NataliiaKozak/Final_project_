@@ -41,12 +41,7 @@ export const Explore: FC = () => {
           {explore.map((item, index) => (
             <div
               key={item._id}
-              className={
-                (Math.floor(index / 3) % 2 === 0 && index % 3 === 4) ||
-                (Math.floor(index / 3) % 2 === 1 && index % 3 === 0)
-                  ? `${styles.postContainer} ${styles.largePost}`
-                  : styles.postContainer
-              }
+              className={styles.postContainer}
               onClick={() =>
                 handleImageClick({
                   _id: item._id,

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { sendMessage, addMessage, fetchMessages } from '../../../redux/slices/messagesSlice';
-import { connectSocket, getSocket, disconnectSocket } from '../../../api/socket';
+import { connectSocket, getSocket } from '../../../api/socket';
 import { isPopulatedUser } from '../../../utils/populatedUser';
 import type { IMessage } from '../../../interfaces/message.interface';
 import type { IUser } from '../../../interfaces/user.interface';
@@ -18,17 +18,13 @@ const MessagesRoom: React.FC<MessagesRoomProps> = ({ selectedRecipient }) => {
   const [text, setText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Подключение к сокету
+  // Подключение к сокету (socket lifecycle managed by Menubar, not here)
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     const apiBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/api\/?$/, '');
     connectSocket(apiBaseUrl, token);
-
-    return () => {
-      disconnectSocket();
-    };
   }, []);
 
   // Подключение к комнате + слушатель входящих сообщений
