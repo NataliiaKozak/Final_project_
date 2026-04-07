@@ -3,6 +3,8 @@ const CommentSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
     text: { type: String, required: true },
+    // likes[] — dual source with Like collection (see likeController.toggleLikeComment).
+    // Maintained via $addToSet/$pull but counts come from Like.countDocuments().
     likes: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
 }, { timestamps: true });
 // Index for fetching comments by post

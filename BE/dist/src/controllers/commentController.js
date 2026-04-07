@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import Comment from '../models/CommentModel.js';
 import Post from '../models/PostModel.js';
 import { createNotification } from './notificationController.js';
@@ -10,6 +11,10 @@ export const addComment = async (req, res) => {
         const userId = req.user?.id;
         if (!userId) {
             res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+        if (!Types.ObjectId.isValid(postId)) {
+            res.status(400).json({ message: 'Invalid post ID' });
             return;
         }
         if (!text) {
@@ -39,6 +44,10 @@ export const deleteComment = async (req, res) => {
     try {
         const { commentId } = req.params;
         const userId = req.user?.id;
+        if (!Types.ObjectId.isValid(commentId)) {
+            res.status(400).json({ message: 'Invalid comment ID' });
+            return;
+        }
         const comment = await Comment.findById(commentId);
         if (!comment) {
             res.status(404).json({ message: 'Comment not found' });
@@ -60,6 +69,10 @@ export const deleteComment = async (req, res) => {
 export const getPostComments = async (req, res) => {
     try {
         const { postId } = req.params;
+        if (!Types.ObjectId.isValid(postId)) {
+            res.status(400).json({ message: 'Invalid post ID' });
+            return;
+        }
         const comments = await Comment.find({ post: postId })
             .populate('user', 'username profileImage');
         res.json(comments);

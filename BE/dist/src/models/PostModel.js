@@ -3,6 +3,9 @@ const PostSchema = new Schema({
     description: { type: String, required: false },
     image: { type: String, required: true },
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    // likes[]/comments[] — dual source with Like/Comment collections.
+    // Counts use Like.countDocuments()/Comment.countDocuments() in enrichPosts().
+    // These arrays are maintained via $addToSet/$pull but never read for display.
     likes: [{ type: Schema.Types.ObjectId, ref: 'Like', default: [] }],
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment', default: [] }],
 }, { timestamps: true, id: false });

@@ -8,8 +8,11 @@ const UserSchema = new Schema({
     bio: { type: String, default: '', maxlength: 150 },
     profileImage: { type: String, default: '' },
     website: { type: String, default: '' },
-    followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
-    following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+    // followers/following arrays are NOT used — the Follow model is the single
+    // source of truth for subscription relationships. These arrays were never
+    // pushed to/pulled from; counts come from Follow.countDocuments() in userController.
+    // followers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+    // following: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
 }, { timestamps: true });
 // Хэширование пароля
 UserSchema.pre('save', async function (next) {
@@ -35,12 +38,14 @@ UserSchema.virtual('posts', {
     localField: '_id', // поле в User
     foreignField: 'author', // поле в Post
 });
-UserSchema.virtual('followersCount').get(function () {
-    return (this.followers ?? []).length;
-});
-UserSchema.virtual('followingCount').get(function () {
-    return (this.following ?? []).length;
-});
+// Virtual followersCount/followingCount removed — counts come from
+// Follow.countDocuments() in userController, not from User arrays.
+// UserSchema.virtual('followersCount').get(function (this: IUser) {
+//   return (this.followers ?? []).length;
+// });
+// UserSchema.virtual('followingCount').get(function (this: IUser) {
+//   return (this.following ?? []).length;
+// });
 // чтобы virtual попадали в JSON
 UserSchema.set('toJSON', {
     virtuals: true,

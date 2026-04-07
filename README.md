@@ -1,4 +1,4 @@
-# ICHGRAMM
+# Instagram-clone
 
 Fullstack Instagram-clone: feed, likes, comments, follows, real-time messaging, notifications, search, image upload (Cloudinary / AWS S3), dark/light theme.
 

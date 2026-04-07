@@ -14,6 +14,10 @@ export const sendMessage = async (req, res) => {
             res.status(400).json({ message: "recipientId and text are required" });
             return;
         }
+        if (!Types.ObjectId.isValid(recipientId)) {
+            res.status(400).json({ message: "Invalid recipient ID" });
+            return;
+        }
         if (recipientId === currentUserId) {
             res.status(400).json({ message: "Cannot send message to yourself" });
             return;
@@ -64,6 +68,10 @@ export const getMessages = async (req, res) => {
         const currentUserId = req.user?.id;
         if (!currentUserId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        if (!Types.ObjectId.isValid(userId)) {
+            res.status(400).json({ message: "Invalid user ID" });
             return;
         }
         const page = Math.max(1, Number(req.query.page) || 1);
