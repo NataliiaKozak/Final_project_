@@ -35,7 +35,10 @@ export const Explore: FC = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <Seo title="Explore" description="Discover new photos and people on ICHGRAMM." />
+      <Seo
+        title="Explore"
+        description="Discover new photos and people on ICHGRAMM."
+      />
       <main className={styles.content}>
         <div className={styles.gallery}>
           {explore.map((item, index) => (
